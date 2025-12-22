@@ -1,0 +1,7 @@
+node_modules
+.env
+dist/
+playwright-report/
+playwright/.cache/
+npm-debug.log*
+.vscode
