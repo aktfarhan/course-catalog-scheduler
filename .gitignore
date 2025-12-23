@@ -4,5 +4,6 @@ dist/
 playwright-report/
 playwright/.cache/
 npm-debug.log*
+data.json
 .vscode
 .DS_Store

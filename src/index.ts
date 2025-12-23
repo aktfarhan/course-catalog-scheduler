@@ -1,1 +1,7 @@
-console.log("hello world")
+import { ScrapeData } from "./services/scraper";
+
+async function main() {
+    await ScrapeData();
+}
+
+main();
