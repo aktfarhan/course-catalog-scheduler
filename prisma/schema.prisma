@@ -7,6 +7,24 @@ datasource db {
   provider = "postgresql"
 }
 
+// Enum for section types
+enum SectionType {
+  LECTURE
+  DISCUSSION
+}
+
+// Enum for different days
+enum Day {
+  M
+  Tu
+  W
+  Th
+  F
+  Sa
+  Su
+  TBA
+}
+
 // Represents an academic department, e.g., Computer Science (CS)
 model Department {
   id      Int      @id @default(autoincrement()) // Primary key
@@ -17,42 +35,65 @@ model Department {
 
 // Represents a course offered by a department, e.g., CS220
 model Course {
-  id           Int       @id @default(autoincrement()) // Primary key
-  code         String // Course code e.g., (100)
-  title        String // Course title
-  departmentId Int // Foreign key to department
-  sections     Section[] // One-to-many relation to sections
+  id               Int               @id @default(autoincrement()) // Primary key
+  code             String // Course code e.g., (100)
+  title            String // Course title
+  departmentId     Int // Foreign key to department
+  sections         Section[] // One-to-many relation to sections
+  discussionGroups DiscussionGroup[] // One-to-many relation to discussion groups
 
   department Department @relation(fields: [departmentId], references: [id])
 
   @@unique([departmentId, code])
 }
 
+// Represents discussion groups by their sections, course and term
+model DiscussionGroup {
+  id       Int    @id @default(autoincrement()) // Primary key
+  courseId Int // Foreign key to the related Course
+  term     String // The term, e.g., Fall 2025
+
+  sections Section[] @relation("DiscussionGroupSections") // One-to-many relation to discussion sections
+  course   Course    @relation(fields: [courseId], references: [id]) // Relation to course model
+
+  @@unique([courseId, term]) // Unique constraint to prevent duplicate discussion group for the same course and term
+}
+
 // Represents a section of a course, e.g., 01
 model Section {
-  id            Int       @id @default(autoincrement()) // Primary key
-  sectionNumber String // Section identifier (01)
-  classNumber   String    @unique // Unique class number
-  term          String // Semester e.g., Fall 2025
-  isAsync       Boolean   @default(false) // Indicates if has no meeting times
-  courseId      Int // Foreign key to Course
-  instructorId  Int // Foreign key to Instructor
-  meetings      Meeting[] // One-to-many relation to meetings
+  id                Int          @id @default(autoincrement()) // Primary key
+  sectionNumber     String // Section identifier (01)
+  classNumber       String // Unique class number
+  term              String // Semester e.g., Fall 2025
+  isAsync           Boolean      @default(false) // Indicates if has no meeting times
+  courseId          Int // Foreign key to Course
+  discussionGroupId Int? // Foreign key to DiscussionGroup (only for discussions)
+  type              SectionType  @default(LECTURE) // Section type (most are lectures)
+  meetings          Meeting[] // One-to-many relation to meetings
+  instructors       Instructor[] @relation("SectionInstructors")
 
-  course     Course     @relation(fields: [courseId], references: [id])
-  instructor Instructor @relation(fields: [instructorId], references: [id])
+  course          Course           @relation(fields: [courseId], references: [id])
+  discussionGroup DiscussionGroup? @relation("DiscussionGroupSections", fields: [discussionGroupId], references: [id])
+
+  @@unique([classNumber, term])
+  @@index([courseId])
+  @@index([term])
 }
 
 // Represents a scheduled meeting time for a section, e.g., MWF 10:00 - 10:50
 model Meeting {
   id        Int      @id @default(autoincrement()) // Primary key
-  day       String // Day of the week abbreviation
-  startTime DateTime // Meeting start time in 24h format
-  endTime   DateTime // Meeting end time in 24h format
+  day       Day // Day of the week abbreviation
+  startTime DateTime @db.Time() // Meeting start time in 24h format
+  endTime   DateTime @db.Time() // Meeting end time in 24h format
   location  String? // Optional location or room number
   sectionId Int // Foreign key to section
 
   section Section @relation(fields: [sectionId], references: [id])
+
+  @@unique([sectionId, day, startTime, endTime])
+  @@index([day, startTime, endTime])
+  @@index([sectionId])
 }
 
 // Represents an instructor
@@ -60,5 +101,8 @@ model Instructor {
   id        Int       @id @default(autoincrement()) // Primary key
   firstName String // Instructor's first name
   lastName  String // Instructor's last name
-  sections  Section[] // One-to-many relation to sections they teach
+  email     String?   @unique // Instructor's email
+  sections  Section[] @relation("SectionInstructors") // One-to-many relation to sections they teach
+
+  @@index([lastName])
 }

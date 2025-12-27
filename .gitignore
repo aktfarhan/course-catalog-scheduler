@@ -1,12 +1,13 @@
 node_modules
 .env
+*.env
 dist/
 playwright-report/
 playwright/.cache/
 npm-debug.log*
-data.json
 .vscode/
 .DS_Store
-src/generated/prisma
 *.log
 prisma/generated
+data/
+output/

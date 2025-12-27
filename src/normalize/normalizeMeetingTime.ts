@@ -1,8 +1,38 @@
+import type { NormalizedTime } from '../types';
+
 // All of the valid class durations
 const CLASS_DURATIONS = [
-    50, 60, 75, 89, 90, 100, 105, 110, 120, 150, 165, 170, 179, 180, 195, 210,
-    230, 239, 240, 360, 480, 570, 600, 630, 660,
+    25, 50, 60, 75, 89, 90, 100, 105, 110, 120, 150, 165, 170, 179, 180, 195,
+    210, 230, 239, 240, 360, 480, 570, 600, 630, 660,
 ];
+
+/**
+ * Normalizes multiple time ranges separated by '|'.
+ *
+ * @param timeRanges - Raw time ranges string, e.g. "10:00 - 10:50 am|11:00 - 11:50 am"
+ * @returns Array of objects with startTime and endTime in "HH:MM:SS" format.
+ */
+export function normalizeTimes(times: string): NormalizedTime[] {
+    // Split input string on '|' and trim it
+    const [firstRange, secondRange = ''] = times
+        .split('|')
+        .map((range) => range.trim());
+
+    const normalizedTimes = [];
+
+    // If there is a valid first time, normalize it
+    if (firstRange !== '-') {
+        normalizedTimes.push(normalizeTime(firstRange));
+    }
+
+    // If there is a valid second time, normalize it
+    if (secondRange !== '' && secondRange !== '-') {
+        normalizedTimes.push(normalizeTime(secondRange));
+    }
+
+    // return the normalized times
+    return normalizedTimes;
+}
 
 /**
  * Normalizes a class time string into 24-hour formatted start and end times.
@@ -11,7 +41,7 @@ const CLASS_DURATIONS = [
  * @returns Object with start and end times in "HH:MM:SS"
  * @throws an error if the time range is invalid or ambiguous
  */
-function normalizeTime(time: string) {
+function normalizeTime(time: string): NormalizedTime {
     const [startTime, endTimeMeridiem] = time.split(' - ');
 
     // Seperate the end time and meridiem
@@ -28,14 +58,12 @@ function normalizeTime(time: string) {
 
     // Return the time with the correct meridiem
     if (CLASS_DURATIONS.includes(durationAM)) {
-        console.log('am');
         return {
             startTime: minutesToHHMMSS(startAM),
             endTime: minutesToHHMMSS(endTimeMin),
         };
     }
     if (CLASS_DURATIONS.includes(durationPM)) {
-        console.log('pm');
         return {
             startTime: minutesToHHMMSS(startPM),
             endTime: minutesToHHMMSS(endTimeMin),
@@ -53,7 +81,7 @@ function normalizeTime(time: string) {
  * @param meridiem - Either 'am' or 'pm'.
  * @returns Number of minutes after midnight.
  */
-function timeToMinutes(time: string, meridiem: string) {
+function timeToMinutes(time: string, meridiem: string): number {
     // Split the hour and minutes
     let [hour, minutes] = time.split(':').map((time) => Number(time));
 
@@ -71,7 +99,7 @@ function timeToMinutes(time: string, meridiem: string) {
  * @param time - Number of minutes after midnight.
  * @returns Time string in "HH:MM:SS" format.
  */
-function minutesToHHMMSS(time: number) {
+function minutesToHHMMSS(time: number): string {
     const hour = Math.floor(time / 60)
         .toString()
         .padStart(2, '0');
@@ -79,35 +107,4 @@ function minutesToHHMMSS(time: number) {
 
     // Return "HH:MM:SS" format
     return `${hour}:${minutes}:00`;
-}
-
-/**
- * Normalize a raw days string into an array of day abbreviations.
- *
- * @param days - Raw meeting days of class.
- * @returns Array of the days.
- */
-function normalizeDays(days: string) {
-    // Matches the days and builds an array
-    const matches = days.match(/M|Tu|W|Th|F|Sa|Su/g) || [];
-
-    // Returns the array
-    return matches;
-}
-
-/**
- * Parses instructor string into first and last name.
- *
- * @param name - Instructor name or ',' if none.
- * @returns Object with first and last name, or null if no instructor.
- */
-function normalizeInstructorName(name: string) {
-    // Return if there are no instructors
-    if (name === ',') return null;
-
-    // Split the first and last name
-    const [lastName, firstName] = name.split(',').map((name) => name.trim());
-
-    // Return object of first and last name
-    return { firstName: firstName, lastName: lastName };
 }
