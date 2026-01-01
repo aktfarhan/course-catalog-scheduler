@@ -7,12 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// Enum for section types
-enum SectionType {
-  LECTURE
-  DISCUSSION
-}
-
 // Enum for different days
 enum Day {
   M
@@ -27,10 +21,11 @@ enum Day {
 
 // Represents an academic department, e.g., Computer Science (CS)
 model Department {
-  id      Int      @id @default(autoincrement()) // Primary key
-  code    String   @unique // Unique department code, e.g., (CS)
-  title   String // Full department name
-  courses Course[] // One-to-many relation to courses
+  id          Int          @id @default(autoincrement()) // Primary key
+  code        String       @unique // Unique department code, e.g., (CS)
+  title       String // Full department name
+  courses     Course[] // One-to-many relation to courses
+  instructors Instructor[] @relation("DepartmentInstructors")
 }
 
 // Represents a course offered by a department, e.g., CS220
@@ -68,7 +63,7 @@ model Section {
   isAsync           Boolean      @default(false) // Indicates if has no meeting times
   courseId          Int // Foreign key to Course
   discussionGroupId Int? // Foreign key to DiscussionGroup (only for discussions)
-  type              SectionType  @default(LECTURE) // Section type (most are lectures)
+  type              String       @default("LECTURE") // Section type (most are lectures)
   meetings          Meeting[] // One-to-many relation to meetings
   instructors       Instructor[] @relation("SectionInstructors")
 
@@ -98,11 +93,14 @@ model Meeting {
 
 // Represents an instructor
 model Instructor {
-  id        Int       @id @default(autoincrement()) // Primary key
-  firstName String // Instructor's first name
-  lastName  String // Instructor's last name
-  email     String?   @unique // Instructor's email
-  sections  Section[] @relation("SectionInstructors") // One-to-many relation to sections they teach
+  id          Int          @id @default(autoincrement()) // Primary key
+  firstName   String // Instructor's first name
+  lastName    String // Instructor's last name
+  title       String? // Job title
+  email       String?      @unique // Instructor's email
+  phone       String? // Phone number
+  sections    Section[]    @relation("SectionInstructors") // One-to-many relation to sections they teach
+  departments Department[] @relation("DepartmentInstructors")
 
   @@index([lastName])
 }

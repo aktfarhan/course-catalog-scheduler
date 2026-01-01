@@ -1,25 +1,21 @@
-import prisma from '../prismaClient';
-
-export interface SectionInput {
-    sectionNumber: string;
-    classNumber: string;
-    term: string;
-    isAsync?: boolean;
-    courseId: number;
-    instructorId?: number | null;
-}
+import prisma from '../../prismaClient';
+import { SectionInput } from '../../types';
 
 /**
- * Upserts a single section by its unique classNumber.
- * If the section exists, updates the provided fields.
- * Otherwise, creates a new section.
+ * Upserts a single section by its unique classNumber and term.
+ * If the section exists, updates the provided fields; otherwise, creates a new section.
  *
  * @param section - Section input object containing section details
  * @returns The created or updated section record
  */
 export async function upsertSection(section: SectionInput) {
     return prisma.section.upsert({
-        where: { classNumber: section.classNumber },
+        where: {
+            classNumber_term: {
+                classNumber: section.classNumber,
+                term: section.term,
+            },
+        },
         update: buildSectionData(section),
         create: {
             ...buildSectionData(section),
@@ -40,7 +36,10 @@ export async function upsertSections(sections: SectionInput[]) {
         sections.map((section) =>
             prisma.section.upsert({
                 where: {
-                    classNumber: section.classNumber,
+                    classNumber_term: {
+                        classNumber: section.classNumber,
+                        term: section.term,
+                    },
                 },
                 update: buildSectionData(section),
                 create: {
@@ -53,14 +52,18 @@ export async function upsertSections(sections: SectionInput[]) {
 }
 
 /**
- * Helper function that builds the data object for upsert
+ * Builds the data object for creating or updating a section.
+ *
+ * @param section - Section input object
+ * @returns The data object used for Prisma upsert operations
  */
 function buildSectionData(section: SectionInput) {
     return {
         sectionNumber: section.sectionNumber,
         term: section.term,
-        isAsync: section.isAsync ?? false,
+        isAsync: section.isAsync,
         courseId: section.courseId,
-        instructorId: section.instructorId ?? null,
+        type: section.type,
+        discussionGroupId: section.discussionGroupId,
     };
 }

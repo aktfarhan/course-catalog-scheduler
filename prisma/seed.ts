@@ -14,6 +14,7 @@ async function main() {
     // Delete all data in dependency order to avoid FK issues
     await prisma.meeting.deleteMany();
     await prisma.section.deleteMany();
+    await prisma.discussionGroup.deleteMany();
     await prisma.course.deleteMany();
     await prisma.instructor.deleteMany();
     await prisma.department.deleteMany();

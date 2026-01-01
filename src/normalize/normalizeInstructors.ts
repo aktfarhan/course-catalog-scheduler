@@ -1,4 +1,4 @@
-import type { Instructor } from '../types';
+import type { InstructorInfo, InstructorName, Instructor } from '../types';
 
 /**
  * Parses name string into first and last name.
@@ -6,7 +6,7 @@ import type { Instructor } from '../types';
  * @param name - Instructor name or ',' if none.
  * @returns Object with first and last name, or null if no instructor.
  */
-function normalizeInstructorName(name: string): Instructor | null {
+export function normalizeInstructorName(name: string): InstructorName | null {
     // Return if there are no instructors
     if (name === ',') return null;
 
@@ -27,14 +27,14 @@ function normalizeInstructorName(name: string): Instructor | null {
  * @param names - Raw instructor string, with multiple instructors separated by '|'.
  * @returns Array of normalized instructor objects, or array with placeholder if not valid.
  */
-function normalizeInstructorNames(names: string): Instructor[] {
+export function normalizeInstructorNames(names: string): InstructorName[] {
     // Split the string by '|' to get each instructor separately
     const instructors = names.split('|');
 
     // Normalize each instructor name and filter out invalid/null results
     const normalizedInstructors = instructors
         .map(normalizeInstructorName)
-        .filter((i): i is Instructor => i !== null);
+        .filter((i): i is InstructorName => i !== null);
 
     // If no valid instructors found, return a placeholder entry
     if (normalizedInstructors.length === 0)
@@ -45,45 +45,38 @@ function normalizeInstructorNames(names: string): Instructor[] {
 }
 
 /**
- * Attaches emails to a list of normalized instructors using an email lookup map.
- *
- * @param instructors - Array of normalized instructors without emails.
- * @param emailMap - Map with name: "firstname lastname", value: email string or null.
- * @returns New array of instructors with email attached if found, otherwise null.
- */
-function attachEmailsToInstructors(
-    instructors: Instructor[],
-    emailMap: Map<string, string | null>
-): Instructor[] {
-    return instructors.map((instructor) => {
-        // Write the full name of the instructor
-        const key = `${instructor.firstName} ${instructor.lastName}`;
-
-        // Return the instructor with the attached email
-        return {
-            ...instructor,
-            email: emailMap.get(key) ?? null,
-        };
-    });
-}
-
-/**
- * Normalizes instructor names and attaches emails.
+ * Normalizes instructor names and attaches additional info.
  *
  * @param names - Raw instructor string, possibly with multiple instructors separated by '|'.
- * @param emailMap - Map for quick email lookup keyed by "firstname lastname".
- * @returns Array of normalized instructors with emails attached where found.
+ * @param infoMap - Map of additional info lookup keyed by "firstname lastname".
+ * @returns Array of normalized instructors with info attached.
  */
 export function normalizeInstructors(
     names: string,
-    emailMap: Map<string, string | null>
+    infoMap: Map<string, InstructorInfo>
 ): Instructor[] {
     // Normalize raw instructor names into structured objects
     const instructors = normalizeInstructorNames(names);
 
-    // Attach emails to each normalized instructor using the email map
-    const normalized = attachEmailsToInstructors(instructors, emailMap);
+    // For each instructor, get the key and attach info
+    const normalizedInstructors = instructors
+        .map(({ firstName, lastName }) => {
+            const name = `${firstName} ${lastName}`;
+            const info = infoMap.get(name);
+            if (!info) return null;
 
-    // Return the final array of instructors with emails
-    return normalized;
+            // Return instructor object with attached info
+            return {
+                firstName,
+                lastName,
+                title: info.title,
+                email: info.email,
+                phone: info.phone,
+            };
+        })
+        // Filter out null instructors
+        .filter((instructor): instructor is Instructor => instructor !== null);
+
+    // Return the normalized instructors
+    return normalizedInstructors;
 }

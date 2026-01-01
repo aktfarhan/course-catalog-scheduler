@@ -8,19 +8,19 @@ import type { Day, NormalizedDays } from '../types';
  *          Returns [['TBA']] if no valid days are found.
  */
 export function normalizeDaysFull(days: string): NormalizedDays {
-    // Split the input string on '|' into two, secondDays defaults to '' if no '|'.
+    // Split the input string on '|' into two, secondDays defaults to '' if absent
     const [firstDays, secondDays = ''] = days.split('|');
 
-    // Normalize the days strings into an arrays of day abbreviations.
+    // Normalize each part into arrays of day abbreviations
     const normalizedFirstDays = normalizeDays(firstDays);
     const normalizedSecondDays = normalizeDays(secondDays);
 
-    // Combine the normalized arrays and filter out any empty arrays.
+    // Combine and filter out any empty arrays
     const normalizedDays = [normalizedFirstDays, normalizedSecondDays].filter(
         (arr) => arr.length > 0
     );
 
-    // return a placeholder if days wasn't normalized.
+    // Return a placeholder if days weren't normalized.
     if (normalizedDays.length === 0) {
         return [['TBA']];
     }

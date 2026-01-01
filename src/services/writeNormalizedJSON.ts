@@ -6,6 +6,8 @@ import {
 } from '../normalize';
 
 import type {
+    InstructorInfo,
+    SectionType,
     RawDepartment,
     RawCourse,
     NormalizedDepartment,
@@ -16,13 +18,20 @@ import type {
 /**
  * Converts raw scraped course catalog data into a fully normalized format.
  *
- * @returns Array of normalized departments with courses and sections.
+ * This involves:
+ * - Normalizing meeting days and times into structured meeting objects.
+ * - Associating instructor contact info from the info map.
+ * - Classifying section types (e.g., LECTURE or DISCUSSION).
+ * - Handling asynchronous sections with no meetings.
+ *
+ * @param data - Array of raw department data from the scraper.
+ * @param instructorInfoMap - Map of instructor names to contact info.
+ * @returns Array of normalized departments containing courses and sections.
  */
 export function writeNormalizedJSON(
     data: RawDepartment[],
-    emailMap: Map<string, string | null>
+    instructorInfoMap: Map<string, InstructorInfo>
 ): NormalizedDepartment[] {
-    // Map raw department data into normalized department data
     return data.map((department: RawDepartment) => ({
         departmentCode: department.departmentCode,
         departmentName: department.departmentName,
@@ -35,23 +44,23 @@ export function writeNormalizedJSON(
             for (const semester of rawCourse.semesters) {
                 // Iterate over all sections within the semester
                 for (const section of semester.sections) {
-                    // Normalize meeting days into groups
+                    // Normalize days string into groups of day abbreviations
                     const dayGroups = normalizeDaysFull(section.days);
 
-                    // Normalize meeting times into start/end times
+                    // Normalize time strings into start and end times
                     const times = normalizeTimes(section.time);
 
                     const meetings: NormalizedMeeting[] = [];
 
-                    // For each group of days, pair with corresponding time range
+                    // Pair each day group with corresponding time slot
                     for (let i = 0; i < dayGroups.length; i++) {
                         const days = dayGroups[i];
                         const time = times[i];
 
-                        // Skip if time is missing or invalid
+                        // Skip entries where time is missing or invalid
                         if (!time) continue;
 
-                        // For each day in the group, add a meeting entry
+                        // Create a meeting for each day in the day group
                         for (const day of days) {
                             meetings.push({
                                 day,
@@ -62,21 +71,21 @@ export function writeNormalizedJSON(
                         }
                     }
 
-                    // Determine if section is asynchronous (no meetings)
+                    // Mark section as asynchronous if it has no meetings
                     const isAsync = meetings.length === 0;
 
-                    // Normalize instructor information, including email
+                    // Normalize instructor names and attach contact info
                     const instructors = normalizeInstructors(
                         section.instructor,
-                        emailMap
+                        instructorInfoMap
                     );
 
-                    // Determine section type (e.g., LECTURE, DISCUSSION)
-                    const sectionType: string = findSectionType(
+                    // Determine section type from section identifier
+                    const sectionType: SectionType = findSectionType(
                         section.section
                     );
 
-                    // Collect normalized section data
+                    // Add this normalized section to the list
                     allSections.push({
                         sectionNumber: section.section,
                         classNumber: section.classNumber,
@@ -89,7 +98,7 @@ export function writeNormalizedJSON(
                 }
             }
 
-            // Return normalized course with all its sections
+            // Return the fully normalized course object
             return {
                 courseCode: rawCourse.courseCode,
                 courseName: rawCourse.courseName,

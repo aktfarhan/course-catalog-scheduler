@@ -9,11 +9,11 @@ const CLASS_DURATIONS = [
 /**
  * Normalizes multiple time ranges separated by '|'.
  *
- * @param timeRanges - Raw time ranges string, e.g. "10:00 - 10:50 am|11:00 - 11:50 am"
+ * @param times - Raw time ranges string, e.g. "10:00 - 10:50 am|11:00 - 11:50 am"
  * @returns Array of objects with startTime and endTime in "HH:MM:SS" format.
  */
 export function normalizeTimes(times: string): NormalizedTime[] {
-    // Split input string on '|' and trim it
+    // Split input string on '|' and trim each range
     const [firstRange, secondRange = ''] = times
         .split('|')
         .map((range) => range.trim());
@@ -30,33 +30,33 @@ export function normalizeTimes(times: string): NormalizedTime[] {
         normalizedTimes.push(normalizeTime(secondRange));
     }
 
-    // return the normalized times
+    // Return the normalized times
     return normalizedTimes;
 }
 
 /**
  * Normalizes a class time string into 24-hour formatted start and end times.
  *
- * @param time - A time range string, e.g. "11:00 - 12:15PM"
+ * @param time - A time range string, e.g. "11:00 - 12:15 PM"
  * @returns Object with start and end times in "HH:MM:SS"
- * @throws an error if the time range is invalid or ambiguous
+ * @throws An error if the time range is invalid or ambiguous
  */
 function normalizeTime(time: string): NormalizedTime {
     const [startTime, endTimeMeridiem] = time.split(' - ');
 
-    // Seperate the end time and meridiem
+    // Separate the end time and meridiem
     const [endTime, meridiem] = endTimeMeridiem.split(' ');
 
-    // Check if startTime is AM or PM
+    // Calculate start times for both AM and PM interpretations
     const startAM = timeToMinutes(startTime, 'am');
     const startPM = timeToMinutes(startTime, 'pm');
     const endTimeMin = timeToMinutes(endTime, meridiem);
 
-    // Check the duration
+    // Calculate durations based on start time assumptions
     const durationAM = endTimeMin - startAM;
     const durationPM = endTimeMin - startPM;
 
-    // Return the time with the correct meridiem
+    // Return the time with the correct meridiem if duration matches known class durations
     if (CLASS_DURATIONS.includes(durationAM)) {
         return {
             startTime: minutesToHHMMSS(startAM),
@@ -70,14 +70,14 @@ function normalizeTime(time: string): NormalizedTime {
         };
     }
 
-    // Throw an error if the duratio is not in the possible durations
+    // Throw an error if the duration is not in the possible durations
     throw new Error(`Invalid time range: ${time}`);
 }
 
 /**
  * Converts a time string and meridiem to the number of minutes after midnight.
  *
- * @param time - A time string "H:MM" format.
+ * @param time - A time string "HH:MM" format.
  * @param meridiem - Either 'am' or 'pm'.
  * @returns Number of minutes after midnight.
  */

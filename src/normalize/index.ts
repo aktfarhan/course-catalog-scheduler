@@ -2,9 +2,9 @@
  * @fileoverview
  * Re-export normalization utilities for course scheduling data.
  *
- * normalizeTimes - Converts raw time strings into normalized time objects.
- * normalizeDaysFull - Parses raw day strings into arrays of day codes.
- * normalizeInstructors - Normalizes raw instructor names and attaches emails.
+ * - normalizeTimes: Converts raw time strings into standardized time objects.
+ * - normalizeDaysFull: Parses raw day strings into arrays of day abbreviations.
+ * - normalizeInstructors: Normalizes raw instructor names and attaches contact info.
  */
 
 import { normalizeTimes } from './normalizeMeetingTime';

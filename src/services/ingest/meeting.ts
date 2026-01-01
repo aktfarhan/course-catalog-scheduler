@@ -1,22 +1,18 @@
-import prisma from '../prismaClient';
-
-export interface MeetingInput {
-    day: string;
-    startTime: Date;
-    endTime: Date;
-    location?: string | null;
-    sectionId: number;
-}
+import prisma from '../../prismaClient';
+import { MeetingInput } from '../../types';
 
 /**
  * Helper to build create/update data for meetings.
+ *
+ * @param meeting - Meeting input object
+ * @returns The data object for Prisma upsert
  */
 function buildMeetingData(meeting: MeetingInput) {
     return {
         day: meeting.day,
         startTime: meeting.startTime,
         endTime: meeting.endTime,
-        location: meeting.location ?? null,
+        location: meeting.location,
         sectionId: meeting.sectionId,
     };
 }
@@ -31,6 +27,7 @@ function buildMeetingData(meeting: MeetingInput) {
  */
 export async function upsertMeeting(meeting: MeetingInput) {
     return prisma.meeting.upsert({
+        // Unique constraint on sectionId, day, startTime, and endTime
         where: {
             sectionId_day_startTime_endTime: {
                 sectionId: meeting.sectionId,
@@ -39,7 +36,7 @@ export async function upsertMeeting(meeting: MeetingInput) {
                 endTime: meeting.endTime,
             },
         },
-        update: { location: meeting.location ?? null },
+        update: { location: meeting.location },
         create: buildMeetingData(meeting),
     });
 }
@@ -55,6 +52,7 @@ export async function upsertMeetings(meetings: MeetingInput[]) {
     return prisma.$transaction(
         meetings.map((meeting) =>
             prisma.meeting.upsert({
+                // Unique constraint on sectionId, day, startTime, and endTime
                 where: {
                     sectionId_day_startTime_endTime: {
                         sectionId: meeting.sectionId,
@@ -63,7 +61,7 @@ export async function upsertMeetings(meetings: MeetingInput[]) {
                         endTime: meeting.endTime,
                     },
                 },
-                update: { location: meeting.location ?? null },
+                update: { location: meeting.location },
                 create: buildMeetingData(meeting),
             })
         )

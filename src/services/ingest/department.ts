@@ -1,9 +1,5 @@
-import prisma from '../prismaClient';
-
-export interface DepartmentInput {
-    code: string;
-    title: string;
-}
+import prisma from '../../prismaClient';
+import { DepartmentInput } from '../../types';
 
 /**
  * Upserts a department by its unique code.
@@ -23,10 +19,10 @@ export async function upsertDepartment(department: DepartmentInput) {
 
 /**
  * Bulk upsert many departments inside a single transaction.
- * Rolls back all changes if any insertion or update fails.
+ * All operations succeed or fail together.
  *
- * @param departments - Array of departments inside a single transaction.
- * @returns An array of created or updated department records
+ * @param departments - Array of department input objects to upsert.
+ * @returns An array of created or updated department records.
  */
 export async function upsertDepartments(departments: DepartmentInput[]) {
     return prisma.$transaction(

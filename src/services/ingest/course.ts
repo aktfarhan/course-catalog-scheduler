@@ -1,10 +1,5 @@
-import prisma from '../prismaClient';
-
-export interface CourseInput {
-    code: string;
-    title: string;
-    departmentId: number;
-}
+import prisma from '../../prismaClient';
+import { CourseInput } from '../../types';
 
 /**
  * Upserts a single course by its unique composite key (departmentId + code).
@@ -40,9 +35,9 @@ export async function upsertCourse(course: CourseInput) {
  * @param courses - Array of courses inside a single transaction.
  * @returns An array of created or updated course records
  */
-export async function upsertCourses(course: CourseInput[]) {
+export async function upsertCourses(courses: CourseInput[]) {
     return prisma.$transaction(
-        course.map((course) =>
+        courses.map((course) =>
             prisma.course.upsert({
                 where: {
                     departmentId_code: {
