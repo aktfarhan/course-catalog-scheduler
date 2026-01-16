@@ -19,7 +19,9 @@ async function main() {
     // const a = writeNormalizedJSON(data, instructorInfoMap);
     // const outputFilePath = path.resolve(__dirname, '../data/norm.json');
     // await writeJSONToFile(outputFilePath, a);
-    runIngest();
+    //runIngest();
+    const [hours, minutes] = '09:30:00'.split(':');
+    console.log(hours, minutes);
 }
 
 main();
