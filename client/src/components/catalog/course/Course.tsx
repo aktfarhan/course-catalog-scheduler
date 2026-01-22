@@ -1,7 +1,7 @@
 import { Bookmark } from 'lucide-react';
 import clsx from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
-import type { ApiSectionWithRelations, ApiDepartment } from '../../types';
+import type { ApiSectionWithRelations, ApiDepartment } from '../../../types';
 import CourseMeta from './CourseMeta';
 import Sections from '../section/Sections';
 
@@ -40,9 +40,7 @@ function Course({
 
         if (isMultipleInstructors) {
             for (const instructor of sections[0].instructors) {
-                instructors.push(
-                    `${instructor.firstName} ${instructor.lastName}`
-                );
+                instructors.push(`${instructor.firstName} ${instructor.lastName}`);
             }
             return instructors.join(', ');
         }
@@ -74,7 +72,7 @@ function Course({
         'transition-all duration-500 ease-out',
         isPinned
             ? 'fill-[#005a8c] text-[#005a8c] scale-110 drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]'
-            : 'text-gray-400 group-hover:text-gray-600'
+            : 'text-gray-400 group-hover:text-gray-600',
     );
 
     return (
@@ -82,18 +80,14 @@ function Course({
             <div
                 className={clsx(
                     'flex flex-col lg:flex-row items-stretch border-2 border-gray-200 bg-white overflow-hidden relative transition-shadow',
-                    isSectionExpanded
-                        ? 'rounded-t-xl'
-                        : 'rounded-xl hover:shadow-md'
+                    isSectionExpanded ? 'rounded-t-xl' : 'rounded-xl hover:shadow-md',
                 )}
             >
                 <button
                     onClick={onTogglePin}
                     className={clsx(
                         'lg:flex relative items-center justify-center min-w-14 border-r-2 border-gray-100 cursor-pointer transition-all duration-300 group hidden overflow-hidden',
-                        isPinned
-                            ? 'bg-slate-50'
-                            : 'bg-transparent hover:bg-gray-50'
+                        isPinned ? 'bg-slate-50' : 'bg-transparent hover:bg-gray-50',
                     )}
                 >
                     {isPinned && (
@@ -115,7 +109,7 @@ function Course({
                                 'absolute sm:top-5 sm:right-5 lg:hidden top-4 right-4 z-10 p-2.5 rounded-full transition-all duration-300 active:scale-90 shadow-sm cursor-pointer',
                                 isPinned
                                     ? 'bg-blue-50 border border-blue-200 shadow-inner'
-                                    : 'bg-white/90 backdrop-blur-sm border border-gray-100 hover:bg-gray-50'
+                                    : 'bg-white/90 backdrop-blur-sm border border-gray-100 hover:bg-gray-50',
                             )}
                         >
                             <Bookmark size={20} className={iconStyles} />
@@ -127,13 +121,9 @@ function Course({
                             <span className="px-2 py-0.5 rounded text-gray-700 bg-gray-100">
                                 {department.code} {code}
                             </span>
-                            <span className="sm:inline hidden text-gray-300">
-                                •
-                            </span>
+                            <span className="sm:inline hidden text-gray-300">•</span>
                             <span>{handleInstructors()}</span>
-                            <span className="sm:inline hidden text-gray-300">
-                                •
-                            </span>
+                            <span className="sm:inline hidden text-gray-300">•</span>
                             <span>{department.title}</span>
                         </div>
                         <p
@@ -144,24 +134,19 @@ function Course({
                             }
                             className={clsx(
                                 'mt-3 text-sm text-gray-600 leading-relaxed select-none',
-                                isDescriptionExpanded
-                                    ? 'line-clamp-none'
-                                    : 'line-clamp-2',
+                                isDescriptionExpanded ? 'line-clamp-none' : 'line-clamp-2',
                                 isOverflowing || isDescriptionExpanded
                                     ? 'cursor-pointer'
-                                    : 'cursor-default'
+                                    : 'cursor-default',
                             )}
                         >
-                            Lorem ipsum dolor, sit amet consectetur adipisicing
-                            elit. Doloremque corporis, dolore itaque pariatur
-                            deleniti quisquam exercitationem nihil magnam,
-                            repellendus ipsum aliquam neque sed. Cupiditate
-                            saepe consectetur molestiae sapiente animi nulla!
-                            Lorem ipsum dolor, sit amet consectetur adipisicing
-                            elit. Error, vel tenetur corrupti consequuntur
-                            recusandae, aut numquam qui quia, explicabo adipisci
-                            non velit nihil magnam. Enim ullam dolor quia quo
-                            est.
+                            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque
+                            corporis, dolore itaque pariatur deleniti quisquam exercitationem nihil
+                            magnam, repellendus ipsum aliquam neque sed. Cupiditate saepe
+                            consectetur molestiae sapiente animi nulla! Lorem ipsum dolor, sit amet
+                            consectetur adipisicing elit. Error, vel tenetur corrupti consequuntur
+                            recusandae, aut numquam qui quia, explicabo adipisci non velit nihil
+                            magnam. Enim ullam dolor quia quo est.
                         </p>
                     </div>
                     <div className="md:block w-px my-6 hidden bg-gray-200" />

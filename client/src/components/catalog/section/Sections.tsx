@@ -1,4 +1,4 @@
-import type { ApiSectionWithRelations } from '../../types';
+import type { ApiSectionWithRelations } from '../../../types';
 import SectionRow from './SectionRow';
 
 interface SectionProps {

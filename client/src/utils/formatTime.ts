@@ -1,4 +1,4 @@
-import type { ApiMeeting } from '../../../src/types';
+import type { ApiMeeting } from '../types';
 
 export function formatTime(meeting: ApiMeeting) {
     if (!meeting) return 'TBA';

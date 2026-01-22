@@ -1,6 +1,7 @@
-import type { ApiCourse } from './course';
+import type { ApiCourseWithDepartment } from './course';
 import type { ApiInstructor } from './instructor';
 import type { ApiMeeting } from './meeting';
+import type { ApiDiscussionGroup } from './discussionGroup';
 
 export type SectionType = 'LECTURE' | 'DISCUSSION';
 
@@ -19,10 +20,10 @@ export interface ApiSection {
  * Full section response
  */
 export interface ApiSectionWithRelations extends ApiSection {
-    course: ApiCourse;
+    course: ApiCourseWithDepartment;
     instructors: ApiInstructor[];
     meetings: ApiMeeting[];
-    discussionGroup: number | null;
+    discussionGroup: ApiDiscussionGroup | null;
 }
 
 /**

@@ -7,7 +7,6 @@ export default function WeeklyCalendar({
     courses,
     sectionsByCourseId,
     showWeekend,
-    setShowWeekend,
 }: any) {
     const days = showWeekend
         ? ['M', 'Tu', 'W', 'Th', 'F', 'Sa', 'Su']
@@ -20,9 +19,7 @@ export default function WeeklyCalendar({
         const blocks: any[] = [];
         selectedSections.forEach((sectionId: number, courseId: number) => {
             const course = courses.find((c: any) => c.id === courseId);
-            const section = sectionsByCourseId[courseId]?.find(
-                (s: any) => s.id === sectionId
-            );
+            const section = sectionsByCourseId.get(courseId)!.find((s: any) => s.id === sectionId);
             if (!section || !course) return;
 
             section.meetings.forEach((m: any) => {
@@ -53,7 +50,7 @@ export default function WeeklyCalendar({
                     i !== j &&
                     b1.day === b2.day &&
                     b1.startMins < b2.endMins &&
-                    b1.endMins > b2.startMins
+                    b1.endMins > b2.startMins,
             ),
         }));
     }, [selectedSections, courses, sectionsByCourseId]);
@@ -71,7 +68,7 @@ export default function WeeklyCalendar({
             <div
                 className={clsx(
                     'grid border-b border-gray-100 bg-white',
-                    showWeekend ? 'grid-cols-7' : 'grid-cols-5'
+                    showWeekend ? 'grid-cols-7' : 'grid-cols-5',
                 )}
             >
                 {days.map((day) => (
@@ -91,45 +88,34 @@ export default function WeeklyCalendar({
                 <div
                     className={clsx(
                         'grid h-full bg-white',
-                        showWeekend ? 'grid-cols-7' : 'grid-cols-5'
+                        showWeekend ? 'grid-cols-7' : 'grid-cols-5',
                     )}
                 >
                     {days.map((day) => (
-                        <div
-                            key={day}
-                            className="relative border-r border-gray-100 h-full"
-                        >
+                        <div key={day} className="relative border-r border-gray-100 h-full">
                             {/* Hour Background Markers */}
-                            {Array.from({ length: END_HOUR - START_HOUR }).map(
-                                (_, i) => (
-                                    <div
-                                        key={i}
-                                        className="border-b border-gray-50 relative"
-                                        style={{
-                                            height: `${
-                                                100 / (END_HOUR - START_HOUR)
-                                            }%`,
-                                        }}
-                                    >
-                                        <span className="absolute top-1 left-2 text-[9px] text-gray-400 uppercase">
-                                            {formatHour(i + START_HOUR)}
-                                        </span>
-                                    </div>
-                                )
-                            )}
+                            {Array.from({ length: END_HOUR - START_HOUR }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="border-b border-gray-50 relative"
+                                    style={{
+                                        height: `${100 / (END_HOUR - START_HOUR)}%`,
+                                    }}
+                                >
+                                    <span className="absolute top-1 left-2 text-[9px] text-gray-400 uppercase">
+                                        {formatHour(i + START_HOUR)}
+                                    </span>
+                                </div>
+                            ))}
 
                             {/* Active Course Blocks */}
                             {activeBlocks
                                 .filter((b) => b.day === day)
                                 .map((block, i) => {
                                     const top =
-                                        ((block.startMins - START_HOUR * 60) /
-                                            TOTAL_MINS) *
-                                        100;
+                                        ((block.startMins - START_HOUR * 60) / TOTAL_MINS) * 100;
                                     const height =
-                                        ((block.endMins - block.startMins) /
-                                            TOTAL_MINS) *
-                                        100;
+                                        ((block.endMins - block.startMins) / TOTAL_MINS) * 100;
 
                                     return (
                                         <div
@@ -142,7 +128,7 @@ export default function WeeklyCalendar({
                                                 'absolute left-1.5 right-1.5 p-2 rounded-xl border-l-[6px] transition-all z-20 shadow-md',
                                                 block.hasConflict
                                                     ? 'bg-red-50 border-red-500 animate-pulse shadow-red-100 ring-2 ring-red-100'
-                                                    : 'bg-white border-theme-blue border-2'
+                                                    : 'bg-white border-theme-blue border-2',
                                             )}
                                         >
                                             <div className="flex flex-col h-full overflow-hidden">
@@ -152,7 +138,7 @@ export default function WeeklyCalendar({
                                                             'text-[9px] uppercase',
                                                             block.hasConflict
                                                                 ? 'text-red-600'
-                                                                : 'text-theme-blue'
+                                                                : 'text-theme-blue',
                                                         )}
                                                     >
                                                         {block.courseCode}

@@ -1,12 +1,9 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import Course from './Course';
-import type { SearchFilters } from '../../filters/parseSearchInput';
-import * as SectionRules from '../../filters/sectionPredicates'; // Adjust path
-import type {
-    ApiCourseWithDepartment,
-    ApiSectionWithRelations,
-} from '../../types';
+import type { SearchFilters } from '../../../filters/parseSearchInput';
+import * as SectionRules from '../../../filters/sectionPredicates'; // Adjust path
+import type { ApiCourseWithDepartment, ApiSectionWithRelations } from '../../../types';
 
 interface CourseListProps {
     pagedCourses: ApiCourseWithDepartment[];
@@ -38,22 +35,13 @@ export default function CourseList({
                     // This ensures "Spring 2026" disappears if "Fall 2025" is searched
                     const visibleSections = rawSections.filter(
                         (section) =>
-                            SectionRules.sectionMatchesTerm(
-                                section,
-                                activeFilters.term
-                            ) &&
+                            SectionRules.sectionMatchesTerm(section, activeFilters.term) &&
                             SectionRules.sectionMatchesInstructor(
                                 section,
-                                activeFilters.instructorName
+                                activeFilters.instructorName,
                             ) &&
-                            SectionRules.sectionMatchesDays(
-                                section,
-                                activeFilters.days
-                            ) &&
-                            SectionRules.sectionMatchesDuration(
-                                section,
-                                activeFilters.duration
-                            )
+                            SectionRules.sectionMatchesDays(section, activeFilters.days) &&
+                            SectionRules.sectionMatchesDuration(section, activeFilters.duration),
                     );
 
                     return (

@@ -1,5 +1,5 @@
-import { formatTime } from '../../utils/formatTime';
-import type { ApiSection } from '../../types';
+import { formatTime } from '../../../utils/formatTime';
+import type { ApiSection } from '../../../types';
 import { Clock3 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -29,26 +29,20 @@ function SectionDaysTime({ meetings }: { meetings: ApiSection['meetings'] }) {
                         const timesForDay = meetingMap[day] || [];
                         const isMeetingDay = timesForDay.length > 0;
                         return (
-                            <span
-                                key={day}
-                                className="flex relative w-7 h-7 group/day"
-                            >
+                            <span key={day} className="flex relative w-7 h-7 group/day">
                                 <span
                                     className={clsx(
                                         'flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold transition-all',
                                         isMeetingDay
                                             ? 'bg-theme-blue text-white shadow-sm'
-                                            : 'border border-gray-200 text-gray-300'
+                                            : 'border border-gray-200 text-gray-300',
                                     )}
                                 >
                                     {day}
                                 </span>
                                 {isMeetingDay && (
                                     <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 flex items-center gap-2 rounded-md bg-gray-100 border border-gray-300 px-3 py-1.5 text-[11px] font-medium text-gray-700 opacity-0 invisible pointer-events-none transition-all duration-200 group-hover/day:opacity-100 group-hover/day:visible z-50 whitespace-nowrap shadow-md">
-                                        <Clock3
-                                            size={12}
-                                            className="text-gray-500"
-                                        />
+                                        <Clock3 size={12} className="text-gray-500" />
                                         <span>{timesForDay.join(', ')}</span>
                                         <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-300" />
                                     </div>
@@ -61,9 +55,7 @@ function SectionDaysTime({ meetings }: { meetings: ApiSection['meetings'] }) {
                     {uniqueTimes.map((time) => (
                         <div key={time} className="flex items-center gap-2">
                             <Clock3 size={13} className="text-gray-400" />
-                            <span className="text-xs font-medium text-gray-700">
-                                {time}
-                            </span>
+                            <span className="text-xs font-medium text-gray-700">{time}</span>
                         </div>
                     ))}
                 </div>

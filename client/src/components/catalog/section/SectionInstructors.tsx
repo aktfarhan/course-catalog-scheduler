@@ -1,5 +1,5 @@
 import { User, Copy, Check } from 'lucide-react';
-import type { ApiInstructor } from '../../types';
+import type { ApiInstructor } from '../../../types';
 
 interface SectionInstructorsProps {
     instructors: ApiInstructor[];
@@ -7,11 +7,7 @@ interface SectionInstructorsProps {
     onCopy: (email: string | null | undefined, id: string) => void;
 }
 
-function SectionInstructors({
-    instructors,
-    copiedId,
-    onCopy,
-}: SectionInstructorsProps) {
+function SectionInstructors({ instructors, copiedId, onCopy }: SectionInstructorsProps) {
     return (
         <div className="flex flex-row lg:flex-col items-start lg:items-center lg:justify-center gap-2">
             <span className="lg:hidden w-24 shrink-0 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
@@ -19,8 +15,7 @@ function SectionInstructors({
             </span>
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 min-w-0">
                 {instructors.map((i, idx) => {
-                    const instructorId =
-                        `${i.id}` || `${i.firstName}-${i.lastName}-${idx}`;
+                    const instructorId = `${i.id}` || `${i.firstName}-${i.lastName}-${idx}`;
                     return (
                         <div
                             key={instructorId}
@@ -39,9 +34,7 @@ function SectionInstructors({
                                     {i.email}
                                 </span>
                                 <button
-                                    onClick={() =>
-                                        onCopy(i.email, instructorId)
-                                    }
+                                    onClick={() => onCopy(i.email, instructorId)}
                                     className="cursor-pointer p-1.5 bg-theme-blue text-white rounded-lg hover:scale-105 active:scale-95 transition-all shadow-md shadow-theme-blue/20 flex items-center justify-center"
                                 >
                                     {copiedId === instructorId ? (
@@ -53,9 +46,7 @@ function SectionInstructors({
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 border-[7px] border-transparent border-t-white/95"></div>
                             </div>
                             {idx < instructors.length - 1 && (
-                                <span className="text-gray-300 text-xs -ml-1">
-                                    ,
-                                </span>
+                                <span className="text-gray-300 text-xs -ml-1">,</span>
                             )}
                         </div>
                     );

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Search, X, CheckCircle2, AlertCircle } from 'lucide-react';
-import { parseSearchInput } from '../filters/parseSearchInput';
+import { parseSearchInput } from '../../filters/parseSearchInput';
 
 interface LookupData {
     courseMap: Map<string, any>;
@@ -14,11 +14,7 @@ interface SearchBarProps {
     lookupData: LookupData;
 }
 
-function SearchBar({
-    searchQuery,
-    setSearchQuery,
-    lookupData,
-}: SearchBarProps) {
+function SearchBar({ searchQuery, setSearchQuery, lookupData }: SearchBarProps) {
     // Memoize parser results
     const { tokens } = useMemo(() => {
         return parseSearchInput(searchQuery, lookupData);
@@ -57,10 +53,7 @@ function SearchBar({
             {searchQuery && (
                 <div className="flex flex-wrap gap-2 mt-3 px-2">
                     {tokens
-                        .filter(
-                            (t) =>
-                                t.type !== 'delimiter' && t.text.trim() !== ''
-                        )
+                        .filter((t) => t.type !== 'delimiter' && t.text.trim() !== '')
                         .map((token, i) => (
                             <div
                                 key={i}
@@ -80,8 +73,8 @@ function SearchBar({
                                     {token.type === 'departmentCode'
                                         ? 'DEPT'
                                         : token.type === 'courseCode'
-                                        ? 'COURSE'
-                                        : token.type.toUpperCase()}
+                                          ? 'COURSE'
+                                          : token.type.toUpperCase()}
                                     :
                                 </span>
                                 <span>{token.text}</span>

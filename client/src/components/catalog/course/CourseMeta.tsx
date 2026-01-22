@@ -1,13 +1,7 @@
-import {
-    ChevronDown,
-    CalendarClock,
-    CalendarDays,
-    Clock3,
-    MapPin,
-} from 'lucide-react';
+import { ChevronDown, CalendarClock, CalendarDays, Clock3, MapPin } from 'lucide-react';
 import clsx from 'clsx';
-import type { ApiSectionWithRelations } from '../../types';
-import { formatTime } from '../../utils/formatTime';
+import type { ApiSectionWithRelations } from '../../../types';
+import { formatTime } from '../../../utils/formatTime';
 
 interface CourseMetaProps {
     showSections: boolean;
@@ -15,11 +9,7 @@ interface CourseMetaProps {
     sections: ApiSectionWithRelations[];
 }
 
-function CourseMeta({
-    showSections,
-    setShowSections,
-    sections,
-}: CourseMetaProps) {
+function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps) {
     const isMultiple = sections.length > 1;
     return (
         <div className="flex flex-col justify-start w-full md:w-64 mt-1 gap-3 p-5 md:p-6 border-t-2 md:border-t-0 md:bg-white border-gray-100 bg-gray-50">
@@ -28,17 +18,11 @@ function CourseMeta({
                     <div className="flex flex-row md:flex-col md:items-start items-center gap-2">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2 text-sm text-gray-700">
-                                <CalendarDays
-                                    size={16}
-                                    className="text-gray-400"
-                                />
+                                <CalendarDays size={16} className="text-gray-400" />
                                 <span>Multiple Semesters</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-700">
-                                <CalendarClock
-                                    size={16}
-                                    className="text-gray-400"
-                                />
+                                <CalendarClock size={16} className="text-gray-400" />
                                 <span>Multiple Sections</span>
                             </div>
                         </div>
@@ -51,7 +35,7 @@ function CourseMeta({
                                 size={16}
                                 className={clsx(
                                     'transition-transform duration-200 ease-in-out',
-                                    showSections ? '-rotate-180' : 'rotate-0'
+                                    showSections ? '-rotate-180' : 'rotate-0',
                                 )}
                             />
                         </button>
@@ -73,9 +57,7 @@ function CourseMeta({
                     </div>
                     <div className="flex items-center gap-2">
                         <MapPin size={16} className="text-gray-400" />
-                        <span>
-                            {sections[0]?.meetings[0]?.location || 'TBA'}
-                        </span>
+                        <span>{sections[0]?.meetings[0]?.location || 'TBA'}</span>
                     </div>
                 </div>
             )}
