@@ -17,7 +17,7 @@ function CalendarPage({ data, state, actions }: CatalogPageProps) {
                 sectionsByCourseId={data.sectionsByCourseId}
                 showWeekend={state.showWeekend}
             />
-            <div className="absolute right-12 bottom-8 z-40 sm:max-w-sm 2xl:hidden">
+            <div className="absolute right-12 bottom-8 z-40 sm:max-w-sm xl:hidden">
                 <div className="flex items-center gap-1 rounded-xl border border-white/20 p-1 shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl">
                     <button
                         onClick={() => actions.setIsPanelOpen(true)}

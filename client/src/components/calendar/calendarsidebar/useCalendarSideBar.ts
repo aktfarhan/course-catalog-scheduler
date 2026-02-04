@@ -19,6 +19,7 @@ export function useCalendarSidebar({
     // ----- UI State -----
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [isCoursesOpen, setIsCoursesOpen] = useState(false);
     const [generatedSchedules, setGeneratedSchedules] = useState<ApiSectionWithRelations[][]>([]);
 
     // ----- Filter & Range State -----
@@ -189,6 +190,7 @@ export function useCalendarSidebar({
         state: {
             expandedId,
             isFilterOpen,
+            isCoursesOpen,
             selectedDays,
             selectedTerm,
             minimumGap,
@@ -208,6 +210,7 @@ export function useCalendarSidebar({
         actions: {
             setExpandedId,
             setIsFilterOpen,
+            setIsCoursesOpen,
             setSelectedDays,
             setMinimumGap,
             setTimeRange,
