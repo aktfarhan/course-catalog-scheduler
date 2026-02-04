@@ -45,24 +45,30 @@ export function useCalendarSidebar({
         );
     }, []);
 
+    // Filters data, checks for invalid courses, and runs DFS
     const handleGenerateSchedule = useCallback(() => {
+        // Map pinned course IDs to their respective sections
         const coursesToSchedule = Array.from(pinnedCourses).map((id) => {
             const allSections = sectionsByCourseId.get(id) || [];
             return {
                 id,
+                // Filter out sections that lack meeting data
                 sections: allSections.filter((s) => s.meetings && s.meetings.length > 0),
             };
         });
-        const impossibleCourse = coursesToSchedule.find((c) => c.sections.length === 0);
-        if (impossibleCourse) {
-            console.warn(`Course ${impossibleCourse.id} has no valid sections with times.`);
+
+        // Identify any course that has no valid sections to schedule
+        const invalidCourse = coursesToSchedule.find((c) => c.sections.length === 0);
+        if (invalidCourse) {
             setGeneratedSchedules([]);
             setSelectedSections(new Set());
             return;
         }
 
+        // Return if no courses are pinned
         if (coursesToSchedule.length === 0) return;
 
+        // Start a transition to prevent UI not responding during DFS
         startTransition(() => {
             const results = generateSchedulesDFS(coursesToSchedule, {
                 selectedDays,
@@ -70,15 +76,18 @@ export function useCalendarSidebar({
                 minimumGap,
                 timeRange,
             });
+
             if (results.length > 0) {
+                // Save valid combinations and select the first path
                 setGeneratedSchedules(results);
+
                 const firstValidPath = results[0];
                 const newSelection = new Set<number>(firstValidPath.map((s) => s.id));
                 setSelectedSections(newSelection);
             } else {
+                // Reset state if no valid schedules are found
                 setGeneratedSchedules([]);
                 setSelectedSections(new Set());
-                console.error('Strict constraints met: No valid schedules possible.');
             }
         });
     }, [

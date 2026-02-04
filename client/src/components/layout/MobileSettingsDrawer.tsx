@@ -15,18 +15,15 @@ export default function MobileSettingsDrawer({
     actions,
     refs,
 }: MobileSettingsDrawerProps) {
-    // Requirements: Completely gone if not calendar or not open
     if (!state.isPanelOpen || state.activeTab !== 'calendar') return null;
 
     return (
         <div className="fixed inset-0 z-50 2xl:hidden">
-            {/* Backdrop: Slightly darkens the screen */}
             <div
                 className="animate-in fade-in absolute inset-0 bg-black/20 backdrop-blur-[2px] duration-300"
                 onClick={() => actions.setIsPanelOpen(false)}
             />
 
-            {/* Drawer Panel: Slides in from the right */}
             <div className="animate-in slide-in-from-right absolute top-0 right-0 flex h-full w-80 flex-col border-l border-gray-200 bg-white shadow-2xl duration-300">
                 <div className="flex items-center justify-between border-b border-gray-100 bg-white p-4">
                     <div className="flex items-center gap-2">
@@ -37,13 +34,12 @@ export default function MobileSettingsDrawer({
                     </div>
                     <button
                         onClick={() => actions.setIsPanelOpen(false)}
-                        className="rounded-full bg-gray-50 p-2 transition-colors hover:bg-gray-100"
+                        className="cursor-pointer rounded-full bg-gray-50 p-2 transition-colors hover:bg-gray-100"
                     >
                         <X size={18} className="text-gray-500" />
                     </button>
                 </div>
 
-                {/* Reuse the Sidebar component */}
                 <div className="flex-1 overflow-y-auto">
                     <CalendarSidebar
                         courses={data.courses}

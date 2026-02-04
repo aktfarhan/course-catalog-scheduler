@@ -59,14 +59,35 @@ export function formatTimeToMinutes(time: string) {
     };
 }
 
-function toMinutes(time: string) {
-    const [h, rest] = time.split(':');
-    const m = rest.substring(0, 2);
-    const meridiem = rest.substring(2);
+export function toMinutes(time: string) {
+    if (!time) return 0;
 
-    let hours = parseInt(h, 10);
-    const minutes = parseInt(m, 10);
+    // Normalize: lowercase and remove spaces to prevent "8 am" vs "8am" issues
+    const clean = time.toLowerCase().trim();
 
+    // Safety check for colons (handles "8am" vs "8:00am")
+    const hasColon = clean.includes(':');
+
+    let hours: number;
+    let minutes: number;
+    let meridiem: string;
+
+    if (hasColon) {
+        // Standard logic for "8:30pm"
+        const [h, rest] = clean.split(':');
+        hours = parseInt(h, 10);
+        minutes = parseInt(rest.substring(0, 2), 10);
+        meridiem = rest.substring(2).trim();
+    } else {
+        // Simple logic for "12pm" or "8am"
+        const match = clean.match(/(\d+)(am|pm)/);
+        if (!match) return 0;
+        hours = parseInt(match[1], 10);
+        minutes = 0;
+        meridiem = match[2];
+    }
+
+    // Standard 12-to-24 hour conversion math
     if (meridiem === 'pm' && hours !== 12) hours += 12;
     if (meridiem === 'am' && hours === 12) hours = 0;
 

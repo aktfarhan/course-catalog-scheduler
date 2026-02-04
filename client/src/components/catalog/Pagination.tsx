@@ -49,7 +49,7 @@ function Pagination({
                         type="button"
                         disabled={currentPage === 1}
                         onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                        className="cursor-pointer rounded-md p-3 text-gray-600 transition-all hover:bg-gray-200 disabled:opacity-30"
+                        className="cursor-pointer rounded-md p-3 text-gray-600 transition-all hover:bg-gray-100 disabled:opacity-30"
                     >
                         <ChevronLeft size={20} strokeWidth={2.5} />
                     </button>
@@ -70,7 +70,7 @@ function Pagination({
                                         'h-9 w-9 cursor-pointer rounded-lg text-xs font-bold transition-all',
                                         currentPage === item
                                             ? 'bg-theme-blue text-white'
-                                            : 'hover:text-theme-blue text-gray-400 hover:bg-gray-50',
+                                            : 'hover:text-theme-blue text-gray-400 hover:bg-gray-100',
                                     )}
                                 >
                                     {item}
@@ -82,7 +82,7 @@ function Pagination({
                         type="button"
                         disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                        className="cursor-pointer rounded-md p-3 text-gray-600 transition-all hover:bg-gray-200 disabled:opacity-30"
+                        className="cursor-pointer rounded-md p-3 text-gray-600 transition-all hover:bg-gray-100 disabled:opacity-30"
                     >
                         <ChevronRight size={20} strokeWidth={2.5} />
                     </button>

@@ -20,9 +20,11 @@ export function applyFilters(
     const validSections = sections.filter(
         (section) =>
             SectionFilters.sectionMatchesTerm(section, filters.term) &&
+            SectionFilters.sectionMatchesType(section, filters.sectionType) &&
             SectionFilters.sectionMatchesInstructor(section, filters.instructorName) &&
             SectionFilters.sectionMatchesDays(section, filters.days) &&
-            SectionFilters.sectionMatchesDuration(section, filters.duration),
+            SectionFilters.sectionMatchesDuration(section, filters.duration) &&
+            SectionFilters.sectionMatchesTimeRange(section, filters.timeRange),
     );
 
     // Create a list of IDs for all sections that passed the schedule filters
@@ -30,7 +32,12 @@ export function applyFilters(
 
     // Check if the user is filtering by sections; if they aren't, skip checking sections
     const hasSectionFilters = Boolean(
-        filters.term || filters.instructorName || filters.days?.length || filters.duration,
+        filters.term ||
+        filters.instructorName ||
+        filters.days?.length ||
+        filters.duration ||
+        filters.sectionType ||
+        filters.timeRange,
     );
 
     // Filter courses based on metadata

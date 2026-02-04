@@ -44,10 +44,10 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
     }, [firstSection?.meetings]);
 
     return (
-        <div className="flex flex-col justify-start w-full md:w-64 mt-1 gap-3 p-5 md:p-6 border-t-2 md:border-t-0 md:bg-white border-gray-100 bg-gray-50">
+        <div className="mt-1 flex w-full flex-col justify-start gap-3 border-t-2 border-gray-100 bg-gray-50 p-5 md:w-64 md:border-t-0 md:bg-white md:p-6">
             {isMultiple ? (
                 <>
-                    <div className="flex flex-row md:flex-col md:items-start items-center gap-2">
+                    <div className="flex flex-row items-center gap-2 md:flex-col md:items-start">
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2 text-sm text-gray-700">
                                 <CalendarClock size={16} className="text-gray-400" />
@@ -60,7 +60,7 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                         </div>
                         <button
                             onClick={setShowSections}
-                            className="flex items-center justify-center w-40 md:mt-2 py-2 gap-2 ml-auto md:ml-0 cursor-pointer text-sm font-bold rounded-md border border-theme-blue text-theme-blue hover:bg-theme-blue hover:text-white duration-200 active:scale-95 shrink-0"
+                            className="border-theme-blue text-theme-blue hover:bg-theme-blue ml-auto flex w-40 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border py-2 text-sm font-bold duration-200 hover:text-white active:scale-95 md:mt-2 md:ml-0"
                         >
                             {showSections ? 'Hide' : 'Show'} Sections
                             <ChevronDown
@@ -74,7 +74,7 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                     </div>
                 </>
             ) : (
-                <div className="grid grid-cols-2 md:flex md:flex-col gap-2 text-sm text-gray-700">
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 md:flex md:flex-col">
                     <div className="flex items-center gap-2">
                         <CalendarClock size={16} className="text-gray-400" />
                         <p>{firstSection?.term || 'TBA'}</p>

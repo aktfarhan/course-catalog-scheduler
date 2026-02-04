@@ -8,7 +8,7 @@ const PAGE_SIZE = 40;
 
 interface useCoursePaginationProps {
     courses: ApiCourseWithSections[];
-    sections: ApiSectionWithRelations[]
+    sections: ApiSectionWithRelations[];
     lookupData: LookupData;
     searchQuery: string;
     currentPage: number;

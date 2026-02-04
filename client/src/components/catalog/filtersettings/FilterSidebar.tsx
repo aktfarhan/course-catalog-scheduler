@@ -54,12 +54,17 @@ function FilterSidebar({
                     onSelect={(code) => onFilterChange('departmentCode', code)}
                 />
             </div>
-            <div className="border-t-2 border-gray-50 bg-white p-6">
+            <div className="border-t border-gray-100 bg-gray-50/30 p-5">
                 <button
                     onClick={() => onFilterChange('clear', '')}
-                    className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-gray-200 py-3 text-[10px] font-black tracking-widest text-gray-400 uppercase transition-all hover:border-red-200 hover:text-red-500 active:scale-95"
+                    className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl border-2 border-gray-200 py-3 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase transition-all hover:border-red-200 hover:bg-white hover:text-red-600 active:scale-95"
                 >
-                    <RotateCcw size={14} /> Reset All
+                    <RotateCcw
+                        size={14}
+                        strokeWidth={2.5}
+                        className="transition-transform duration-500 group-hover:-rotate-180"
+                    />
+                    <span>Reset</span>
                 </button>
             </div>
         </div>

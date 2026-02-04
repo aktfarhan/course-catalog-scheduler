@@ -51,6 +51,7 @@ export const LABEL_MAP: Record<string, string> = {
     courseCode: 'COURSE',
     term: 'TERM',
     sectionType: 'TYPE',
+    instructorName: 'PROF',
     unknown: 'NOT FOUND',
 } as const;
 
@@ -116,9 +117,10 @@ export const REGEX = {
     DURATION: /^(\d+)\s*(h|hr|hour|hours|m|min|mins|minutes)$/i,
     DAYS_STRICT: /^(m|tu|w|th|f|sa|su)+$/i,
     DAY_SEGMENTS: /m|tu|w|th|f|sa|su/gi,
+    INSTRUCTOR: /^(?:professor|prof\.?)\s+(?<name>.+)$/i,
+    TERM: /\b(fall|winter|spring|summer)\s*(\d{4})\b|\b(\d{4})\s*(fall|winter|spring|summer)\b/i,
     TIME_RANGE:
         /\b((?:1[0-2]|0?[1-9])(?::[0-5]\d)?\s*[ap]m)\s*(?:-|to)\s*((?:1[0-2]|0?[1-9])(?::[0-5]\d)?\s*[ap]m)\b/i,
-    TERM: /\b(fall|winter|spring|summer)\s*(\d{4})\b|\b(\d{4})\s*(fall|winter|spring|summer)\b/i,
 } as const;
 
 /**

@@ -1,12 +1,12 @@
-import { useAppController } from './hooks/useAppController';
 import CatalogPage from './pages/CatalogPage';
 import CalendarPage from './pages/CalendarPage';
-import FilterSidebar from './components/catalog/filtersettings/FilterSidebar';
-import CalendarSidebar from './components/calendar/calendarsidebar/CalendarSidebar';
+import { useAppController } from './hooks/useAppController';
 import NavigationTabs from './components/layout/NavigationTabs';
 import MobileSettingsDrawer from './components/layout/MobileSettingsDrawer';
+import FilterSidebar from './components/catalog/filtersettings/FilterSidebar';
+import CalendarSidebar from './components/calendar/calendarsidebar/CalendarSidebar';
 
-export default function App() {
+function App() {
     const { data, state, refs, actions } = useAppController();
 
     return (
@@ -16,14 +16,14 @@ export default function App() {
             )}
 
             <div className="flex h-full w-full">
-                <aside className="hidden w-80 shrink-0 flex-col border-r border-gray-200 bg-white 2xl:flex">
-                    <div className="border-b border-gray-100 bg-gray-50/30 p-8">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-theme-blue flex h-10 w-10 items-center justify-center rounded-xl text-xl font-black text-white shadow-lg shadow-blue-100">
-                                U
+                <aside className="hidden w-80 shrink-0 flex-col border-r border-gray-200 bg-white xl:flex">
+                    <div className="border-b border-gray-100 bg-gray-50/30 p-8 select-none">
+                        <div className="flex items-center gap-2">
+                            <div className="bg-theme-blue flex h-10 w-14 items-center justify-center rounded-md text-sm font-black text-white shadow-lg shadow-blue-100">
+                                UMB
                             </div>
-                            <h1 className="text-xl font-black tracking-tighter text-gray-900">
-                                UMB CATALOG
+                            <h1 className="flex h-10 items-center rounded-md p-2 text-xl font-extrabold tracking-tighter text-gray-700 uppercase">
+                                Course Search
                             </h1>
                         </div>
                     </div>
@@ -67,7 +67,12 @@ export default function App() {
                         {state.activeTab === 'catalog' ? (
                             <CatalogPage data={data} state={state} refs={refs} actions={actions} />
                         ) : (
-                            <CalendarPage data={data} state={state} actions={actions} schedule={actions.calendarSidebar.handleGenerateSchedule} />
+                            <CalendarPage
+                                data={data}
+                                state={state}
+                                actions={actions}
+                                schedule={actions.calendarSidebar.handleGenerateSchedule}
+                            />
                         )}
                     </div>
                 </div>
@@ -75,3 +80,5 @@ export default function App() {
         </main>
     );
 }
+
+export default App;

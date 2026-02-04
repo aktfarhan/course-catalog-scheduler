@@ -17,20 +17,20 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown }: Time
     return (
         <div className="space-y-4">
             <div className="flex justify-between">
-                <div className=" flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase">
                     <CalendarRange size={12} /> Preferred Time
                 </div>
-                <span className="text-[11px] font-bold text-theme-blue px-2 py-0.5 border rounded-md border-theme-blue/10 bg-theme-blue/5">
+                <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                     {formatTimeLabel(timeRange.start)} - {formatTimeLabel(timeRange.end)}
                 </span>
             </div>
             <div
                 ref={sliderRef}
-                className="flex items-center w-full h-6 relative select-none touch-none"
+                className="relative flex h-6 w-full touch-none items-center select-none"
             >
-                <div className="w-full h-1.5 absolute rounded-full bg-gray-200" />
+                <div className="absolute h-1.5 w-full rounded-full bg-gray-200" />
                 <div
-                    className="absolute h-1.5 rounded-full bg-theme-blue"
+                    className="bg-theme-blue absolute h-1.5 rounded-full"
                     style={{
                         left: `${startPercent}%`,
                         width: `${endPercent - startPercent}%`,
@@ -38,12 +38,12 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown }: Time
                 />
                 <div
                     onPointerDown={onPointerDown('start')}
-                    className="w-4 h-4 z-20 absolute border-2 rounded-full border-theme-blue cursor-grab active:cursor-grabbing hover:scale-110 shadow-md bg-white transition-transform -translate-x-1/2"
+                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
                     style={{ left: `${startPercent}%` }}
                 />
                 <div
                     onPointerDown={onPointerDown('end')}
-                    className="w-4 h-4 z-20 absolute border-2 rounded-full border-theme-blue cursor-grab active:cursor-grabbing hover:scale-110 shadow-md bg-white transition-transform -translate-x-1/2"
+                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
                     style={{ left: `${endPercent}%` }}
                 />
             </div>

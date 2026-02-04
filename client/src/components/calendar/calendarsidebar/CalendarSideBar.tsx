@@ -1,4 +1,4 @@
-import { Bookmark, Sparkles } from 'lucide-react';
+import { Bookmark, RotateCcw, Sparkles } from 'lucide-react';
 import CourseList from './subcomponents/CourseList';
 import FilterSettings from './subcomponents/filtersettings/FilterSettings';
 import React, { useMemo, type Dispatch, type SetStateAction } from 'react';
@@ -50,9 +50,14 @@ function CalendarSidebar({
                 </button>
                 <button
                     onClick={() => setSelectedSections(new Set())}
-                    className="cursor-pointer rounded-lg border-2 border-gray-200 px-4 py-2.5 text-[10px] font-black tracking-widest text-gray-400 uppercase transition-all duration-200 hover:border-red-500 hover:bg-red-50 hover:text-red-500 active:scale-95 active:bg-red-100"
+                    className="group flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-gray-200 px-4 py-2.5 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase transition-all hover:border-red-200 hover:bg-white hover:text-red-600 active:scale-95"
                 >
-                    Clear
+                    <RotateCcw
+                        size={13}
+                        strokeWidth={2.5}
+                        className="transition-transform duration-500 group-hover:-rotate-180"
+                    />
+                    <span>Clear</span>
                 </button>
             </div>
             <FilterSettings
@@ -105,7 +110,7 @@ function CalendarSidebar({
                     className={clsx(
                         'flex h-12 w-full items-center justify-center gap-3 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all',
                         pinnedCourses.size > 0
-                            ? 'from-theme-blue cursor-pointer bg-linear-to-r to-cyan-500 text-white shadow-lg active:scale-95'
+                            ? 'from-theme-blue to-theme-blue/70 cursor-pointer bg-linear-to-r text-white shadow-lg active:scale-95'
                             : 'cursor-not-allowed bg-gray-100 text-gray-300',
                     )}
                 >

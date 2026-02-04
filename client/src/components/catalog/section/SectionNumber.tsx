@@ -4,11 +4,11 @@ interface SectionNumberProps {
 
 function SectionNumber({ sectionNumber }: SectionNumberProps) {
     return (
-        <div className="flex flex-row items-center lg:flex-col lg:justify-center gap-2">
-            <span className="lg:hidden w-24 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <div className="flex flex-row items-center gap-2 lg:flex-col lg:justify-center">
+            <span className="w-24 text-[10px] font-bold tracking-widest text-gray-400 uppercase lg:hidden">
                 Section
             </span>
-            <span className="lg:ml-2 font-bold text-gray-600 group-hover/row:text-theme-blue duration-200 transition-colors">
+            <span className="group-hover/row:text-theme-blue font-bold text-gray-600 transition-colors duration-200 lg:ml-2">
                 {sectionNumber}
             </span>
         </div>

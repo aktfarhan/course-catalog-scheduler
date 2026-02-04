@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import Course from './Course';
 import { Search } from 'lucide-react';
 import * as SectionRules from '../../../filters/sectionPredicates';
-import type { SearchFilters } from '../../../filters/parseSearchInput';
+import type { SearchFilters } from '../../../types';
 import type { ApiCourseWithDepartment, ApiSectionWithRelations } from '../../../types';
 
 interface CourseListProps {
@@ -35,9 +35,11 @@ function CourseList({
             const filtered = rawSections.filter(
                 (section) =>
                     SectionRules.sectionMatchesTerm(section, activeFilters.term) &&
+                    SectionRules.sectionMatchesType(section, activeFilters.sectionType) &&
                     SectionRules.sectionMatchesInstructor(section, activeFilters.instructorName) &&
                     SectionRules.sectionMatchesDays(section, activeFilters.days) &&
-                    SectionRules.sectionMatchesDuration(section, activeFilters.duration),
+                    SectionRules.sectionMatchesDuration(section, activeFilters.duration) &&
+                    SectionRules.sectionMatchesTimeRange(section, activeFilters.timeRange),
             );
             // Store filtered sections for this course
             map.set(course.id, filtered);

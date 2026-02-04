@@ -71,51 +71,51 @@ function Course({
             : 'text-gray-400 group-hover:text-gray-600',
     );
     return (
-        <div className="max-w-7xl sm:mx-10 mx-4 mt-4">
+        <div className="mx-4 mt-4 max-w-7xl sm:mx-10">
             <div
                 className={clsx(
-                    'flex flex-col lg:flex-row items-stretch relative border-2 border-gray-200 overflow-hidden transition-shadow bg-white',
+                    'relative flex flex-col items-stretch overflow-hidden border-2 border-gray-200 bg-white transition-shadow lg:flex-row',
                     isSectionExpanded ? 'rounded-t-xl' : 'rounded-xl hover:shadow-sm',
                 )}
             >
                 <button
                     onClick={onTogglePin}
                     className={clsx(
-                        'lg:flex items-center justify-center relative min-w-14 border-r-2 border-gray-100 cursor-pointer transition-all duration-200 group hidden overflow-hidden',
+                        'group relative hidden min-w-14 cursor-pointer items-center justify-center overflow-hidden border-r-2 border-gray-100 transition-all duration-200 lg:flex',
                         isPinned ? 'bg-slate-50' : 'hover:bg-gray-50',
                     )}
                 >
                     {isPinned && (
-                        <div className="absolute w-1.5 left-0 top-4 bottom-4 rounded-r-full bg-theme-blue"></div>
+                        <div className="bg-theme-blue absolute top-4 bottom-4 left-0 w-1.5 rounded-r-full"></div>
                     )}
                     <Bookmark
                         size={22}
-                        className={`${iconStyles} active:scale-110 transition-transform duration-150 ease-out`}
+                        className={`${iconStyles} transition-transform duration-150 ease-out active:scale-110`}
                     />
                 </button>
-                <div className="flex flex-col md:flex-row flex-1 items-stretch">
-                    <div className="flex-1 relative md:p-6 lg:pr-6 p-5 grow">
+                <div className="flex flex-1 flex-col items-stretch md:flex-row">
+                    <div className="relative flex-1 grow p-5 md:p-6 lg:pr-6">
                         <button
                             onClick={() => onTogglePin()}
                             className={clsx(
-                                'absolute sm:top-5 sm:right-5 lg:hidden top-4 right-4 z-10 p-2.5 border rounded-full shadow-sm cursor-pointer transition-all duration-300 active:scale-90',
+                                'absolute top-4 right-4 z-10 cursor-pointer rounded-full border p-2.5 shadow-sm transition-all duration-300 active:scale-90 sm:top-5 sm:right-5 lg:hidden',
                                 isPinned
-                                    ? 'shadow-inner border-blue-200 bg-blue-50'
-                                    : 'border-gray-100 backdrop-blur-sm bg-white/90 hover:bg-gray-50',
+                                    ? 'border-blue-200 bg-blue-50 shadow-inner'
+                                    : 'border-gray-100 bg-white/90 backdrop-blur-sm hover:bg-gray-50',
                             )}
                         >
                             <Bookmark size={20} className={iconStyles} />
                         </button>
-                        <h2 className="lg:pr-0 pr-10 font-semibold text-xl text-gray-900 leading-tight">
+                        <h2 className="pr-10 text-xl leading-tight font-semibold text-gray-900 lg:pr-0">
                             {course.title}
                         </h2>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 font-medium text-sm text-gray-600">
-                            <span className="px-2 py-0.5 rounded text-gray-700 bg-gray-100">
+                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-600">
+                            <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-700">
                                 {course.department.code} {course.code}
                             </span>
-                            <span className="sm:inline hidden text-gray-300">•</span>
+                            <span className="hidden text-gray-300 sm:inline">•</span>
                             <span>{handleInstructors}</span>
-                            <span className="sm:inline hidden text-gray-300">•</span>
+                            <span className="hidden text-gray-300 sm:inline">•</span>
                             <span>{course.department.title}</span>
                         </div>
                         <p
@@ -125,7 +125,7 @@ function Course({
                                 setIsDescriptionExpanded(!isDescriptionExpanded)
                             }
                             className={clsx(
-                                'mt-3 text-sm text-gray-600 leading-relaxed select-none',
+                                'mt-3 text-sm leading-relaxed text-gray-600 select-none',
                                 isDescriptionExpanded ? 'line-clamp-none' : 'line-clamp-2',
                                 isOverflowing || isDescriptionExpanded
                                     ? 'cursor-pointer'
@@ -141,7 +141,7 @@ function Course({
                             magnam. Enim ullam dolor quia quo est.
                         </p>
                     </div>
-                    <div className="md:block w-px my-6 hidden bg-gray-200" />
+                    <div className="my-6 hidden w-px bg-gray-200 md:block" />
                     <CourseMeta
                         showSections={isSectionExpanded}
                         setShowSections={onToggleSectionExpand}
@@ -151,7 +151,7 @@ function Course({
             </div>
             {isSectionExpanded && (
                 <div className="w-full">
-                    <div className="ml-0 lg:ml-14 border-x-2 border-b-2 border-gray-200 rounded-b-xl bg-white overflow-hidden shadow-inner">
+                    <div className="ml-0 overflow-hidden rounded-b-xl border-x-2 border-b-2 border-gray-200 bg-white shadow-inner lg:ml-14">
                         <Sections sections={sections} />
                     </div>
                 </div>

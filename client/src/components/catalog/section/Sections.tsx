@@ -8,8 +8,8 @@ interface SectionProps {
 function Sections({ sections }: SectionProps) {
     return (
         <div className="w-full">
-            <div className="border-gray-200 rounded-b-sm bg-white shadow-inner overflow-hidden">
-                <div className="hidden lg:grid grid-cols-[4rem_2fr_15rem_1.7fr_1fr] gap-2 px-6 py-2 bg-gray-50/80 border-b border-gray-100 text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest">
+            <div className="overflow-hidden rounded-b-sm border-gray-200 bg-white shadow-inner">
+                <div className="hidden grid-cols-[4rem_2fr_15rem_1.7fr_1fr] gap-2 border-b border-gray-100 bg-gray-50/80 px-6 py-2 text-center text-[10px] font-bold tracking-widest text-gray-400 uppercase lg:grid">
                     <span>Section</span>
                     <span>Instructor</span>
                     <span>Days & Time</span>

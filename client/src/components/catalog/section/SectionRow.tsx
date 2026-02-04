@@ -29,7 +29,7 @@ function SectionRow({ section }: SectionRowProps) {
     const location = section.meetings[0]?.location ?? 'TBA';
 
     return (
-        <div className="flex flex-col lg:grid lg:grid-cols-[4rem_2fr_15rem_1.7fr_1fr] relative gap-y-4 lg:gap-2 px-5 py-5 lg:py-3 border-t border-gray-100 text-sm transition-colors hover:bg-slate-50/50 group/row">
+        <div className="group/row relative flex flex-col gap-y-4 border-t border-gray-100 px-5 py-5 text-sm transition-colors hover:bg-slate-50/50 lg:grid lg:grid-cols-[4rem_2fr_15rem_1.7fr_1fr] lg:gap-2 lg:py-3">
             <SectionNumber sectionNumber={section.sectionNumber} />
             <SectionInstructors
                 instructors={section.instructors}

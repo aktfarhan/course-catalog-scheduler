@@ -55,7 +55,7 @@ function FilterSettings({
                 selectedTerm={filterState.selectedTerm}
             />
             {filterState.isFilterOpen && (
-                <div className="px-6 pb-6 space-y-6 mt-1 animate-in fade-in slide-in-from-top-2">
+                <div className="animate-in fade-in slide-in-from-top-2 mt-1 space-y-6 px-6 pb-6">
                     <TermSelector
                         availableTerms={availableTerms}
                         selectedTerm={filterState.selectedTerm}

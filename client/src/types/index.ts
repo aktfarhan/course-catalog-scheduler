@@ -48,6 +48,7 @@ export type FilterType =
     | 'courseCode'
     | 'term'
     | 'sectionType'
+    | 'instructorName'
     | 'clear'
     | 'unknown';
 
@@ -58,7 +59,7 @@ export interface SearchFilters {
     duration?: number;
     term?: AcademicTerm;
     days?: Day[];
-    timeRange?: { start?: string; end?: string } | string;
+    timeRange?: { start: string; end: string };
     sectionType?: SectionType;
     instructorName?: string;
 }

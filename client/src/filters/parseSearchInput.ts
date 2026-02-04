@@ -114,7 +114,18 @@ export function parseSearchInput(
             }
         }
 
-        // --8-- Check if a segment matches a section type
+        // --8-- Check if segment starts with 'prof' or 'professor' indicating an instructor search
+        const match = segment.match(REGEX.INSTRUCTOR);
+        if (match?.groups?.name) {
+            const instructorName = match.groups.name.trim();
+
+            // Update both the filter and the token stream
+            filters.instructorName = instructorName;
+            tokens.push({ text: instructorName, type: 'instructorName', isRecognized: true });
+            continue;
+        }
+
+        // --9-- Check if a segment matches a section type
         const sectionType = lower.charAt(0).toUpperCase() + lower.slice(1);
         if (FILTER_CATEGORIES.TYPES.has(sectionType)) {
             filters.sectionType = sectionType as SectionType;
