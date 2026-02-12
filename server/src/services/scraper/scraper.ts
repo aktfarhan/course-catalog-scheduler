@@ -12,22 +12,15 @@ export async function ScrapeData() {
 
     // Get the department titles
     const departments = await scrapeDepartmentTitles(page);
-    console.log(`Found ${departments.length} departments.`);
 
     // Get all the courses for all departments
     for (const department of departments) {
-        console.log(
-            `Scraping department: ${department.departmentCode} - ${department.departmentName}`,
-        );
-
         const courses = await scrapeDepartmentCourses(page, department.departmentCode);
-        console.log(`  Found ${courses.length} courses in ${department.departmentCode}.`);
 
         const courseData = [];
 
         // Getting the section data for each course
         for (const course of courses) {
-            console.log(`    Scraping course: ${course.courseCode} - ${course.courseName}`);
             const { description, semesters } = await scrapeCourseSections(
                 page,
                 department.departmentCode,
