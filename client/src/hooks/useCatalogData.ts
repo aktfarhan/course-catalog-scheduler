@@ -6,6 +6,7 @@ import type {
     ApiSectionWithRelations,
     ApiCourseWithSections,
 } from '../types';
+const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 export function useCatalogData() {
     const [departments, setDepartments] = useState<ApiDepartmentWithRelations[]>([]);
@@ -17,9 +18,9 @@ export function useCatalogData() {
         async function fetchData() {
             try {
                 const [resD, resC, resS] = await Promise.all([
-                    fetch('/api/departments'),
-                    fetch('/api/courses'),
-                    fetch('/api/sections'),
+                    fetch(`${API_BASE}/api/departments`),
+                    fetch(`${API_BASE}/api/courses`),
+                    fetch(`${API_BASE}/api/sections`),
                 ]);
                 setDepartments(await resD.json());
                 setCourses(await resC.json());
