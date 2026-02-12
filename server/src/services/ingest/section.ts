@@ -1,5 +1,5 @@
 import { SectionInput } from '../../types';
-import prisma from '../../../server/prismaClient';
+import prisma from '../../../prismaClient';
 
 /**
  * Upserts a single section by its unique classNumber and term.

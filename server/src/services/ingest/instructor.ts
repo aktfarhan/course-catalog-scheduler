@@ -1,5 +1,5 @@
 import { Instructor } from '../../types';
-import prisma from '../../../server/prismaClient';
+import prisma from '../../../prismaClient';
 
 /**
  * Upserts an instructor identified uniquely by email.

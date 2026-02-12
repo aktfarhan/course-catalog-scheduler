@@ -1,5 +1,5 @@
 import { CourseInput } from '../../types';
-import prisma from '../../../server/prismaClient';
+import prisma from '../../../prismaClient';
 
 /**
  * Upserts a single course by its unique composite key (departmentId + code).

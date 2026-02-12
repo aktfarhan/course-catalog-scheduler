@@ -1,5 +1,5 @@
 import { MeetingInput } from '../../types';
-import prisma from '../../../server/prismaClient';
+import prisma from '../../../prismaClient';
 
 /**
  * Helper to build create/update data for meetings.

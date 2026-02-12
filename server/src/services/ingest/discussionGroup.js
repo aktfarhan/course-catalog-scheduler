@@ -1,6 +1,10 @@
-import prisma from '../../../server/prismaClient';
-import { DiscussionGroupInput } from '../../types';
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.upsertDiscussionGroup = upsertDiscussionGroup;
+const prismaClient_1 = __importDefault(require("../../../prismaClient"));
 /**
  * Upserts a single discussion group by unique composite key (courseId + term).
  * If the discussion group exists, does nothing or updates fields if needed.
@@ -9,8 +13,8 @@ import { DiscussionGroupInput } from '../../types';
  * @param discussionGroup - Object containing courseId and term
  * @returns The created or existing discussion group record
  */
-export async function upsertDiscussionGroup(discussionGroup: DiscussionGroupInput) {
-    return prisma.discussionGroup.upsert({
+async function upsertDiscussionGroup(discussionGroup) {
+    return prismaClient_1.default.discussionGroup.upsert({
         where: {
             courseId_term: {
                 courseId: discussionGroup.courseId,

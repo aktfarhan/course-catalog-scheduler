@@ -1,5 +1,5 @@
 import { DepartmentInput } from '../../types';
-import prisma from '../../../server/prismaClient';
+import prisma from '../../../prismaClient';
 
 /**
  * Upserts a department by its unique code.

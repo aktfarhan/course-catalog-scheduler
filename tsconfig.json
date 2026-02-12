@@ -6,8 +6,9 @@
         "strict": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "types": ["node"],
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "outDir": "dist",
+        "rootDir": "server"
     },
-    "include": ["src/**/*", "server/prismaClient.ts"]
+    "include": ["server/**/*"]
 }

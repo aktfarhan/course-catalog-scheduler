@@ -4,17 +4,18 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "ts-node src/index.ts",
-        "seed": "ts-node prisma/seed.ts",
+        "dev": "nodemon --watch server --exec ts-node server/server.ts",
+        "update": "ts-node server/src/index.ts",
+        "seed": "ts-node server/prisma/seed.ts",
         "build": "tsc",
-        "start": "node dist/index.js",
-        "server": "nodemon server/index.ts"
+        "start": "node dist/server/server.js",
+        "postinstall": "npx prisma generate --schema=server/prisma/schema.prisma"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
         "@types/node": "^25.0.3",
         "nodemon": "^3.1.11",
@@ -25,6 +26,7 @@
     "dependencies": {
         "@prisma/adapter-pg": "^7.2.0",
         "@prisma/client": "^7.2.0",
+        "cors": "^2.8.6",
         "dotenv": "^17.2.3",
         "express": "^5.2.1",
         "fuse.js": "^7.1.0",

@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import sectionRoutes from './routes/sectionRoutes';
@@ -10,6 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 1337;
 
 // Middleware to parse incoming JSON requests
+app.use(cors({ origin: 'https://your-frontend.vercel.app', credentials: true }));
 app.use(express.json());
 
 // Route handlers for different API resources
