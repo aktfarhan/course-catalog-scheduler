@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCatalogData } from './useCatalogData';
 import { useFilterLogic } from './useFilterLogic';
 import { useCoursePagination } from './useCoursePagination';
-import { useCalendarSidebar } from '../components/calendar/calendarsidebar/useCalendarSidebar';
+import { useCalendarSidebar } from '../components/calendar/calendarsidebar/useCalendarSideBar';
 
 export function useAppController() {
     // Fetch core catalog data
