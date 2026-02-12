@@ -1,9 +1,5 @@
 import { findSectionType } from '../utils';
-import {
-    normalizeTimes,
-    normalizeDaysFull,
-    normalizeInstructors,
-} from '../normalize';
+import { normalizeTimes, normalizeDaysFull, normalizeInstructors } from '../normalize';
 
 import type {
     InstructorInfo,
@@ -30,7 +26,7 @@ import type {
  */
 export function writeNormalizedJSON(
     data: RawDepartment[],
-    instructorInfoMap: Map<string, InstructorInfo>
+    instructorInfoMap: Map<string, InstructorInfo>,
 ): NormalizedDepartment[] {
     return data.map((department: RawDepartment) => ({
         departmentCode: department.departmentCode,
@@ -75,15 +71,10 @@ export function writeNormalizedJSON(
                     const isAsync = meetings.length === 0;
 
                     // Normalize instructor names and attach contact info
-                    const instructors = normalizeInstructors(
-                        section.instructor,
-                        instructorInfoMap
-                    );
+                    const instructors = normalizeInstructors(section.instructor, instructorInfoMap);
 
                     // Determine section type from section identifier
-                    const sectionType: SectionType = findSectionType(
-                        section.section
-                    );
+                    const sectionType: SectionType = findSectionType(section.section);
 
                     // Add this normalized section to the list
                     allSections.push({
@@ -102,6 +93,7 @@ export function writeNormalizedJSON(
             return {
                 courseCode: rawCourse.courseCode,
                 courseName: rawCourse.courseName,
+                description: rawCourse.description,
                 sections: allSections,
             };
         }),

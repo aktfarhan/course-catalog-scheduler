@@ -1,10 +1,10 @@
-import { Bookmark, RotateCcw, Sparkles } from 'lucide-react';
+import clsx from 'clsx';
+import { RotateCcw, Sparkles } from 'lucide-react';
 import CourseList from './subcomponents/CourseList';
 import FilterSettings from './subcomponents/filtersettings/FilterSettings';
 import React, { useMemo, type Dispatch, type SetStateAction } from 'react';
-import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
 import type { CalendarSidebar as CalendarSidebarType } from './useCalendarSidebar';
-import clsx from 'clsx';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
 
 interface CalendarSidebarProps {
     courses: ApiCourseWithSections[];

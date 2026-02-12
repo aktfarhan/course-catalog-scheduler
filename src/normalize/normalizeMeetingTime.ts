@@ -2,8 +2,8 @@ import type { NormalizedTime } from '../types';
 
 // All of the valid class durations
 const CLASS_DURATIONS = [
-    25, 50, 60, 75, 89, 90, 100, 105, 110, 120, 150, 165, 170, 179, 180, 195,
-    210, 230, 239, 240, 360, 480, 570, 600, 630, 660,
+    25, 50, 60, 75, 89, 90, 100, 105, 110, 120, 150, 165, 170, 179, 180, 195, 210, 230, 239, 240,
+    360, 480, 570, 600, 630, 660,
 ];
 
 /**
@@ -14,9 +14,7 @@ const CLASS_DURATIONS = [
  */
 export function normalizeTimes(times: string): NormalizedTime[] {
     // Split input string on '|' and trim each range
-    const [firstRange, secondRange = ''] = times
-        .split('|')
-        .map((range) => range.trim());
+    const [firstRange, secondRange = ''] = times.split('|').map((range) => range.trim());
 
     const normalizedTimes = [];
 

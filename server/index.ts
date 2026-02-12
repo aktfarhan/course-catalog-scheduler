@@ -19,7 +19,7 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/courses', courseRoutes);
 
 // Global error handler for catching unhandled errors in routes or middleware
-app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
     console.error('Global error handler: ', error);
     res.status(500).json({ error: 'Internal Server Error' });
 });

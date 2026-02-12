@@ -37,8 +37,7 @@ export function normalizeInstructorNames(names: string): InstructorName[] {
         .filter((i): i is InstructorName => i !== null);
 
     // If no valid instructors found, return a placeholder entry
-    if (normalizedInstructors.length === 0)
-        return [{ firstName: '-', lastName: '-' }];
+    if (normalizedInstructors.length === 0) return [{ firstName: '-', lastName: '-' }];
 
     // Return the list of valid normalized instructors
     return normalizedInstructors;
@@ -53,7 +52,7 @@ export function normalizeInstructorNames(names: string): InstructorName[] {
  */
 export function normalizeInstructors(
     names: string,
-    infoMap: Map<string, InstructorInfo>
+    infoMap: Map<string, InstructorInfo>,
 ): Instructor[] {
     // Normalize raw instructor names into structured objects
     const instructors = normalizeInstructorNames(names);

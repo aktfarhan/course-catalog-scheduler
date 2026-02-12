@@ -1,5 +1,5 @@
-import prisma from '../../../server/prismaClient';
 import { Instructor } from '../../types';
+import prisma from '../../../server/prismaClient';
 
 /**
  * Upserts an instructor identified uniquely by email.
@@ -10,10 +10,7 @@ import { Instructor } from '../../types';
  * @param departmentIds - Array of department IDs to link
  * @returns The created or updated instructor record
  */
-export async function upsertInstructorViaEmail(
-    instructor: Instructor,
-    departmentIds: number[]
-) {
+export async function upsertInstructorViaEmail(instructor: Instructor, departmentIds: number[]) {
     return prisma.instructor.upsert({
         where: { email: instructor.email! }, // Unique constraint on email
         update: {
@@ -53,7 +50,7 @@ export async function upsertInstructorViaEmail(
 export async function upsertInstructorViaLink(
     instructor: Instructor,
     departmentIds: number[],
-    instructorMap: Map<string, number>
+    instructorMap: Map<string, number>,
 ) {
     // Construct key for lookup in the map by name + department
     const key = `${instructor.firstName}:${instructor.lastName}:${departmentIds[0]}`;

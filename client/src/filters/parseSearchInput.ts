@@ -1,6 +1,6 @@
-import type { SectionType, SearchFilters, Token, LookupData, Day } from '../types';
-import { FILTER_CATEGORIES, DATA_MAPS, type AcademicTerm } from '../constants';
 import { REGEX, DURATION_UNITS } from '../constants';
+import { FILTER_CATEGORIES, DATA_MAPS, type AcademicTerm } from '../constants';
+import type { SectionType, SearchFilters, Token, LookupData, Day } from '../types';
 
 /**
  * Parses a raw search string into structured filters and metadata tokens.

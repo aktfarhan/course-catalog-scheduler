@@ -1,6 +1,6 @@
-import type { ApiCourseWithDepartment } from './course';
-import type { ApiInstructor } from './instructor';
 import type { ApiMeeting } from './meeting';
+import type { ApiInstructor } from './instructor';
+import type { ApiCourseWithDepartment } from './course';
 import type { ApiDiscussionGroup } from './discussionGroup';
 
 export type SectionType = 'LECTURE' | 'DISCUSSION';

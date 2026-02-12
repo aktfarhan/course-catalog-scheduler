@@ -132,13 +132,7 @@ function Course({
                                     : 'cursor-default',
                             )}
                         >
-                            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloremque
-                            corporis, dolore itaque pariatur deleniti quisquam exercitationem nihil
-                            magnam, repellendus ipsum aliquam neque sed. Cupiditate saepe
-                            consectetur molestiae sapiente animi nulla! Lorem ipsum dolor, sit amet
-                            consectetur adipisicing elit. Error, vel tenetur corrupti consequuntur
-                            recusandae, aut numquam qui quia, explicabo adipisci non velit nihil
-                            magnam. Enim ullam dolor quia quo est.
+                            {course.description}
                         </p>
                     </div>
                     <div className="my-6 hidden w-px bg-gray-200 md:block" />

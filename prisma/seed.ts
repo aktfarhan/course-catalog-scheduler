@@ -11,7 +11,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     await prisma.$connect();
 
-    // Delete all data in dependency order to avoid FK issues
+    // Delete all data
     await prisma.meeting.deleteMany();
     await prisma.section.deleteMany();
     await prisma.discussionGroup.deleteMany();

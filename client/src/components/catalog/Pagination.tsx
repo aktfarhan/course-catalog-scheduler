@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
 import { clsx } from 'clsx';
+import React, { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {

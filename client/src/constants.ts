@@ -2,7 +2,8 @@ import type { Day } from './types';
 
 /**
  * 1. UI & CALENDAR CONFIGURATION
- * Constants that define the limits and layout of the application.
+ * Core settings for the schedule view, defining the vertical time-axis bounds
+ * and standard day groupings for layout rendering.
  */
 export const CALENDAR_CONFIG = {
     START_TIME: 8,
@@ -12,6 +13,9 @@ export const CALENDAR_CONFIG = {
     WEEK_DAYS: ['M', 'Tu', 'W', 'Th', 'F'] as Day[],
 } as const;
 
+/**
+ * Pagination settings and logical constraints for schedule gap analysis.
+ */
 export const UI_LIMITS = {
     PAGE_SIZE: 50,
     PRESETS: [0, 15, 60, 120],
@@ -20,7 +24,8 @@ export const UI_LIMITS = {
 
 /**
  * 2. ACADEMIC DATA
- * Definitions for terms and their chronological sorting order.
+ * Canonical definitions for semesters and their chronological sort order
+ * to handle logic where "Spring" must precede "Fall."
  */
 export const ACADEMIC_TERMS = {
     ORDER: {
@@ -34,7 +39,8 @@ export const ACADEMIC_TERMS = {
 
 /**
  * 3. SEARCH & FILTER CATEGORIES
- * Sets and Maps used specifically for the search parser and sidebar filters.
+ * Validated lookup sets for the search parser and UI sidebar to ensure
+ * incoming filter values match recognized database categories.
  */
 export const FILTER_CATEGORIES = {
     DAYS: new Set(CALENDAR_CONFIG.ALL_DAYS),
@@ -43,6 +49,9 @@ export const FILTER_CATEGORIES = {
     TIMES: new Set(['Morning', 'Afternoon', 'Evening', 'Night']),
 } as const;
 
+/**
+ * Maps technical keys used in code to high-level, human-readable labels for the UI.
+ */
 export const LABEL_MAP: Record<string, string> = {
     duration: 'DURATION',
     day: 'DAY',
@@ -57,9 +66,11 @@ export const LABEL_MAP: Record<string, string> = {
 
 /**
  * 4. DATA TRANSFORMATION MAPS
- * Used for converting raw input or database values into readable formats.
+ * Lookup tables for standardizing variations in day formats, identifying
+ * time-of-day segments, and providing sortable rankings for calendar days.
  */
 export const DATA_MAPS = {
+    // Normalizes shorthand or lowercase day inputs
     DAY_MAP: {
         m: 'M',
         tu: 'Tu',
@@ -70,6 +81,7 @@ export const DATA_MAPS = {
         su: 'Su',
     } as Record<string, Day>,
 
+    // Maps time-of-day keywords to specific clock-time boundaries
     PERIOD_MAP: {
         morning: { start: '8:00am', end: '11:59am' },
         afternoon: { start: '12:00pm', end: '4:59pm' },
@@ -77,6 +89,7 @@ export const DATA_MAPS = {
         night: { start: '8:00pm', end: '11:59pm' },
     } as Record<string, { start: string; end: string }>,
 
+    // Provides a numerical index for sorting schedule items by day
     DAY_RANK: {
         M: 0,
         Tu: 1,
@@ -87,6 +100,7 @@ export const DATA_MAPS = {
         Su: 6,
     } as Record<string, number>,
 
+    // Maps shorthand day codes to their full-length strings for display
     FULL_DAY_MAP: {
         M: 'Monday',
         Tu: 'Tuesday',
@@ -100,7 +114,8 @@ export const DATA_MAPS = {
 
 /**
  * 5. PARSER LOGIC
- * Regular expressions and unit mappings for natural language processing.
+ * Regular expressions and unit conversion scales used by the search engine
+ * to interpret natural language strings and time ranges.
  */
 export const DURATION_UNITS = new Map<string, number>([
     ['h', 60],
@@ -114,17 +129,25 @@ export const DURATION_UNITS = new Map<string, number>([
 ]);
 
 export const REGEX = {
+    // Captures numeric value and time unit (e.g., "90min" or "2hr")
     DURATION: /^(\d+)\s*(h|hr|hour|hours|m|min|mins|minutes)$/i,
+    // Validates a string of concatenated day shorthand (e.g., "MTuW")
     DAYS_STRICT: /^(m|tu|w|th|f|sa|su)+$/i,
+    // Identifies individual day segments within a concatenated string
     DAY_SEGMENTS: /m|tu|w|th|f|sa|su/gi,
+    // Extracts name from instructor-focused searches
     INSTRUCTOR: /^(?:professor|prof\.?)\s+(?<name>.+)$/i,
+    // Detects semester and year patterns (e.g., "Fall 2025" or "2025 Fall")
     TERM: /\b(fall|winter|spring|summer)\s*(\d{4})\b|\b(\d{4})\s*(fall|winter|spring|summer)\b/i,
+    // Parses clock-time ranges (e.g., "10am - 12pm")
     TIME_RANGE:
         /\b((?:1[0-2]|0?[1-9])(?::[0-5]\d)?\s*[ap]m)\s*(?:-|to)\s*((?:1[0-2]|0?[1-9])(?::[0-5]\d)?\s*[ap]m)\b/i,
 } as const;
 
 /**
  * 6. TYPE DEFINITIONS
+ * Inferred TypeScript types derived from constant values to ensure
+ * type-safety across the application.
  */
 export type DayLiteral = (typeof CALENDAR_CONFIG.ALL_DAYS)[number];
 export type AcademicTerm = (typeof ACADEMIC_TERMS.TERMS)[number];

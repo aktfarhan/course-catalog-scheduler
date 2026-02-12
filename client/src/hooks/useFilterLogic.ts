@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import type { ApiDepartmentWithRelations, FilterType } from '../types';
 import { FILTER_CATEGORIES } from '../constants';
+import type { ApiDepartmentWithRelations, FilterType } from '../types';
 
 interface UseFilterLogicParams {
     searchQuery: string;

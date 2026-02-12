@@ -1,6 +1,6 @@
 import SearchBar from '../components/catalog/SearchBar';
-import CourseList from '../components/catalog/course/CourseList';
 import Pagination from '../components/catalog/Pagination';
+import CourseList from '../components/catalog/course/CourseList';
 import type { AppController } from '../hooks/useAppController';
 
 interface CatalogPageProps {

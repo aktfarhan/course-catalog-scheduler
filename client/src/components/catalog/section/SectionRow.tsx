@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
 import SectionTerm from './SectionTerm';
 import SectionNumber from './SectionNumber';
+import { useCallback, useState } from 'react';
 import SectionDaysTime from './SectionDaysTime';
 import SectionLocation from './SectionLocation';
 import SectionInstructors from './SectionInstructors';

@@ -1,9 +1,9 @@
+import { generateSchedulesDFS } from '../../../scheduler';
+import type { DayLiteral, AcademicTerm } from '../../../constants';
+import type { ApiSectionWithRelations, TimeRange } from '../../../types';
 import { useState, useRef, useCallback, useMemo, startTransition } from 'react';
 import { CALENDAR_CONFIG, ACADEMIC_TERMS, UI_LIMITS } from '../../../constants';
 import type { Dispatch, SetStateAction, PointerEvent as ReactPointerEvent } from 'react';
-import type { ApiSectionWithRelations, Day, TimeRange } from '../../../types';
-import type { DayLiteral, AcademicTerm } from '../../../constants';
-import { generateSchedulesDFS } from '../../../scheduler';
 
 interface CalendarSideBarParams {
     sectionsByCourseId: Map<number, ApiSectionWithRelations[]>;

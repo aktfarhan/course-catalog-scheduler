@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import type { ApiCourseWithSections, ApiSectionWithRelations } from '../types/index';
-import { parseSearchInput } from '../filters/parseSearchInput';
-import { applyFilters } from '../filters/applyFilters';
 import type { LookupData } from '../types/index';
+import { applyFilters } from '../filters/applyFilters';
+import { parseSearchInput } from '../filters/parseSearchInput';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../types/index';
 
 const PAGE_SIZE = 40;
 

@@ -1,7 +1,7 @@
-import type { ApiCourseWithSections, ApiSectionWithRelations } from '../types';
 import type { SearchFilters } from '../types';
 import * as CourseFilters from './coursePredicates';
 import * as SectionFilters from './sectionPredicates';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../types';
 
 /**
  * Filters the course catalog at course-level and section-level.

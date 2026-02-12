@@ -1,5 +1,5 @@
-import prisma from '../../../server/prismaClient';
 import { SectionInput } from '../../types';
+import prisma from '../../../server/prismaClient';
 
 /**
  * Upserts a single section by its unique classNumber and term.
@@ -46,8 +46,8 @@ export async function upsertSections(sections: SectionInput[]) {
                     ...buildSectionData(section),
                     classNumber: section.classNumber,
                 },
-            })
-        )
+            }),
+        ),
     );
 }
 

@@ -1,10 +1,10 @@
+import path from 'path';
+import Fuse from 'fuse.js';
+import fs from 'fs/promises';
+import { writeJSONToFile } from '../utils';
+import { InstructorName, InstructorInfo, Instructor } from '../types';
 import { scrapeInstructorInfo } from './scraper/instructorInfoScraper';
 import { normalizeInstructorNames } from '../normalize/normalizeInstructors';
-import { InstructorName, InstructorInfo, Instructor } from '../types';
-import { writeJSONToFile } from '../utils';
-import Fuse from 'fuse.js';
-import path from 'path';
-import fs from 'fs/promises';
 
 /**
  * Matches instructor names from raw course data to scraped instructor info,
@@ -42,9 +42,7 @@ export async function matchMapInfo() {
             for (const semester of course.semesters) {
                 for (const section of semester.sections) {
                     // Normalize instructor names; handle multiple instructors separated by '|'
-                    const instructors = normalizeInstructorNames(
-                        section.instructor
-                    );
+                    const instructors = normalizeInstructorNames(section.instructor);
                     for (const instructor of instructors) {
                         // Skip if instructor normalization failed (null)
                         if (!instructor) continue;
@@ -63,10 +61,7 @@ export async function matchMapInfo() {
                             const results = fuse.search(name);
                             if (results.length > 0) {
                                 const bestMatch = results[0];
-                                if (
-                                    bestMatch.score !== undefined &&
-                                    bestMatch.score <= threshold
-                                ) {
+                                if (bestMatch.score !== undefined && bestMatch.score <= threshold) {
                                     info = instructorMap.get(bestMatch.item);
                                 }
                             }
@@ -78,11 +73,7 @@ export async function matchMapInfo() {
                         }
 
                         // Add matched instructor info to result list
-                        pushMatchedInstructor(
-                            info,
-                            matchedInstructors,
-                            instructor
-                        );
+                        pushMatchedInstructor(info, matchedInstructors, instructor);
 
                         // Mark this instructor as processed
                         addedKeys.add(name);
@@ -92,10 +83,7 @@ export async function matchMapInfo() {
         }
     }
     // Write the final array of matched instructors to a JSON file
-    const outputFilePath = path.resolve(
-        __dirname,
-        '../../data/instructorInfo.json'
-    );
+    const outputFilePath = path.resolve(__dirname, '../../data/instructorInfo.json');
     await writeJSONToFile(outputFilePath, matchedInstructors);
 }
 
@@ -109,7 +97,7 @@ export async function matchMapInfo() {
 function pushMatchedInstructor(
     info: InstructorInfo,
     matchedInstructors: Instructor[],
-    name: InstructorName
+    name: InstructorName,
 ) {
     matchedInstructors.push({
         firstName: name.firstName,

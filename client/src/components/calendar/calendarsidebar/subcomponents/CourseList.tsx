@@ -73,7 +73,7 @@ function CourseList({
                 />
             </button>
             {isCoursesOpen && (
-                <div className="animate-in fade-in slide-in-from-top-2 mt-1 flex flex-col gap-3 px-5 pb-5">
+                <div className="animate-in fade-in slide-in-from-top-2 mt-3 flex flex-col gap-3 px-5 pb-5">
                     {pinnedCourses.length > 0 ? (
                         pinnedCourses.map((course: ApiCourseWithSections) => {
                             const isExpanded = expandedId === course.id;

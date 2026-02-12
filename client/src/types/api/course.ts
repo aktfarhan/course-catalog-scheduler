@@ -5,6 +5,7 @@ export interface ApiCourse {
     id: number;
     code: string;
     title: string;
+    description: string;
     departmentId: number;
 }
 
@@ -16,7 +17,7 @@ export interface ApiCourseWithDepartment extends ApiCourse {
 }
 
 /**
- * Course returned with sections (common search response)
+ * Course returned with sections
  */
 export interface ApiCourseWithSections extends ApiCourseWithDepartment {
     sections: ApiSectionSummary[];

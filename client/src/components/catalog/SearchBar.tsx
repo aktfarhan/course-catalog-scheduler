@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import SearchToken from './SearchToken';
 import { Search, X } from 'lucide-react';
-import { parseSearchInput } from '../../filters/parseSearchInput';
 import type { LookupData, Token } from '../../types';
+import { parseSearchInput } from '../../filters/parseSearchInput';
 
 interface SearchBarProps {
     lookupData: LookupData;

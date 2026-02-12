@@ -9,7 +9,6 @@ interface CourseCardProps {
     course: ApiCourseWithSections;
     sections: ApiSectionWithRelations[];
     isExpanded: boolean;
-    // FIX: Changed from activeSectionId: number to selectedSections: Set<number>
     selectedSections: Set<number>;
     onExpandCourse: () => void;
     onSectionSelect: (courseId: number, sectionId: number) => void;
@@ -55,7 +54,6 @@ function CourseCard({
             {isExpanded && (
                 <div className="border-theme-blue/30 relative mt-1.5 ml-5 flex flex-col gap-1.5 rounded-l-md border-l-2 py-1 pl-3">
                     {(() => {
-                        // 1. Pre-filter the sections to completely remove any where all meetings are "TBA"
                         const visibleSections = sections.filter((section) =>
                             section.meetings?.some(
                                 (m) =>
@@ -73,8 +71,6 @@ function CourseCard({
                                 </div>
                             );
                         }
-
-                        // 2. Map only over the sections that have real times
                         return visibleSections.map((section: ApiSectionWithRelations) => {
                             const isActive = selectedSections.has(section.id);
                             return (

@@ -8,7 +8,7 @@ import type { ApiSectionWithRelations, Block } from '../../types';
 
 interface WeeklyCalendarProps {
     showWeekend: boolean;
-    selectedSections: Set<number>; // Correctly typed as Set
+    selectedSections: Set<number>;
     sectionsByCourseId: Map<number, ApiSectionWithRelations[]>;
 }
 

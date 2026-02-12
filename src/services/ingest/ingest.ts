@@ -1,3 +1,7 @@
+import path from 'path';
+import fs from 'fs/promises';
+import prisma from '../../../server/prismaClient';
+import type { NormalizedData } from '../../types';
 import {
     upsertDepartment,
     upsertCourse,
@@ -8,10 +12,6 @@ import {
     upsertMeeting,
     upsertDiscussionGroup,
 } from './index';
-import type { NormalizedData } from '../../types';
-import prisma from '../../../server/prismaClient';
-import path from 'path';
-import fs from 'fs/promises';
 
 /**
  * Ingests normalized data into the database.
@@ -66,13 +66,11 @@ export async function ingestData(data: NormalizedData) {
             const cours = await upsertCourse({
                 code: course.courseCode,
                 title: course.courseName,
+                description: course.description,
                 departmentId: departmentId,
             });
             // Store the course Id for this course
-            courseIdMap.set(
-                `${department.departmentCode}:${course.courseCode}`,
-                cours.id
-            );
+            courseIdMap.set(`${department.departmentCode}:${course.courseCode}`, cours.id);
 
             // Collect keys of discussion groups to upsert later
             for (const section of course.sections) {
@@ -100,16 +98,12 @@ export async function ingestData(data: NormalizedData) {
     // Upsert all sections, and assign them to a discussionGroupId
     for (const department of data) {
         for (const course of department.courses) {
-            const courseId = courseIdMap.get(
-                `${department.departmentCode}:${course.courseCode}`
-            )!;
+            const courseId = courseIdMap.get(`${department.departmentCode}:${course.courseCode}`)!;
 
             for (const section of course.sections) {
                 let discussionGroupId = null;
                 if (section.type === 'DISCUSSION') {
-                    discussionGroupId = discussionGroupIdMap.get(
-                        `${courseId}:${section.term}`
-                    )!;
+                    discussionGroupId = discussionGroupIdMap.get(`${courseId}:${section.term}`)!;
                 }
 
                 // Upsert a section, link it to a course and discussionGroup
@@ -131,9 +125,7 @@ export async function ingestData(data: NormalizedData) {
     for (const department of data) {
         for (const course of department.courses) {
             for (const section of course.sections) {
-                const sectionId = sectionIdMap.get(
-                    `${section.classNumber}:${section.term}`
-                )!;
+                const sectionId = sectionIdMap.get(`${section.classNumber}:${section.term}`)!;
                 // Upsert all meetings of a section, and link them to the section
                 for (const meeting of section.meetings) {
                     await upsertMeeting({
@@ -156,9 +148,7 @@ export async function ingestData(data: NormalizedData) {
         for (const course of department.courses) {
             for (const section of course.sections) {
                 // Get the stored section ID for this section (by classNumber and term)
-                const sectionId = sectionIdMap.get(
-                    `${section.classNumber}:${section.term}`
-                )!;
+                const sectionId = sectionIdMap.get(`${section.classNumber}:${section.term}`)!;
 
                 // Array to keep track of instructor IDs linked to this section
                 const instructorIds: number[] = [];
@@ -168,15 +158,13 @@ export async function ingestData(data: NormalizedData) {
 
                     // If instructor has an email, upsert by email
                     if (instructor.email) {
-                        inst = await upsertInstructorViaEmail(instructor, [
-                            departmentId,
-                        ]);
+                        inst = await upsertInstructorViaEmail(instructor, [departmentId]);
                     } else {
                         // Otherwise, upsert by name and department using the preloaded map
                         inst = await upsertInstructorViaLink(
                             instructor,
                             [departmentId],
-                            instructorMap
+                            instructorMap,
                         );
                     }
 
@@ -236,10 +224,7 @@ export async function ingestData(data: NormalizedData) {
  */
 export async function runIngest() {
     try {
-        const filePath = path.resolve(
-            __dirname,
-            '../../../data/normalized.json'
-        );
+        const filePath = path.resolve(__dirname, '../../../data/normalizedData.json');
         const fileContents = await fs.readFile(filePath, 'utf-8');
         const data: NormalizedData = JSON.parse(fileContents);
 

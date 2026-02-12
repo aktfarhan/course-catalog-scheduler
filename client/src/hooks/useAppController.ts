@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useCatalogData } from './useCatalogData';
 import { useFilterLogic } from './useFilterLogic';
 import { useCoursePagination } from './useCoursePagination';

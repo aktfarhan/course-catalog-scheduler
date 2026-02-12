@@ -1,5 +1,5 @@
-import { formatTime, formatTimeToMinutes, toMinutes } from '../utils/formatTime';
 import type { Day, ApiSectionWithRelations, SectionType } from '../types';
+import { formatTime, formatTimeToMinutes, toMinutes } from '../utils/formatTime';
 
 /**
  * Checks if a section belongs to a specific term.

@@ -1,5 +1,5 @@
-import prisma from '../../../server/prismaClient';
 import { CourseInput } from '../../types';
+import prisma from '../../../server/prismaClient';
 
 /**
  * Upserts a single course by its unique composite key (departmentId + code).
@@ -17,13 +17,12 @@ export async function upsertCourse(course: CourseInput) {
                 code: course.code,
             },
         },
-        update: {
-            title: course.title,
-        },
+        update: { title: course.title, description: course.description },
         create: {
             departmentId: course.departmentId,
             code: course.code,
             title: course.title,
+            description: course.description,
         },
     });
 }
@@ -45,13 +44,14 @@ export async function upsertCourses(courses: CourseInput[]) {
                         code: course.code,
                     },
                 },
-                update: { title: course.title },
+                update: { title: course.title, description: course.description },
                 create: {
                     departmentId: course.departmentId,
                     code: course.code,
                     title: course.title,
+                    description: course.description,
                 },
-            })
-        )
+            }),
+        ),
     );
 }
