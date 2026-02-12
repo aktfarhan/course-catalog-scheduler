@@ -3,7 +3,7 @@ import { RotateCcw, Sparkles } from 'lucide-react';
 import CourseList from './subcomponents/CourseList';
 import FilterSettings from './subcomponents/filtersettings/FilterSettings';
 import React, { useMemo, type Dispatch, type SetStateAction } from 'react';
-import type { CalendarSidebar as CalendarSidebarType } from './useCalendarSideBar';
+import type { CalendarSidebar as CalendarSidebarType } from './useCalendarSidebar';
 import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
 
 interface CalendarSidebarProps {
