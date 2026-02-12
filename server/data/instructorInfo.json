@@ -235,7 +235,7 @@
     "lastName": "Vandermeer",
     "title": "Senior Lecturer III",
     "email": "Tony.Vandermeer@umb.edu",
-    "phone": "617.287.6255"
+    "phone": "617.287.6792"
   },
   {
     "firstName": "Nnaemeka",
@@ -996,7 +996,7 @@
   {
     "firstName": "Jeremy",
     "lastName": "Liew",
-    "title": "Hourly Research Fellow",
+    "title": "Associate Lecturer",
     "email": "Jeremy.Liew001@umb.edu",
     "phone": null
   },
@@ -1171,7 +1171,7 @@
   {
     "firstName": "Hannah",
     "lastName": "Sevian",
-    "title": "Partner",
+    "title": "Associate Lecturer",
     "email": "Hannah.Sevian@umb.edu",
     "phone": "617.287.7724"
   },
@@ -2389,7 +2389,7 @@
   {
     "firstName": "Mary",
     "lastName": "Blackman",
-    "title": "Statewide Coach System Mgr",
+    "title": "Associate Lecturer",
     "email": "Caroline.Blackman@umb.edu",
     "phone": "617.287.4295"
   },
@@ -2578,7 +2578,7 @@
   {
     "firstName": "Alejandro",
     "lastName": "Reuss",
-    "title": "Lecturer",
+    "title": "Professional - Hourly",
     "email": "Alejandro.Reuss@umb.edu",
     "phone": "617.287.7267"
   },
@@ -4804,7 +4804,7 @@
   {
     "firstName": "Daniel",
     "lastName": "Pomerleano",
-    "title": "Associate Professor",
+    "title": "Graduate Program Director/Associate Professor",
     "email": "Daniel.Pomerleano@umb.edu",
     "phone": "617.287.6440"
   },
@@ -4860,7 +4860,7 @@
   {
     "firstName": "Kourosh",
     "lastName": "Zarringhalam",
-    "title": "Grad Prog Dir/Professor",
+    "title": "Professor",
     "email": "Kourosh.Zarringhalam@umb.edu",
     "phone": "617.287.7486"
   },
@@ -5042,7 +5042,7 @@
   {
     "firstName": "Paul",
     "lastName": "Napolitano",
-    "title": "Associate Lecturer",
+    "title": "Lecturer",
     "email": "Paul.Napolitano@umb.edu",
     "phone": null
   },
@@ -7478,8 +7478,8 @@
   {
     "firstName": "Scott",
     "lastName": "Aumont",
-    "title": "Associate Lecturer",
-    "email": "Scott.Aumont001@umb.edu",
+    "title": null,
+    "email": null,
     "phone": null
   },
   {
@@ -8017,8 +8017,8 @@
   {
     "firstName": "Amanda",
     "lastName": "Fallon",
-    "title": "",
-    "email": "Amanda.Fallon2@umb.edu",
+    "title": "Lecturer",
+    "email": "Amanda.Fallon@umb.edu",
     "phone": null
   },
   {
