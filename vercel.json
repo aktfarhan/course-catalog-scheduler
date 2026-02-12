@@ -3,6 +3,10 @@
         {
             "source": "/api/:path*",
             "destination": "https://smart-class-scheduler-production.up.railway.app*"
+        },
+        {
+            "source": "/((?!api/).*)",
+            "destination": "/index.html"
         }
     ]
 }
