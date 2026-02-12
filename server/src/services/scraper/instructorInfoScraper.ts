@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 import { InstructorInfo } from '../../types';
 import { removeAccents } from '../../utils/';
 import { chromium, Page, Locator } from 'playwright-chromium';
@@ -28,10 +29,12 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
         .textContent()
         .then((text) => parseInt(text ?? '1', 10));
 
+    logger.startTask(lastPageNumber, 'Scraping Directory');
+
     // Iterate through all pages
     for (let pageNumber = 1; pageNumber <= lastPageNumber; pageNumber++) {
         const url = `https://www.umb.edu/directory/?page=${pageNumber}`;
-        console.log(`Scraping page ${pageNumber}/${lastPageNumber}`);
+        logger.updateTask(pageNumber);
 
         // Go to the page, and wait for the staff cards to load
         await page.goto(url);
@@ -43,6 +46,8 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
 
     // Close the browser
     await browser.close();
+
+    logger.completeTask();
 
     // Return the Map for matching
     return instructorMap;

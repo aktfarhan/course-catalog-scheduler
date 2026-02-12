@@ -10,7 +10,6 @@ export async function writeJSONToFile(filePath: string, data: unknown): Promise<
     try {
         const jsonString = JSON.stringify(data, null, 2);
         await fs.writeFile(filePath, jsonString, 'utf-8');
-        console.log(`Successfully wrote JSON to ${filePath}`);
     } catch (error) {
         console.error(`Failed to write JSON to ${filePath}:`, error);
     }

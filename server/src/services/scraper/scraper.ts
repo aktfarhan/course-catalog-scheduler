@@ -1,5 +1,6 @@
 import path from 'path';
 import * as fs from 'fs/promises';
+import { logger } from '../../utils/logger';
 import { chromium, Locator, Page } from 'playwright-chromium';
 
 export async function ScrapeData() {
@@ -13,10 +14,13 @@ export async function ScrapeData() {
     // Get the department titles
     const departments = await scrapeDepartmentTitles(page);
 
-    // Get all the courses for all departments
-    for (const department of departments) {
-        const courses = await scrapeDepartmentCourses(page, department.departmentCode);
+    logger.startTask(departments.length, 'Scraping Catalog');
 
+    // Get all the courses for all departments
+    for (const [deptIndex, department] of departments.entries()) {
+        logger.updateTask(deptIndex + 1);
+
+        const courses = await scrapeDepartmentCourses(page, department.departmentCode);
         const courseData = [];
 
         // Getting the section data for each course
@@ -47,7 +51,7 @@ export async function ScrapeData() {
     const outputPath = path.resolve(__dirname, '../../../data/data.json');
     await fs.writeFile(outputPath, JSON.stringify(catalog, null, 2), 'utf-8');
 
-    console.log('Scraping complete! Data saved to data.json');
+    logger.completeTask();
 
     // Return the catalog data
     return catalog;

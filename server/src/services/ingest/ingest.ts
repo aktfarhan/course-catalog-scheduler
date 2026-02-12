@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import prisma from '../../../prismaClient';
+import { logger } from '../../utils/logger';
 import type { NormalizedData } from '../../types';
 import {
     upsertDepartment,
@@ -44,22 +45,26 @@ export async function ingestData(data: NormalizedData) {
     const sectionInstructors = new Map<number, Set<number>>();
 
     // Upsert departments first and store their IDs for future reference
-    for (const department of data) {
+    logger.startTask(data.length, 'Upserting Departments');
+    for (const [deptIndex, department] of data.entries()) {
+        logger.updateTask(deptIndex + 1);
         const dept = await upsertDepartment({
             code: department.departmentCode,
             title: department.departmentName,
         });
         departmentIdMap.set(department.departmentCode, dept.id);
     }
+    logger.completeTask();
 
     // Preload a map of instructors keyed by name+department
     const instructorMap = await preloadInstructorMap();
 
     // Upsert courses and identify discussion groups for later processing
-    for (const department of data) {
+    logger.startTask(data.length, 'Upserting Courses');
+    for (const [deptIndex, department] of data.entries()) {
+        logger.updateTask(deptIndex + 1);
         // Get the department Id
         const departmentId = departmentIdMap.get(department.departmentCode)!;
-
         // Iterate through all courses
         for (const course of department.courses) {
             // Upsert courses in each department
@@ -80,6 +85,7 @@ export async function ingestData(data: NormalizedData) {
             }
         }
     }
+    logger.completeTask();
 
     // Upsert all discussion groups and store their IDs
     for (const key of discussionGroups) {
@@ -96,7 +102,9 @@ export async function ingestData(data: NormalizedData) {
     }
 
     // Upsert all sections, and assign them to a discussionGroupId
-    for (const department of data) {
+    logger.startTask(data.length, 'Upserting Sections');
+    for (const [deptIndex, department] of data.entries()) {
+        logger.updateTask(deptIndex + 1);
         for (const course of department.courses) {
             const courseId = courseIdMap.get(`${department.departmentCode}:${course.courseCode}`)!;
 
@@ -120,9 +128,12 @@ export async function ingestData(data: NormalizedData) {
             }
         }
     }
+    logger.completeTask();
 
     // Upsert all meetings, link them to their section
-    for (const department of data) {
+    logger.startTask(data.length, 'Upserting Meetings');
+    for (const [deptIndex, department] of data.entries()) {
+        logger.updateTask(deptIndex + 1);
         for (const course of department.courses) {
             for (const section of course.sections) {
                 const sectionId = sectionIdMap.get(`${section.classNumber}:${section.term}`)!;
@@ -139,9 +150,12 @@ export async function ingestData(data: NormalizedData) {
             }
         }
     }
+    logger.completeTask();
 
     // Upsert instructors and accumulate department and section relations
-    for (const department of data) {
+    logger.startTask(data.length, 'Upserting Instructors');
+    for (const [deptIndex, department] of data.entries()) {
+        logger.updateTask(deptIndex + 1);
         // Get the stored department ID for this department code
         const departmentId = departmentIdMap.get(department.departmentCode)!;
 
@@ -190,6 +204,7 @@ export async function ingestData(data: NormalizedData) {
             }
         }
     }
+    logger.completeTask();
 
     // After processing all sections, update each instructor's linked departments
     for (const [instructorId, departmentSet] of instructorDepartments) {
@@ -227,10 +242,7 @@ export async function runIngest() {
         const filePath = path.resolve(__dirname, '../../../data/normalizedData.json');
         const fileContents = await fs.readFile(filePath, 'utf-8');
         const data: NormalizedData = JSON.parse(fileContents);
-
-        console.log('Starting ingestion...');
         await ingestData(data);
-        console.log('Ingestion complete!');
     } catch (error) {
         console.error('Ingestion failed:', error);
     } finally {
