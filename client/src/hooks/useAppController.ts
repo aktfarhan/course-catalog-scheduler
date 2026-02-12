@@ -18,7 +18,6 @@ export function useAppController() {
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [showWeekend, setShowWeekend] = useState(false);
     const [jumpValue, setJumpValue] = useState('');
-    const [isGenerating, setIsGenerating] = useState(false);
 
     // ----- Data State -----
     // Tracking user selections: pinned courses, selected sections per course, expanded course IDs
@@ -120,7 +119,6 @@ export function useAppController() {
             jumpValue,
             isPanelOpen,
             showWeekend,
-            isGenerating,
             pinnedCourses,
             selectedSections,
             expandedCourseIds,

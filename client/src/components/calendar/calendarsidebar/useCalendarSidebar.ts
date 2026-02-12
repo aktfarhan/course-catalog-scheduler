@@ -195,6 +195,7 @@ export function useCalendarSidebar({
             selectedTerm,
             minimumGap,
             timeRange,
+            generatedSchedules,
             sliderMin: CALENDAR_CONFIG.START_TIME,
             sliderMax: CALENDAR_CONFIG.END_TIME,
             daysList: CALENDAR_CONFIG.ALL_DAYS,
