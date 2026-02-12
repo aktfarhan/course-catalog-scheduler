@@ -12,34 +12,34 @@ import type { Instructor, InstructorInfo, RawDepartment } from './types';
 async function main() {
     const startTime = Date.now();
     try {
-        // console.log(colors.bold.white('\nSTARTING UPDATE\n'));
+        console.log(colors.bold.white('\nSTARTING UPDATE\n'));
 
-        // console.log(colors.bold.cyan('➤ Phase 1: Scraping Course Catalog'));
-        // const rawData: RawDepartment[] = await ScrapeData();
+        console.log(colors.bold.cyan('➤ Phase 1: Scraping Course Catalog'));
+        const rawData: RawDepartment[] = await ScrapeData();
 
-        // console.log(colors.bold.cyan('➤ Phase 2: Instructor Matching'));
-        // await matchMapInfo();
+        console.log(colors.bold.cyan('➤ Phase 2: Instructor Matching'));
+        await matchMapInfo();
 
-        // console.log(colors.bold.cyan('➤ Phase 3: Creating Instructor Map'));
-        // logger.startTask(1, 'Indexing Instructors');
-        // const instructorInfoMap: Map<string, InstructorInfo> = new Map(
-        //     (rawInstructorInfo as Instructor[]).map(
-        //         ({ firstName, lastName, title, email, phone }) => [
-        //             `${firstName} ${lastName}`,
-        //             { title, email, phone },
-        //         ],
-        //     ),
-        // );
-        // logger.updateTask(1);
-        // logger.completeTask();
+        console.log(colors.bold.cyan('➤ Phase 3: Creating Instructor Map'));
+        logger.startTask(1, 'Indexing Instructors');
+        const instructorInfoMap: Map<string, InstructorInfo> = new Map(
+            (rawInstructorInfo as Instructor[]).map(
+                ({ firstName, lastName, title, email, phone }) => [
+                    `${firstName} ${lastName}`,
+                    { title, email, phone },
+                ],
+            ),
+        );
+        logger.updateTask(1);
+        logger.completeTask();
 
-        // console.log(colors.bold.cyan('➤ Phase 4: Normalizing Scraped Data'));
-        // logger.startTask(1, 'Normalizing Data');
-        // const normalizedData = writeNormalizedJSON(rawData as RawDepartment[], instructorInfoMap);
-        // const normalizedDataPath = path.resolve(__dirname, '../data/normalizedData.json');
-        // await writeJSONToFile(normalizedDataPath, normalizedData);
-        // logger.updateTask(1);
-        // logger.completeTask();
+        console.log(colors.bold.cyan('➤ Phase 4: Normalizing Scraped Data'));
+        logger.startTask(1, 'Normalizing Data');
+        const normalizedData = writeNormalizedJSON(rawData as RawDepartment[], instructorInfoMap);
+        const normalizedDataPath = path.resolve(__dirname, '../data/normalizedData.json');
+        await writeJSONToFile(normalizedDataPath, normalizedData);
+        logger.updateTask(1);
+        logger.completeTask();
 
         console.log(colors.bold.cyan('➤ Phase 5: Database Ingestion'));
         await runIngest();

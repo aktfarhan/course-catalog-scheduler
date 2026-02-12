@@ -13,11 +13,7 @@ const PORT = process.env.PORT || 1337;
 // Middleware to parse incoming JSON requests
 app.use(
     cors({
-        origin: [
-            'https://umbwizard.vercel.app',
-            'https://umbwizard.vercel.app/',
-            'http://localhost:5173',
-        ],
+        origin: ['https://umbwizard.vercel.app', 'http://localhost:5173'],
         credentials: true,
     }),
 );
