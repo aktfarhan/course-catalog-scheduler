@@ -7,8 +7,8 @@
         "dev": "nodemon --watch server --exec ts-node server/server.ts",
         "update": "ts-node server/src/index.ts",
         "seed": "ts-node server/prisma/seed.ts",
-        "build": "tsc",
-        "start": "node dist/server/server.js",
+        "build": "tsc && npx prisma generate --schema=server/prisma/schema.prisma",
+        "start": "npx prisma migrate deploy && node dist/server/server.js",
         "postinstall": "npx prisma generate --schema=server/prisma/schema.prisma"
     },
     "keywords": [],
