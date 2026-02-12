@@ -14,7 +14,10 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
     const instructorMap = new Map<string, InstructorInfo>();
 
     // Launch the browser and open a page
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
 
     // Go to the first page of the directory
