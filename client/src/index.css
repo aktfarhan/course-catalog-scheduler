@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+@theme {
+    --color-light-blue: #b8d2f5;
+    --color-warm-orange: #ffd77a;
+    --color-charcoal-blue: #2e4052;
+    --color-crimson: #005a8c;
+    --color-theme-blue: #005a8c;
+}
+
+@layer utilities {
+    .placeholder-opacity-0:focus::placeholder {
+        opacity: 0;
+    }
+
+    .transition-max-height {
+        transition-property: max-height, opacity, transform;
+        transition-duration: 100ms;
+        transition-timing-function: ease-in-out;
+    }
+}

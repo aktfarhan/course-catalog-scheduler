@@ -1,0 +1,89 @@
+import type { Day } from './api/meeting';
+import type { AcademicTerm } from '../constants';
+import type { SectionType } from './api/section';
+import type { ApiCourseWithDepartment } from './api/course';
+import type { ApiDepartmentWithRelations } from './api/department';
+
+/**
+ * Aggregates all database-related types from the API sub-directory
+ * to provide a single entry point for data models.
+ */
+export * from './api/course';
+export * from './api/section';
+export * from './api/department';
+export * from './api/instructor';
+export * from './api/meeting';
+
+/**
+ * Types used to manage the visual representation of data in the
+ * schedule and calendar components.
+ */
+export interface TimeRange {
+    start: number;
+    end: number;
+}
+
+// Represents a single visual "tile" or entry on the calendar grid
+export interface Block {
+    day: string;
+    endMins: number;
+    location: string;
+    timeRange: string;
+    startMins: number;
+    courseCode: string;
+    instructors: string;
+    hasConflict: boolean;
+    sectionNumber: string;
+}
+
+/**
+ * Types used by the search engine to tokenize and categorize
+ * user input during natural language processing.
+ */
+export type FilterType =
+    | 'duration'
+    | 'day'
+    | 'timeRange'
+    | 'departmentCode'
+    | 'courseCode'
+    | 'term'
+    | 'sectionType'
+    | 'instructorName'
+    | 'clear'
+    | 'unknown';
+
+// Represents an individual parsed segment of a search query
+export interface Token {
+    type: FilterType;
+    text: string;
+    isRecognized: boolean;
+}
+
+/**
+ * Objects used to track active search criteria and cache
+ * database values for fast client-side lookups.
+ */
+export interface SearchFilters {
+    departmentCode?: string;
+    courseCode?: string;
+    text?: string;
+    duration?: number;
+    term?: AcademicTerm;
+    days?: Day[];
+    timeRange?: { start: string; end: string };
+    sectionType?: SectionType;
+    instructorName?: string;
+}
+
+// In-memory data structures used to speed up search comparisons
+export interface LookupData {
+    courseMap: Map<string, ApiCourseWithDepartment>;
+    instructorSet: Set<string>;
+    departmentMap: Map<string, ApiDepartmentWithRelations>;
+    departmentTitleToCode: Map<string, string>;
+}
+
+/**
+ * Specialized types for tracking user interactions with specific courses.
+ */
+export type CourseSelection = number | number[];

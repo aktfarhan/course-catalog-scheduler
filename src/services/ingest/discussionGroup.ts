@@ -9,9 +9,7 @@ import { DiscussionGroupInput } from '../../types';
  * @param discussionGroup - Object containing courseId and term
  * @returns The created or existing discussion group record
  */
-export async function upsertDiscussionGroup(
-    discussionGroup: DiscussionGroupInput
-) {
+export async function upsertDiscussionGroup(discussionGroup: DiscussionGroupInput) {
     return prisma.discussionGroup.upsert({
         where: {
             courseId_term: {
@@ -19,7 +17,7 @@ export async function upsertDiscussionGroup(
                 term: discussionGroup.term,
             },
         },
-        update: {}, // No updates for now
+        update: {},
         create: {
             courseId: discussionGroup.courseId,
             term: discussionGroup.term,

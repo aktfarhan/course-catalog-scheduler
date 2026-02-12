@@ -17,7 +17,7 @@ export function normalizeDaysFull(days: string): NormalizedDays {
 
     // Combine and filter out any empty arrays
     const normalizedDays = [normalizedFirstDays, normalizedSecondDays].filter(
-        (arr) => arr.length > 0
+        (arr) => arr.length > 0,
     );
 
     // Return a placeholder if days weren't normalized.

@@ -33,6 +33,7 @@ model Course {
   id               Int               @id @default(autoincrement()) // Primary key
   code             String // Course code e.g., (100)
   title            String // Course title
+  description      String // Course description
   departmentId     Int // Foreign key to department
   sections         Section[] // One-to-many relation to sections
   discussionGroups DiscussionGroup[] // One-to-many relation to discussion groups

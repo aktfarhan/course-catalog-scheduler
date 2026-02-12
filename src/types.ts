@@ -59,6 +59,7 @@ export interface CourseInput {
     code: string;
     title: string;
     departmentId: number;
+    description: string;
 }
 
 // Discussion group linked to a course and term
@@ -109,6 +110,7 @@ export interface RawSemester {
 export interface RawCourse {
     courseCode: string; // Course code (e.g., "101")
     courseName: string; // Course full name
+    description: string;
     semesters: RawSemester[]; // Semester offerings
 }
 
@@ -144,6 +146,7 @@ export interface NormalizedSection {
 export interface NormalizedCourse {
     courseCode: string; // Course code (e.g., "101")
     courseName: string; // Course full name
+    description: string; // Course description
     sections: NormalizedSection[]; // Sections in this course
 }
 

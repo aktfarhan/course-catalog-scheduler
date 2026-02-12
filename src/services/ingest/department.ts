@@ -1,5 +1,5 @@
-import prisma from '../../../server/prismaClient';
 import { DepartmentInput } from '../../types';
+import prisma from '../../../server/prismaClient';
 
 /**
  * Upserts a department by its unique code.
@@ -31,7 +31,7 @@ export async function upsertDepartments(departments: DepartmentInput[]) {
                 where: { code: department.code },
                 update: { title: department.title },
                 create: { code: department.code, title: department.title },
-            })
-        )
+            }),
+        ),
     );
 }

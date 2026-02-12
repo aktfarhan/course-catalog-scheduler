@@ -1,5 +1,5 @@
-import prisma from '../../../server/prismaClient';
 import { MeetingInput } from '../../types';
+import prisma from '../../../server/prismaClient';
 
 /**
  * Helper to build create/update data for meetings.
@@ -63,7 +63,7 @@ export async function upsertMeetings(meetings: MeetingInput[]) {
                 },
                 update: { location: meeting.location },
                 create: buildMeetingData(meeting),
-            })
-        )
+            }),
+        ),
     );
 }

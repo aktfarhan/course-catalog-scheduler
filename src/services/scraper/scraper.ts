@@ -1,9 +1,10 @@
-import { chromium, Locator, Page } from 'playwright-chromium';
+import path from 'path';
 import * as fs from 'fs/promises';
+import { chromium, Locator, Page } from 'playwright-chromium';
 
 export async function ScrapeData() {
     // Launch a browser and create a page
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
 
     // The complete data from the course catalog
@@ -11,25 +12,31 @@ export async function ScrapeData() {
 
     // Get the department titles
     const departments = await scrapeDepartmentTitles(page);
+    console.log(`Found ${departments.length} departments.`);
 
     // Get all the courses for all departments
     for (const department of departments) {
-        const courses = await scrapeDepartmentCourses(
-            page,
-            department.departmentCode
+        console.log(
+            `Scraping department: ${department.departmentCode} - ${department.departmentName}`,
         );
+
+        const courses = await scrapeDepartmentCourses(page, department.departmentCode);
+        console.log(`  Found ${courses.length} courses in ${department.departmentCode}.`);
+
         const courseData = [];
 
         // Getting the section data for each course
         for (const course of courses) {
-            const semesters = await scrapeCourseSections(
+            console.log(`    Scraping course: ${course.courseCode} - ${course.courseName}`);
+            const { description, semesters } = await scrapeCourseSections(
                 page,
                 department.departmentCode,
-                course.courseCode
+                course.courseCode,
             );
             courseData.push({
                 courseCode: course.courseCode,
                 courseName: course.courseName,
+                description,
                 semesters,
             });
         }
@@ -44,7 +51,10 @@ export async function ScrapeData() {
 
     // Close the browser
     await browser.close();
-    await fs.writeFile('data.json', JSON.stringify(catalog, null, 2), 'utf-8');
+    const outputPath = path.resolve(__dirname, '../../../data/data.json');
+    await fs.writeFile(outputPath, JSON.stringify(catalog, null, 2), 'utf-8');
+
+    console.log('Scraping complete! Data saved to data.json');
 
     // Return the catalog data
     return catalog;
@@ -61,9 +71,7 @@ async function scrapeDepartmentTitles(page: Page) {
 
     // Split department code and name
     const departments = titles.map((title) => {
-        const [departmentCode, departmentName] = title
-            .split('|')
-            .map((item) => item.trim());
+        const [departmentCode, departmentName] = title.split('|').map((item) => item.trim());
         return { departmentCode, departmentName };
     });
 
@@ -77,12 +85,8 @@ async function scrapeDepartmentTitles(page: Page) {
  */
 async function scrapeDepartmentCourses(page: Page, department: string) {
     // Get all courses from the department
-    await page.goto(
-        `https://courses.umb.edu/course_catalog/courses/ugrd_${department}_all`
-    );
-    const titles = await page
-        .locator('ul.showHideList li h4')
-        .allTextContents();
+    await page.goto(`https://courses.umb.edu/course_catalog/courses/ugrd_${department}_all`);
+    const titles = await page.locator('ul.showHideList li h4').allTextContents();
 
     // Get the code and name of the course
     const regex = /^([A-Z]+)\s+(\d+[A-Z]*)\s+(.+?)\s*\+?\s*$/;
@@ -103,15 +107,14 @@ async function scrapeDepartmentCourses(page: Page, department: string) {
  * Function that scrapes all sections for a course.
  * Returns all the sections found.
  */
-async function scrapeCourseSections(
-    page: Page,
-    departmentCode: string,
-    courseCode: string
-) {
+async function scrapeCourseSections(page: Page, departmentCode: string, courseCode: string) {
     // Go to the course page and scrape the sections
     await page.goto(
-        `https://courses.umb.edu/course_catalog/course_info/ugrd_${departmentCode}_all_${courseCode}`
+        `https://courses.umb.edu/course_catalog/course_info/ugrd_${departmentCode}_all_${courseCode}`,
     );
+
+    // Get the course description
+    const description = await getCourseDescription(page);
 
     // Get all the semesters available
     const offering = page.locator('h2:has-text("Offered in:")').first();
@@ -124,12 +127,8 @@ async function scrapeCourseSections(
         const semesterName = await getTrimmedText(semester);
 
         // Get the sections that are offered in a semester
-        const sectionsLocator = semester.locator(
-            'xpath=following-sibling::table[1]'
-        );
-        const semesterSections = sectionsLocator.locator(
-            'tbody > tr.class-info-rows'
-        );
+        const sectionsLocator = semester.locator('xpath=following-sibling::table[1]');
+        const semesterSections = sectionsLocator.locator('tbody > tr.class-info-rows');
         // Get all the sections using the locator
         const sectionCount = await semesterSections.count();
         const sections = [];
@@ -147,7 +146,7 @@ async function scrapeCourseSections(
     }
 
     // Return info for all sections
-    return allSemesters;
+    return { description, semesters: allSemesters };
 }
 
 /**
@@ -177,6 +176,27 @@ async function scrapeSectionRows(row: Locator) {
 
     // Return section info
     return { section, classNumber, days, time, instructor, location };
+}
+
+/**
+ * Helper function that scrapes the course description from the course page.
+ * Returns an empty string if no description is found.
+ */
+async function getCourseDescription(page: Page): Promise<string> {
+    // Locate the paragraph that contains the "Description" label
+    const locator = page.locator('p:has(strong:has-text("Description"))');
+
+    // Return empty string if the description does not exist
+    if (!(await locator.count())) return '';
+
+    // Get the text content of the description paragraph
+    const text = await locator.first().innerText();
+
+    // Clean the text by removing the label and extra whitespace
+    return text
+        .replace(/^Description:\s*/i, '')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 /**

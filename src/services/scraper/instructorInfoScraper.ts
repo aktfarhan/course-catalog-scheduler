@@ -1,6 +1,6 @@
-import { chromium, Page, Locator } from 'playwright-chromium';
-import { removeAccents } from '../../utils/';
 import { InstructorInfo } from '../../types';
+import { removeAccents } from '../../utils/';
+import { chromium, Page, Locator } from 'playwright-chromium';
 
 /**
  * Scrapes the entire directory, iterating through all pages
@@ -8,9 +8,7 @@ import { InstructorInfo } from '../../types';
  *
  * @returns {Promise<Map<string, InstructorInfo>>} A Map of instructor names to their info.
  */
-export async function scrapeInstructorInfo(): Promise<
-    Map<string, InstructorInfo>
-> {
+export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo>> {
     // Map of all instructor info
     const instructorMap = new Map<string, InstructorInfo>();
 
@@ -56,10 +54,7 @@ export async function scrapeInstructorInfo(): Promise<
  *
  * @param page - Current Playwright Page instance.
  */
-async function extractStaffFromPage(
-    page: Page,
-    instructorMap: Map<string, InstructorInfo>
-) {
+async function extractStaffFromPage(page: Page, instructorMap: Map<string, InstructorInfo>) {
     // Find all the cards on the page
     const cards = page.locator('.staff-directory .staff-card');
     const count = await cards.count();
@@ -70,11 +65,8 @@ async function extractStaffFromPage(
 
         // Get the name and remove accents
         const name = removeAccents(
-            (
-                await card
-                    .locator('a > span.button-cta.card-heading-name')
-                    .textContent()
-            )?.trim() ?? ''
+            (await card.locator('a > span.button-cta.card-heading-name').textContent())?.trim() ??
+                '',
         );
         // If no name found or already in InstructorMap
         if (!name) continue;
