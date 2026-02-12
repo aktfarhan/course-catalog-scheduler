@@ -11,9 +11,11 @@ const app = express();
 const PORT = process.env.PORT || 1337;
 
 // Middleware to parse incoming JSON requests
+const origin = process.env.FRONTEND_URL?.replace(/\/$/, '') || 'http://localhost:5173';
+
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        origin: origin,
         credentials: true,
     }),
 );
