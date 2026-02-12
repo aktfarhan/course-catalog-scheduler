@@ -9,4 +9,3 @@ npm-debug.log*
 .DS_Store
 *.log
 prisma/generated
-data/

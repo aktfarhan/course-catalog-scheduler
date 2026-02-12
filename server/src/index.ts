@@ -1,11 +1,12 @@
 import path from 'path';
-import fs from 'fs'; // Added for manual file reading
 import { writeJSONToFile } from './utils';
 import { runIngest } from './services/ingest/ingest';
 import { matchMapInfo } from './services/matchMapInfo';
 import { ScrapeData } from './services/scraper/scraper';
 import { writeNormalizedJSON } from './services/writeNormalizedJSON';
 import type { Instructor, InstructorInfo, RawDepartment } from './types';
+
+import rawInstructorInfo from '../data/instructorInfo.json';
 
 async function main() {
     try {
@@ -16,13 +17,7 @@ async function main() {
         await matchMapInfo();
 
         console.log('Step 3: Creating instructor info map...');
-
-        // Manual JSON reading - bypasses TypeScript's build-time module resolution
-        const instructorInfoPath = path.resolve(__dirname, '../data/instructorInfo.json');
-        const fileContent = fs.readFileSync(instructorInfoPath, 'utf8');
-        const rawInstructorInfo = JSON.parse(fileContent);
-
-        // Map creation
+        // rawInstructorInfo is an array of Instructor (with firstName, lastName, etc)
         const instructorInfoMap: Map<string, InstructorInfo> = new Map(
             (rawInstructorInfo as Instructor[]).map(
                 ({ firstName, lastName, title, email, phone }) => [
