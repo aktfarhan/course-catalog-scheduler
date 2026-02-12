@@ -8,7 +8,7 @@
         "update": "ts-node server/src/index.ts",
         "seed": "ts-node server/prisma/seed.ts",
         "build": "npx prisma generate --schema=server/prisma/schema.prisma && tsc",
-        "start": "npx prisma migrate deploy --schema=server/prisma/schema.prisma && node dist/server/server.js",
+        "start": "npx prisma migrate deploy --config prisma.config.ts && node dist/server/server.js",
         "postinstall": "npx prisma generate --schema=server/prisma/schema.prisma"
     },
     "keywords": [],
