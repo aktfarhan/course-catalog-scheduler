@@ -4,7 +4,7 @@ import { applyFilters } from '../filters/applyFilters';
 import { parseSearchInput } from '../filters/parseSearchInput';
 import type { ApiCourseWithSections, ApiSectionWithRelations } from '../types/index';
 
-const PAGE_SIZE = 40;
+const PAGE_SIZE = 25;
 
 interface useCoursePaginationProps {
     courses: ApiCourseWithSections[];

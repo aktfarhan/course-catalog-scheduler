@@ -45,7 +45,7 @@ class PipelineLogger {
         if (this.spinnerInterval) clearInterval(this.spinnerInterval);
 
         this.progressBar.update(this.progressBar.getTotal(), {
-            spinner: colors.green('✔'),
+            spinner: colors.green('✔ '),
         });
         this.progressBar.stop();
         process.stdout.write('\n');
