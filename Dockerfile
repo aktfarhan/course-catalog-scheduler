@@ -1,5 +1,5 @@
-# Use Playwright official image with Chromium and all deps preinstalled
-FROM mcr.microsoft.com/playwright:focal
+# Use Playwright image with Node 24 + all deps
+FROM mcr.microsoft.com/playwright:v1.41.0-focal-node24
 
 WORKDIR /app
 
@@ -10,8 +10,8 @@ RUN npm install
 # Copy all source files
 COPY . .
 
-# Ensure Chromium is installed
+# Install Chromium
 RUN npx playwright install chromium
 
-# Start the scraper
+# Start scraper
 CMD ["npm", "run", "update"]
