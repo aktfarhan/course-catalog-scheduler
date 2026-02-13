@@ -1,15 +1,17 @@
-# Use Playwright's official image with all browsers & deps preinstalled
+# Use Playwright official image with Chromium and all deps preinstalled
 FROM mcr.microsoft.com/playwright:focal
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy the rest of your app
+# Copy all source files
 COPY . .
 
-# Command to start your server
-CMD ["npx", "ts-node", "server/src/index.ts"]
+# Ensure Chromium is installed
+RUN npx playwright install chromium
+
+# Start the scraper
+CMD ["npm", "run", "update"]
