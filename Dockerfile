@@ -1,10 +1,10 @@
-# Use Node 24 (matches your local & Prisma requirement)
+# Use Node 24 (matches Prisma requirement)
 FROM node:24-bullseye
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies needed for Playwright/Chromium
+# Install system dependencies for Playwright/Chromium
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -22,15 +22,14 @@ RUN apt-get update && apt-get install -y \
     libatspi2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package.json and install dependencies
-COPY package*.json ./
-RUN npm install
-
-# Copy all source files
+# Copy all source files first (so Prisma can find schema)
 COPY . .
 
-# Install Playwright Chromium
+# Install npm dependencies (Prisma generates client here)
+RUN npm install
+
+# Install Chromium for Playwright
 RUN npx playwright install chromium
 
-# Start your scraper
+# Start scraper
 CMD ["npm", "run", "update"]
