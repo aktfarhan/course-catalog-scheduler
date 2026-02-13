@@ -16,7 +16,7 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
     // Launch the browser and open a page
     const browser = await chromium.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
     });
     const page = await browser.newPage();
 
