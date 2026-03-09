@@ -75,6 +75,8 @@ function CalendarSidebar({
                         toggleDay: sidebar.actions.toggleDay,
                         setMinGap: sidebar.actions.setMinimumGap,
                         onPointerDown: sidebar.actions.onPointerDown,
+                        onPointerMove: sidebar.actions.onPointerMove,
+                        onPointerUp: sidebar.actions.onPointerUp,
                     }}
                     days={sidebar.state.daysList}
                     sliderRef={sidebar.refs.sliderRef}

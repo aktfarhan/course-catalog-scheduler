@@ -9,9 +9,11 @@ interface TimeRangeSliderProps {
     timeRange: TimeRange;
     sliderRef: RefObject<HTMLDivElement | null>;
     onPointerDown: (thumb: 'start' | 'end') => (e: React.PointerEvent<Element>) => void;
+    onPointerMove: (e: React.PointerEvent<Element>) => void;
+    onPointerUp: () => void;
 }
 
-function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown }: TimeRangeSliderProps) {
+function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPointerMove, onPointerUp }: TimeRangeSliderProps) {
     const startPercent = ((timeRange.start - min) / (max - min)) * 100;
     const endPercent = ((timeRange.end - min) / (max - min)) * 100;
     return (
@@ -38,12 +40,18 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown }: Time
                 />
                 <div
                     onPointerDown={onPointerDown('start')}
-                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                    onLostPointerCapture={onPointerUp}
+                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 touch-none cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
                     style={{ left: `${startPercent}%` }}
                 />
                 <div
                     onPointerDown={onPointerDown('end')}
-                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                    onLostPointerCapture={onPointerUp}
+                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 touch-none cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
                     style={{ left: `${endPercent}%` }}
                 />
             </div>

@@ -22,6 +22,8 @@ interface FilterActions {
     toggleDay: (day: DayLiteral) => void;
     setMinGap: Dispatch<SetStateAction<number>>;
     onPointerDown: (thumb: 'start' | 'end') => (e: React.PointerEvent) => void;
+    onPointerMove: (e: React.PointerEvent) => void;
+    onPointerUp: () => void;
 }
 
 interface FilterSettingsProps {
@@ -74,6 +76,8 @@ function FilterSettings({
                         min={SLIDER_MIN}
                         max={SLIDER_MAX}
                         onPointerDown={filterActions.onPointerDown}
+                        onPointerMove={filterActions.onPointerMove}
+                        onPointerUp={filterActions.onPointerUp}
                     />
                     <MinGapSlider
                         minGap={filterState.minGap}

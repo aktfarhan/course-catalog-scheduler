@@ -136,6 +136,9 @@ export function useCalendarSidebar({
     const updateSliderValue = useCallback((clientX: number) => {
         if (!draggingRef.current || !sliderRef.current) return;
 
+        // Capture which thumb is active
+        const thumb = draggingRef.current;
+
         // Get slider bounds
         const rect = sliderRef.current.getBoundingClientRect();
 
@@ -151,7 +154,7 @@ export function useCalendarSidebar({
 
         setTimeRange((prev) => {
             // Update start thumb, clamped to stay before end
-            if (draggingRef.current === 'start') {
+            if (thumb === 'start') {
                 return { ...prev, start: Math.min(newValue, prev.end - 1) };
             }
 
@@ -160,30 +163,30 @@ export function useCalendarSidebar({
         });
     }, []);
 
+    // Captures pointer to the thumb element so all events are delivered during drag
     const onPointerDown = useCallback(
         (thumb: 'start' | 'end') => (e: ReactPointerEvent) => {
             if (e.button !== 0) return;
             e.preventDefault();
-            // Mark which thumb is being dragged
             draggingRef.current = thumb;
+            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        },
+        [],
+    );
 
-            // Handle pointer movement
-            const handlePointerMove = (moveEvent: PointerEvent) =>
-                updateSliderValue(moveEvent.clientX);
-
-            // Cleanup when dragging ends
-            const handlePointerUp = () => {
-                draggingRef.current = null;
-                window.removeEventListener('pointermove', handlePointerMove);
-                window.removeEventListener('pointerup', handlePointerUp);
-            };
-
-            // Attach global listeners
-            window.addEventListener('pointermove', handlePointerMove);
-            window.addEventListener('pointerup', handlePointerUp);
+    // Updates the slider value as the pointer moves (only while dragging)
+    const onPointerMove = useCallback(
+        (e: ReactPointerEvent) => {
+            if (!draggingRef.current) return;
+            updateSliderValue(e.clientX);
         },
         [updateSliderValue],
     );
+
+    // Resets drag state when the pointer is released or capture is lost
+    const onPointerUp = useCallback(() => {
+        draggingRef.current = null;
+    }, []);
 
     // ----- Export state, data, refs, and actions -----
     return {
@@ -218,6 +221,8 @@ export function useCalendarSidebar({
             toggleDay,
             handleTermChange,
             onPointerDown,
+            onPointerMove,
+            onPointerUp,
             handleGenerateSchedule,
         },
     };
