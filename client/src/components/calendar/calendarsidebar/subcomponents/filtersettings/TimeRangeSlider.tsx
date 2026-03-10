@@ -8,7 +8,7 @@ interface TimeRangeSliderProps {
     max: number;
     timeRange: TimeRange;
     sliderRef: RefObject<HTMLDivElement | null>;
-    onPointerDown: (thumb: 'start' | 'end') => (e: React.PointerEvent<Element>) => void;
+    onPointerDown: (e: React.PointerEvent<Element>) => void;
     onPointerMove: (e: React.PointerEvent<Element>) => void;
     onPointerUp: () => void;
 }
@@ -28,7 +28,11 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
             </div>
             <div
                 ref={sliderRef}
-                className="relative flex h-6 w-full touch-none items-center select-none"
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onLostPointerCapture={onPointerUp}
+                className="relative flex h-6 w-full cursor-grab touch-none items-center select-none active:cursor-grabbing"
             >
                 <div className="absolute h-1.5 w-full rounded-full bg-gray-200" />
                 <div
@@ -39,19 +43,11 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
                     }}
                 />
                 <div
-                    onPointerDown={onPointerDown('start')}
-                    onPointerMove={onPointerMove}
-                    onPointerUp={onPointerUp}
-                    onLostPointerCapture={onPointerUp}
-                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 touch-none cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
+                    className="border-theme-blue pointer-events-none absolute z-20 h-4 w-4 -translate-x-1/2 rounded-full border-2 bg-white shadow-md transition-transform"
                     style={{ left: `${startPercent}%` }}
                 />
                 <div
-                    onPointerDown={onPointerDown('end')}
-                    onPointerMove={onPointerMove}
-                    onPointerUp={onPointerUp}
-                    onLostPointerCapture={onPointerUp}
-                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 touch-none cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
+                    className="border-theme-blue pointer-events-none absolute z-20 h-4 w-4 -translate-x-1/2 rounded-full border-2 bg-white shadow-md transition-transform"
                     style={{ left: `${endPercent}%` }}
                 />
             </div>

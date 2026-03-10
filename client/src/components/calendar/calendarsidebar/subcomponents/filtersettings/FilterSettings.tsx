@@ -21,7 +21,7 @@ interface FilterActions {
     handleTermChange: (term: AcademicTerm) => void;
     toggleDay: (day: DayLiteral) => void;
     setMinGap: Dispatch<SetStateAction<number>>;
-    onPointerDown: (thumb: 'start' | 'end') => (e: React.PointerEvent) => void;
+    onPointerDown: (e: React.PointerEvent) => void;
     onPointerMove: (e: React.PointerEvent) => void;
     onPointerUp: () => void;
 }

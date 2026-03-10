@@ -35,6 +35,7 @@ export function useCalendarSidebar({
     // ----- Refs -----
     const sliderRef = useRef<HTMLDivElement | null>(null);
     const draggingRef = useRef<'start' | 'end' | null>(null);
+    const trackRectRef = useRef<DOMRect | null>(null);
 
     // ----- Action Handlers -----
 
@@ -134,13 +135,13 @@ export function useCalendarSidebar({
     );
 
     const updateSliderValue = useCallback((clientX: number) => {
-        if (!draggingRef.current || !sliderRef.current) return;
+        if (!draggingRef.current || !trackRectRef.current) return;
 
-        // Capture which thumb is active
+        // Capture which thumb is active now, before the async state update
         const thumb = draggingRef.current;
 
-        // Get slider bounds
-        const rect = sliderRef.current.getBoundingClientRect();
+        // Use the cached rect from the element that received the pointer down
+        const rect = trackRectRef.current;
 
         // Convert pointer position to a 0–1 percentage
         const percent = Math.min(Math.max(0, (clientX - rect.left) / rect.width), 1);
@@ -163,15 +164,29 @@ export function useCalendarSidebar({
         });
     }, []);
 
-    // Captures pointer to the thumb element so all events are delivered during drag
+    // Determines which thumb is closer to the tap and captures the pointer to the track
     const onPointerDown = useCallback(
-        (thumb: 'start' | 'end') => (e: ReactPointerEvent) => {
+        (e: ReactPointerEvent) => {
             if (e.button !== 0) return;
             e.preventDefault();
-            draggingRef.current = thumb;
+
+            // Cache the rect from the actual visible element that received the event
+            trackRectRef.current = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+            // Calculate which thumb is closer to the tapped position
+            const rect = trackRectRef.current;
+            const percent = (e.clientX - rect.left) / rect.width;
+            const range = CALENDAR_CONFIG.END_TIME - CALENDAR_CONFIG.START_TIME;
+            const tappedValue = CALENDAR_CONFIG.START_TIME + percent * range;
+
+            const distToStart = Math.abs(tappedValue - timeRange.start);
+            const distToEnd = Math.abs(tappedValue - timeRange.end);
+            draggingRef.current = distToStart <= distToEnd ? 'start' : 'end';
+
             (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            updateSliderValue(e.clientX);
         },
-        [],
+        [timeRange, updateSliderValue],
     );
 
     // Updates the slider value as the pointer moves (only while dragging)
