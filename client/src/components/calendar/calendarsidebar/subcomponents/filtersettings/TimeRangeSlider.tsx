@@ -32,7 +32,7 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 onLostPointerCapture={onPointerUp}
-                className="relative flex h-6 w-full cursor-grab touch-none items-center select-none active:cursor-grabbing"
+                className="relative flex h-6 w-full touch-none items-center select-none"
             >
                 <div className="absolute h-1.5 w-full rounded-full bg-gray-200" />
                 <div
@@ -43,11 +43,11 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
                     }}
                 />
                 <div
-                    className="border-theme-blue pointer-events-none absolute z-20 h-4 w-4 -translate-x-1/2 rounded-full border-2 bg-white shadow-md transition-transform"
+                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
                     style={{ left: `${startPercent}%` }}
                 />
                 <div
-                    className="border-theme-blue pointer-events-none absolute z-20 h-4 w-4 -translate-x-1/2 rounded-full border-2 bg-white shadow-md transition-transform"
+                    className="border-theme-blue absolute z-20 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 bg-white shadow-md transition-transform hover:scale-110 active:cursor-grabbing"
                     style={{ left: `${endPercent}%` }}
                 />
             </div>
