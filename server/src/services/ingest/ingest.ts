@@ -2,120 +2,142 @@ import path from 'path';
 import fs from 'fs/promises';
 import prisma from '../../../prismaClient';
 import { logger } from '../../utils/logger';
-import type { NormalizedData } from '../../types';
+import type {
+    NormalizedData,
+    DepartmentInput,
+    CourseInput,
+    DiscussionGroupInput,
+    SectionInput,
+    MeetingInput,
+} from '../../types';
 import {
-    upsertDepartment,
-    upsertCourse,
+    upsertDepartments,
+    upsertCourses,
+    upsertSections,
+    upsertMeetings,
+    upsertDiscussionGroups,
     preloadInstructorMap,
     upsertInstructorViaEmail,
     upsertInstructorViaLink,
-    upsertSection,
-    upsertMeeting,
-    upsertDiscussionGroup,
 } from './index';
 
+const CHUNK_SIZE = 500;
+
 /**
- * Ingests normalized data into the database.
+ * Splits an array into chunks and runs each chunk through a batch function.
+ * Prevents oversized transactions from timing out or exceeding DB limits.
  *
- * This function processes departments, courses, discussion groups, sections,
- * meetings, and instructors in order, ensuring proper relations are established.
+ * @param items - Full array of items to process
+ * @param batchFn - Function that processes a chunk via $transaction
+ * @param onProgress - Optional callback fired after each chunk with total items processed
+ * @returns Flattened array of all results
+ */
+async function batchInChunks<T, R>(
+    items: T[],
+    batchFn: (chunk: T[]) => Promise<R[]>,
+    onProgress?: (processed: number) => void,
+): Promise<R[]> {
+    const results: R[] = [];
+    let processed = 0;
+    for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+        const chunk = items.slice(i, i + CHUNK_SIZE);
+        const chunkResults = await batchFn(chunk);
+        results.push(...chunkResults);
+        processed += chunk.length;
+        if (onProgress) onProgress(processed);
+    }
+    return results;
+}
+
+/**
+ * Ingests normalized data into the database using batched transactions.
+ *
+ * Processes departments, courses, discussion groups, sections, meetings,
+ * and instructors in order, ensuring proper relations are established.
  *
  * @param data - NormalizedData containing departments, courses, sections, instructors, and meetings.
  */
 export async function ingestData(data: NormalizedData) {
-    // Map department codes to their corresponding database IDs
-    const departmentIdMap = new Map<string, number>();
-
-    // Map composite keys of "departmentCode:courseCode" to course IDs
-    const courseIdMap = new Map<string, number>();
-
-    // Set of unique discussion groups identified by "courseId:term"
-    const discussionGroups = new Set<string>();
-
-    // Map composite keys of "courseId:term" to discussion group IDs
-    const discussionGroupIdMap = new Map<string, number>();
-
-    // Map composite keys of "classNumber:term" to section IDs
-    const sectionIdMap = new Map<string, number>();
-
-    // Map to accumulate department IDs per instructor ID
-    const instructorDepartments = new Map<number, Set<number>>();
-
-    // Map section IDs to the set of instructor IDs assigned
-    const sectionInstructors = new Map<number, Set<number>>();
-
-    // Upsert departments first and store their IDs for future reference
-    logger.startTask(data.length, 'Upserting Departments');
-    for (const [deptIndex, department] of data.entries()) {
-        logger.updateTask(deptIndex + 1);
-        const dept = await upsertDepartment({
-            code: department.departmentCode,
-            title: department.departmentName,
-        });
-        departmentIdMap.set(department.departmentCode, dept.id);
-    }
+    // 1. Batch upsert all departments
+    const deptInputs: DepartmentInput[] = data.map((dept) => ({
+        code: dept.departmentCode,
+        title: dept.departmentName,
+    }));
+    logger.startTask(deptInputs.length, 'Departments');
+    const deptResults = await batchInChunks(deptInputs, upsertDepartments, (n) => logger.updateTask(n));
     logger.completeTask();
+
+    // Map department codes to their database IDs
+    const departmentIdMap = new Map<string, number>();
+    for (const dept of deptResults) {
+        departmentIdMap.set(dept.code, dept.id);
+    }
 
     // Preload a map of instructors keyed by name+department
     const instructorMap = await preloadInstructorMap();
 
-    // Upsert courses and identify discussion groups for later processing
-    logger.startTask(data.length, 'Upserting Courses');
-    for (const [deptIndex, department] of data.entries()) {
-        logger.updateTask(deptIndex + 1);
-        // Get the department Id
+    // 2. Batch upsert all courses and identify discussion groups
+    const courseInputs: CourseInput[] = [];
+    for (const department of data) {
         const departmentId = departmentIdMap.get(department.departmentCode)!;
-        // Iterate through all courses
         for (const course of department.courses) {
-            // Upsert courses in each department
-            const cours = await upsertCourse({
+            courseInputs.push({
                 code: course.courseCode,
                 title: course.courseName,
                 description: course.description,
-                departmentId: departmentId,
+                departmentId,
             });
-            // Store the course Id for this course
-            courseIdMap.set(`${department.departmentCode}:${course.courseCode}`, cours.id);
+        }
+    }
+    logger.startTask(courseInputs.length, 'Courses');
+    const courseResults = await batchInChunks(courseInputs, upsertCourses, (n) => logger.updateTask(n));
+    logger.completeTask();
 
-            // Collect keys of discussion groups to upsert later
+    // Map "departmentId:courseCode" to course IDs
+    const courseIdMap = new Map<string, number>();
+    for (const course of courseResults) {
+        courseIdMap.set(`${course.departmentId}:${course.code}`, course.id);
+    }
+
+    // Collect unique discussion group keys from sections
+    const discussionGroupKeys = new Set<string>();
+    for (const department of data) {
+        const departmentId = departmentIdMap.get(department.departmentCode)!;
+        for (const course of department.courses) {
+            const courseId = courseIdMap.get(`${departmentId}:${course.courseCode}`)!;
             for (const section of course.sections) {
                 if (section.type === 'DISCUSSION') {
-                    discussionGroups.add(`${cours.id}:${section.term}`);
+                    discussionGroupKeys.add(`${courseId}:${section.term}`);
                 }
             }
         }
     }
-    logger.completeTask();
 
-    // Upsert all discussion groups and store their IDs
-    for (const key of discussionGroups) {
+    // 3. Batch upsert all discussion groups
+    const dgInputs: DiscussionGroupInput[] = Array.from(discussionGroupKeys).map((key) => {
         const [courseIdStr, term] = key.split(':', 2);
-        const courseId = Number(courseIdStr);
+        return { courseId: Number(courseIdStr), term };
+    });
+    const dgResults = await upsertDiscussionGroups(dgInputs);
 
-        // Upsert a discussion group for a course
-        const discussionGroup = await upsertDiscussionGroup({
-            courseId,
-            term,
-        });
-        // Store the id of this discussion group
-        discussionGroupIdMap.set(key, discussionGroup.id);
+    // Map "courseId:term" to discussion group IDs
+    const discussionGroupIdMap = new Map<string, number>();
+    for (const dg of dgResults) {
+        discussionGroupIdMap.set(`${dg.courseId}:${dg.term}`, dg.id);
     }
 
-    // Upsert all sections, and assign them to a discussionGroupId
-    logger.startTask(data.length, 'Upserting Sections');
-    for (const [deptIndex, department] of data.entries()) {
-        logger.updateTask(deptIndex + 1);
+    // 4. Batch upsert all sections
+    const sectionInputs: SectionInput[] = [];
+    for (const department of data) {
+        const departmentId = departmentIdMap.get(department.departmentCode)!;
         for (const course of department.courses) {
-            const courseId = courseIdMap.get(`${department.departmentCode}:${course.courseCode}`)!;
-
+            const courseId = courseIdMap.get(`${departmentId}:${course.courseCode}`)!;
             for (const section of course.sections) {
-                let discussionGroupId = null;
-                if (section.type === 'DISCUSSION') {
-                    discussionGroupId = discussionGroupIdMap.get(`${courseId}:${section.term}`)!;
-                }
-
-                // Upsert a section, link it to a course and discussionGroup
-                const sect = await upsertSection({
+                const discussionGroupId =
+                    section.type === 'DISCUSSION'
+                        ? discussionGroupIdMap.get(`${courseId}:${section.term}`)!
+                        : null;
+                sectionInputs.push({
                     sectionNumber: section.sectionNumber,
                     classNumber: section.classNumber,
                     term: section.term,
@@ -124,22 +146,27 @@ export async function ingestData(data: NormalizedData) {
                     courseId,
                     discussionGroupId,
                 });
-                sectionIdMap.set(`${sect.classNumber}:${sect.term}`, sect.id);
             }
         }
     }
+    logger.startTask(sectionInputs.length, 'Sections');
+    const sectionResults = await batchInChunks(sectionInputs, upsertSections, (n) => logger.updateTask(n));
     logger.completeTask();
 
-    // Upsert all meetings, link them to their section
-    logger.startTask(data.length, 'Upserting Meetings');
-    for (const [deptIndex, department] of data.entries()) {
-        logger.updateTask(deptIndex + 1);
+    // Map "classNumber:term" to section IDs
+    const sectionIdMap = new Map<string, number>();
+    for (const sect of sectionResults) {
+        sectionIdMap.set(`${sect.classNumber}:${sect.term}`, sect.id);
+    }
+
+    // 5. Batch upsert all meetings
+    const meetingInputs: MeetingInput[] = [];
+    for (const department of data) {
         for (const course of department.courses) {
             for (const section of course.sections) {
                 const sectionId = sectionIdMap.get(`${section.classNumber}:${section.term}`)!;
-                // Upsert all meetings of a section, and link them to the section
                 for (const meeting of section.meetings) {
-                    await upsertMeeting({
+                    meetingInputs.push({
                         day: meeting.day,
                         startTime: `1970-01-01T${meeting.startTime}Z`,
                         endTime: `1970-01-01T${meeting.endTime}Z`,
@@ -150,54 +177,45 @@ export async function ingestData(data: NormalizedData) {
             }
         }
     }
+    logger.startTask(meetingInputs.length, 'Meetings');
+    await batchInChunks(meetingInputs, upsertMeetings, (n) => logger.updateTask(n));
     logger.completeTask();
 
-    // Upsert instructors and accumulate department and section relations
-    logger.startTask(data.length, 'Upserting Instructors');
+    // 6. Upsert instructors sequentially (two code paths + map mutation make batching unsafe)
+    logger.startTask(data.length, 'Instructors');
+
+    // Accumulate department IDs per instructor and instructor IDs per section
+    const instructorDepartments = new Map<number, Set<number>>();
+    const sectionInstructors = new Map<number, Set<number>>();
+
     for (const [deptIndex, department] of data.entries()) {
         logger.updateTask(deptIndex + 1);
-        // Get the stored department ID for this department code
         const departmentId = departmentIdMap.get(department.departmentCode)!;
 
         for (const course of department.courses) {
             for (const section of course.sections) {
-                // Get the stored section ID for this section (by classNumber and term)
                 const sectionId = sectionIdMap.get(`${section.classNumber}:${section.term}`)!;
-
-                // Array to keep track of instructor IDs linked to this section
                 const instructorIds: number[] = [];
 
                 for (const instructor of section.instructors) {
-                    let inst;
+                    // Upsert by email if available, otherwise by name+department
+                    const inst = instructor.email
+                        ? await upsertInstructorViaEmail(instructor, [departmentId])
+                        : await upsertInstructorViaLink(instructor, [departmentId], instructorMap);
 
-                    // If instructor has an email, upsert by email
-                    if (instructor.email) {
-                        inst = await upsertInstructorViaEmail(instructor, [departmentId]);
-                    } else {
-                        // Otherwise, upsert by name and department using the preloaded map
-                        inst = await upsertInstructorViaLink(
-                            instructor,
-                            [departmentId],
-                            instructorMap,
-                        );
-                    }
-
-                    // Track which departments this instructor belongs to (for batch update)
+                    // Track which departments this instructor belongs to
                     if (!instructorDepartments.has(inst.id)) {
                         instructorDepartments.set(inst.id, new Set());
                     }
                     instructorDepartments.get(inst.id)!.add(departmentId);
 
-                    // Add instructor ID to list for connecting to section later
                     instructorIds.push(inst.id);
                 }
 
-                // Ensure a set exists to track instructors for this section
+                // Track which instructors belong to this section
                 if (!sectionInstructors.has(sectionId)) {
                     sectionInstructors.set(sectionId, new Set());
                 }
-
-                // Add each instructor ID to the section's instructor set
                 for (const instructorId of instructorIds) {
                     sectionInstructors.get(sectionId)!.add(instructorId);
                 }
@@ -206,31 +224,40 @@ export async function ingestData(data: NormalizedData) {
     }
     logger.completeTask();
 
-    // After processing all sections, update each instructor's linked departments
-    for (const [instructorId, departmentSet] of instructorDepartments) {
-        await prisma.instructor.update({
-            where: { id: instructorId },
-            data: {
-                departments: {
-                    // Replace linked departments with the collected set
-                    set: Array.from(departmentSet).map((id) => ({ id })),
-                },
-            },
-        });
+    // 7. Batch update instructor-department and section-instructor links (chunked)
+    const instructorEntries = Array.from(instructorDepartments);
+    for (let i = 0; i < instructorEntries.length; i += CHUNK_SIZE) {
+        const chunk = instructorEntries.slice(i, i + CHUNK_SIZE);
+        await prisma.$transaction(
+            chunk.map(([instructorId, departmentSet]) =>
+                prisma.instructor.update({
+                    where: { id: instructorId },
+                    data: {
+                        departments: {
+                            set: Array.from(departmentSet).map((id) => ({ id })),
+                        },
+                    },
+                }),
+            ),
+        );
     }
 
-    // Update each section's instructor connections in batch
-    for (const [sectionId, instructorIdSet] of sectionInstructors) {
-        await prisma.section.update({
-            where: { id: sectionId },
-            data: {
-                instructors: {
-                    // Clear existing instructors, then connect new set
-                    set: [],
-                    connect: Array.from(instructorIdSet).map((id) => ({ id })),
-                },
-            },
-        });
+    const sectionEntries = Array.from(sectionInstructors);
+    for (let i = 0; i < sectionEntries.length; i += CHUNK_SIZE) {
+        const chunk = sectionEntries.slice(i, i + CHUNK_SIZE);
+        await prisma.$transaction(
+            chunk.map(([sectionId, instructorIdSet]) =>
+                prisma.section.update({
+                    where: { id: sectionId },
+                    data: {
+                        instructors: {
+                            set: [],
+                            connect: Array.from(instructorIdSet).map((id) => ({ id })),
+                        },
+                    },
+                }),
+            ),
+        );
     }
 }
 

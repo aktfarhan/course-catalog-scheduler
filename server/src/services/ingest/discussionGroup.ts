@@ -24,3 +24,30 @@ export async function upsertDiscussionGroup(discussionGroup: DiscussionGroupInpu
         },
     });
 }
+
+/**
+ * Bulk upsert many discussion groups inside a single transaction.
+ * All operations succeed or fail together.
+ *
+ * @param groups - Array of discussion group input objects to upsert
+ * @returns An array of created or existing discussion group records
+ */
+export async function upsertDiscussionGroups(groups: DiscussionGroupInput[]) {
+    return prisma.$transaction(
+        groups.map((group) =>
+            prisma.discussionGroup.upsert({
+                where: {
+                    courseId_term: {
+                        courseId: group.courseId,
+                        term: group.term,
+                    },
+                },
+                update: {},
+                create: {
+                    courseId: group.courseId,
+                    term: group.term,
+                },
+            }),
+        ),
+    );
+}

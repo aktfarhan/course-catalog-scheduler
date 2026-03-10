@@ -1,6 +1,5 @@
 import path from 'path';
 import Fuse from 'fuse.js';
-import fs from 'fs/promises';
 import { logger } from '../utils/logger';
 import { writeJSONToFile } from '../utils';
 import type { RawDepartment } from '../types';
@@ -13,14 +12,10 @@ import { normalizeInstructorNames } from '../normalize/normalizeInstructors';
  * including fuzzy matching for names that don't directly match.
  * Outputs a JSON file with normalized instructor details for all instructors found.
  *
- * @returns {Promise<void>} Resolves when matching and writing are complete.
+ * @param data - Raw course data from the catalog scraper
+ * @returns {Promise<Instructor[]>} Array of matched instructors with their info
  */
-export async function matchMapInfo() {
-    // Read the raw course data JSON file
-    const dataFilePath = path.resolve(__dirname, '../../data/data.json');
-    const fileContents = await fs.readFile(dataFilePath, 'utf-8');
-    const data: RawDepartment[] = JSON.parse(fileContents);
-
+export async function matchMapInfo(data: RawDepartment[]): Promise<Instructor[]> {
     // Scrape instructor contact info from directory and store in a Map
     const instructorMap = await scrapeInstructorInfo();
 
@@ -87,11 +82,13 @@ export async function matchMapInfo() {
             }
         }
     }
-    // Write the final array of matched instructors to a JSON file
+    // Write the final array of matched instructors to a JSON file (cache for standalone runs)
     const outputFilePath = path.resolve(__dirname, '../../data/instructorInfo.json');
     await writeJSONToFile(outputFilePath, matchedInstructors);
 
     logger.completeTask();
+
+    return matchedInstructors;
 }
 
 /**

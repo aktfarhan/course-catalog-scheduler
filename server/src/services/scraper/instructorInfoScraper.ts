@@ -1,55 +1,77 @@
 import { logger } from '../../utils/logger';
-import { InstructorInfo } from '../../types';
+import { withRetry } from '../../utils';
 import { removeAccents } from '../../utils/';
 import { chromium, Page, Locator } from 'playwright-chromium';
+import type { InstructorInfo } from '../../types';
+
+const CONCURRENCY = 5;
 
 /**
- * Scrapes the entire directory, iterating through all pages
- * and collecting instructor information into a map.
+ * Scrapes the entire directory using parallel browser contexts,
+ * iterating through all pages and collecting instructor information.
  *
  * @returns {Promise<Map<string, InstructorInfo>>} A Map of instructor names to their info.
  */
 export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo>> {
-    // Map of all instructor info
     const instructorMap = new Map<string, InstructorInfo>();
 
-    // Launch the browser and open a page
+    // Launch the browser and determine total page count
     const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
+    const scoutPage = await browser.newPage();
 
-    // Go to the first page of the directory
-    await page.goto('https://www.umb.edu/directory/?page=1');
-    await page.waitForSelector('nav.pagination.c-pagination');
+    await scoutPage.goto('https://www.umb.edu/directory/?page=1', { timeout: 30000 });
+    await scoutPage.waitForSelector('nav.pagination.c-pagination', { timeout: 15000 });
 
-    // Get last page number
-    const lastPageNumber = await page
+    // Get last page number from pagination links
+    const lastPageNumber = await scoutPage
         .locator('nav.pagination.c-pagination a')
         .filter({ hasText: /^[0-9]+$/ })
         .last()
         .textContent()
         .then((text) => parseInt(text ?? '1', 10));
 
+    await scoutPage.close();
+
+    // Build a queue of page numbers for workers to pull from
+    const pageQueue: number[] = [];
+    for (let i = 1; i <= lastPageNumber; i++) pageQueue.push(i);
+
     logger.startTask(lastPageNumber, 'Scraping Directory');
+    let completed = 0;
 
-    // Iterate through all pages
-    for (let pageNumber = 1; pageNumber <= lastPageNumber; pageNumber++) {
-        const url = `https://www.umb.edu/directory/?page=${pageNumber}`;
-        logger.updateTask(pageNumber);
+    // Worker function: each worker gets its own browser context and page
+    async function worker() {
+        const context = await browser.newContext();
+        const page = await context.newPage();
 
-        // Go to the page, and wait for the staff cards to load
-        await page.goto(url);
-        await page.waitForSelector('.staff-directory .staff-card');
+        while (pageQueue.length > 0) {
+            const pageNumber = pageQueue.shift()!;
 
-        // Extract all info from staff cards
-        await extractStaffFromPage(page, instructorMap);
+            try {
+                await withRetry(async () => {
+                    await page.goto(`https://www.umb.edu/directory/?page=${pageNumber}`, {
+                        timeout: 30000,
+                    });
+                    await page.waitForSelector('.staff-directory .staff-card', { timeout: 15000 });
+                    await extractStaffFromPage(page, instructorMap);
+                });
+            } catch (error) {
+                console.error(`Failed to scrape directory page ${pageNumber}:`, error);
+            }
+
+            completed++;
+            logger.updateTask(completed);
+        }
+
+        await context.close();
     }
 
-    // Close the browser
-    await browser.close();
+    // Run workers in parallel
+    await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
+    await browser.close();
     logger.completeTask();
 
-    // Return the Map for matching
     return instructorMap;
 }
 
@@ -58,6 +80,7 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
  * from all staff cards on the current page.
  *
  * @param page - Current Playwright Page instance.
+ * @param instructorMap - Map to populate with instructor info.
  */
 async function extractStaffFromPage(page: Page, instructorMap: Map<string, InstructorInfo>) {
     // Find all the cards on the page

@@ -10,11 +10,11 @@
  * upsertDiscussionGroups - Bulk upsert discussion group records.
  */
 
-export { upsertDepartment } from './department';
-export { upsertCourse } from './course';
-export { upsertSection } from './section';
-export { upsertMeeting } from './meeting';
-export { upsertDiscussionGroup } from './discussionGroup';
+export { upsertDepartment, upsertDepartments } from './department';
+export { upsertCourse, upsertCourses } from './course';
+export { upsertSection, upsertSections } from './section';
+export { upsertMeeting, upsertMeetings } from './meeting';
+export { upsertDiscussionGroup, upsertDiscussionGroups } from './discussionGroup';
 export {
     preloadInstructorMap,
     upsertInstructorViaEmail,
