@@ -1,23 +1,58 @@
 import path from 'path';
 import fs from 'fs/promises';
+import { toMinutes } from './utils';
 import type { RawDepartment } from './types';
 
-/**
- * Scans data.json and prints all unique class durations found.
- * Use this to keep CLASS_DURATIONS in normalizeMeetingTime.ts up to date.
- */
-async function main() {
-    const filePath = path.resolve(__dirname, '../data/data.json');
-    const data: RawDepartment[] = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+const DATA_PATH = path.resolve(__dirname, '../data/data.json');
+const CONSTANTS_PATH = path.resolve(__dirname, 'constants.ts');
+const TIME_REGEX = /^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*(am|pm)$/i;
 
+/**
+ * Parses a time range string and returns the duration in minutes.
+ *
+ * @param range - A time range like "12:30 - 1:15 pm"
+ * @returns Duration in minutes, or null if unparseable.
+ */
+function parseDuration(range: string): number | null {
+    const match = range.match(TIME_REGEX);
+    if (!match) return null;
+
+    const [, startH, startM, endH, endM, meridiem] = match;
+
+    // End time meridiem is known, convert directly
+    const end = toMinutes(Number(endH), Number(endM), meridiem.toLowerCase());
+
+    // Start time has no meridiem, try both combinations
+    const durationAM = end - toMinutes(Number(startH), Number(startM), 'am');
+    const durationPM = end - toMinutes(Number(startH), Number(startM), 'pm');
+
+    // Whichever gives a positive duration is the right one
+    if (durationAM > 0 && durationPM <= 0) return durationAM;
+    if (durationPM > 0 && durationAM <= 0) return durationPM;
+
+    // If both are positive, return the minimum
+    if (durationAM > 0 && durationPM > 0) return Math.min(durationAM, durationPM);
+
+    return null;
+}
+
+/**
+ * Scans all sections in data.json and collects unique class durations.
+ *
+ * @param data - Raw department data.
+ * @returns Set of unique durations in minutes.
+ */
+function collectDurations(data: RawDepartment[]): Set<number> {
     const durations = new Set<number>();
 
+    // Iterate through every section in the raw data
     for (const department of data) {
         for (const course of department.courses) {
             for (const semester of course.semesters) {
                 for (const section of semester.sections) {
                     if (!section.time || section.time === '-') continue;
 
+                    // Split on '|' for sections with multiple meeting times
                     for (const range of section.time.split('|')) {
                         const duration = parseDuration(range.trim());
                         if (duration !== null) durations.add(duration);
@@ -27,43 +62,32 @@ async function main() {
         }
     }
 
-    const sorted = Array.from(durations).sort((a, b) => a - b);
-    console.log(`\nFound ${sorted.length} unique class durations:\n`);
-    console.log(`const CLASS_DURATIONS = [\n    ${sorted.join(', ')},\n];`);
+    return durations;
 }
 
 /**
- * Parses a time range string and returns the duration in minutes.
+ * Writes the updated CLASS_DURATIONS into constants.ts.
  *
- * @param range - A time range like "12:30 - 1:15 pm"
- * @returns Duration in minutes, or null if unparseable
+ * @param durations - Set of unique durations.
  */
-function parseDuration(range: string): number | null {
-    const match = range.match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})\s*(am|pm)$/i);
-    if (!match) return null;
+async function writeDurations(durations: Set<number>): Promise<void> {
+    const contents = await fs.readFile(CONSTANTS_PATH, 'utf-8');
 
-    const [, startH, startM, endH, endM, meridiem] = match;
-    const endMinutes = toMinutes(Number(endH), Number(endM), meridiem.toLowerCase());
+    // Swap the old CLASS_DURATIONS array with the updated one
+    const updated = contents.replace(
+        /export const CLASS_DURATIONS = \[[\s\S]*?\];/,
+        `export const CLASS_DURATIONS = [\n    ${[...durations].join(', ')},\n];`,
+    );
 
-    // Try both AM and PM interpretations for the ambiguous start time
-    const startAM = toMinutes(Number(startH), Number(startM), 'am');
-    const startPM = toMinutes(Number(startH), Number(startM), 'pm');
-
-    const durationAM = endMinutes - startAM;
-    const durationPM = endMinutes - startPM;
-
-    // Pick whichever interpretation gives a positive, reasonable duration
-    if (durationAM > 0 && durationPM <= 0) return durationAM;
-    if (durationPM > 0 && durationAM <= 0) return durationPM;
-    if (durationAM > 0 && durationPM > 0) return Math.min(durationAM, durationPM);
-
-    return null;
+    await fs.writeFile(CONSTANTS_PATH, updated, 'utf-8');
 }
 
-function toMinutes(hour: number, minutes: number, meridiem: string): number {
-    if (meridiem === 'am' && hour === 12) hour = 0;
-    if (meridiem === 'pm' && hour !== 12) hour += 12;
-    return hour * 60 + minutes;
+/**
+ * Scans data.json for all unique class durations and writes the
+ * updated CLASS_DURATIONS array directly into constants.ts.
+ */
+export async function findDurations(): Promise<void> {
+    const data: RawDepartment[] = JSON.parse(await fs.readFile(DATA_PATH, 'utf-8'));
+    const durations = collectDurations(data);
+    await writeDurations(durations);
 }
-
-main();

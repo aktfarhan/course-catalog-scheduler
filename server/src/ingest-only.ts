@@ -1,5 +1,10 @@
+import path from 'path';
+import fs from 'fs/promises';
 import { logger } from './utils/logger';
-import { runIngest } from './services/ingest/ingest';
+import { ingestData } from './services/ingest/ingest';
+import type { NormalizedData } from './types';
+
+const DATA_PATH = path.resolve(__dirname, '../data/normalizedData.json');
 
 /**
  * Entry point for running database ingestion.
@@ -13,7 +18,10 @@ async function main(): Promise<void> {
     try {
         logger.header();
         logger.phase(1, 'Database Ingestion');
-        await runIngest();
+
+        const data: NormalizedData = JSON.parse(await fs.readFile(DATA_PATH, 'utf-8'));
+        await ingestData(data);
+
         logger.summary();
     } catch (error) {
         logger.error(error);

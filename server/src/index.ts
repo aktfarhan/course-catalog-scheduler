@@ -1,5 +1,4 @@
 import path from 'path';
-import prisma from '../prismaClient';
 import { logger } from './utils/logger';
 import { writeJSONToFile } from './utils';
 import { ingestData } from './services/ingest/ingest';
@@ -12,11 +11,11 @@ async function main() {
     try {
         logger.header();
 
-        // Phase 1: Scrape course catalog (returns raw data in memory + writes data.json)
+        // Phase 1: Scrape course catalog (returns raw data + writes data.json)
         logger.phase(1, 'Scraping Course Catalog');
         const rawData: RawDepartment[] = await ScrapeData();
 
-        // Phase 2: Scrape instructor directory + fuzzy match (uses rawData directly)
+        // Phase 2: Scrape instructor directory + fuzzy match
         logger.phase(2, 'Instructor Matching');
         const matchedInstructors = await matchMapInfo(rawData);
 
@@ -45,8 +44,6 @@ async function main() {
     } catch (error) {
         logger.error(error);
         process.exit(1);
-    } finally {
-        await prisma.$disconnect();
     }
 }
 

@@ -1,5 +1,3 @@
-import path from 'path';
-import fs from 'fs/promises';
 import prisma from '../../../prismaClient';
 import { logger } from '../../utils/logger';
 import type {
@@ -259,20 +257,7 @@ export async function ingestData(data: NormalizedData) {
             ),
         );
     }
+
+    await prisma.$disconnect();
 }
 
-/**
- * Wrapper function to load normalized JSON and trigger ingestion.
- */
-export async function runIngest() {
-    try {
-        const filePath = path.resolve(__dirname, '../../../data/normalizedData.json');
-        const fileContents = await fs.readFile(filePath, 'utf-8');
-        const data: NormalizedData = JSON.parse(fileContents);
-        await ingestData(data);
-    } catch (error) {
-        console.error('Ingestion failed:', error);
-    } finally {
-        await prisma.$disconnect();
-    }
-}
