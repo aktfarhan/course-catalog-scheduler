@@ -1,116 +1,83 @@
 import path from 'path';
 import Fuse from 'fuse.js';
-import fs from 'fs/promises';
 import { logger } from '../utils/logger';
 import { writeJSONToFile } from '../utils';
-import type { RawDepartment } from '../types';
-import { InstructorName, InstructorInfo, Instructor } from '../types';
-import { scrapeInstructorInfo } from './scraper/instructorInfoScraper';
 import { normalizeInstructorNames } from '../normalize/normalizeInstructors';
+import { scrapeInstructorInfo } from './scraper/instructorInfoScraper';
+import type { RawDepartment, Instructor } from '../types';
+
+const OUTPUT_PATH = path.resolve(__dirname, '../../data/instructorInfo.json');
 
 /**
- * Matches instructor names from raw course data to scraped instructor info,
- * including fuzzy matching for names that don't directly match.
- * Outputs a JSON file with normalized instructor details for all instructors found.
+ * Matches instructor names from raw course data to scraped directory info
+ * using exact lookup first, then fuzzy matching as a fallback.
  *
- * @returns {Promise<void>} Resolves when matching and writing are complete.
+ * @param data - Raw scraped course data.
+ * @returns Array of matched instructors with their contact info.
  */
-export async function matchMapInfo() {
-    // Read the raw course data JSON file
-    const dataFilePath = path.resolve(__dirname, '../../data/data.json');
-    const fileContents = await fs.readFile(dataFilePath, 'utf-8');
-    const data: RawDepartment[] = JSON.parse(fileContents);
-
-    // Scrape instructor contact info from directory and store in a Map
+export async function matchMapInfo(data: RawDepartment[]): Promise<Instructor[]> {
+    // Scrape instructor contact info from the directory
     const instructorMap = await scrapeInstructorInfo();
 
-    // Array to store matched instructors with their info
+    // Store matched instructors and track already-processed names
     const matchedInstructors: Instructor[] = [];
+    const seen = new Set<string>();
 
-    // Track which instructor full names have already been processed
-    const addedKeys = new Set<string>();
-
-    // Prepare fuzzy search on scraped instructor names
-    const keys = Array.from(instructorMap.keys());
-    const threshold = 0.2; // Fuse.js fuzzy matching threshold (lower = stricter)
-    const fuse = new Fuse(keys, {
-        includeScore: true,
-        threshold,
-    });
+    // Prepare fuzzy search over scraped instructor names
+    const fuse = new Fuse(Array.from(instructorMap.keys()), { threshold: 0.2 });
 
     logger.startTask(data.length, 'Fuzzy Matching');
 
-    // Iterate through each instructor listed in the raw course data
+    // Iterate through every instructor listed in the raw course data
     for (const [deptIndex, department] of data.entries()) {
         logger.updateTask(deptIndex + 1);
         for (const course of department.courses) {
             for (const semester of course.semesters) {
                 for (const section of semester.sections) {
-                    // Normalize instructor names; handle multiple instructors separated by '|'
+                    // Normalize names and handle multiple instructors separated by '|'
                     const instructors = normalizeInstructorNames(section.instructor);
+
                     for (const instructor of instructors) {
-                        // Skip if instructor normalization failed (null)
                         if (!instructor) continue;
 
                         // Combine first and last name to create a unique key
                         const name = `${instructor.firstName} ${instructor.lastName}`;
+                        if (seen.has(name)) continue;
 
-                        // Skip if this instructor is already processed
-                        if (addedKeys.has(name)) continue;
-
-                        // Try exact match lookup in scraped instructor map
+                        // Try exact match first
                         let info = instructorMap.get(name);
 
-                        // If no exact match, try fuzzy search with Fuse.js
+                        // If no exact match, use Fuse.js to find the closest name
                         if (!info) {
-                            const results = fuse.search(name);
-                            if (results.length > 0) {
-                                const bestMatch = results[0];
-                                if (bestMatch.score !== undefined && bestMatch.score <= threshold) {
-                                    info = instructorMap.get(bestMatch.item);
-                                }
-                            }
+                            const fuzzyMatch = fuse.search(name)[0];
+                            // Use fuzzy result if found, otherwise fall back to null fields
+                            info = (fuzzyMatch && instructorMap.get(fuzzyMatch.item)) ?? {
+                                email: null,
+                                title: null,
+                                phone: null,
+                            };
                         }
 
-                        // If still no match, fill info with null fields
-                        if (!info) {
-                            info = { email: null, title: null, phone: null };
-                        }
+                        // Add the matched instructor to the results
+                        matchedInstructors.push({
+                            firstName: instructor.firstName,
+                            lastName: instructor.lastName,
+                            title: info.title,
+                            email: info.email,
+                            phone: info.phone,
+                        });
 
-                        // Add matched instructor info to result list
-                        pushMatchedInstructor(info, matchedInstructors, instructor);
-
-                        // Mark this instructor as processed
-                        addedKeys.add(name);
+                        // Mark this instructor as seen
+                        seen.add(name);
                     }
                 }
             }
         }
     }
-    // Write the final array of matched instructors to a JSON file
-    const outputFilePath = path.resolve(__dirname, '../../data/instructorInfo.json');
-    await writeJSONToFile(outputFilePath, matchedInstructors);
 
+    // Write matched instructors to JSON
+    await writeJSONToFile(OUTPUT_PATH, matchedInstructors);
     logger.completeTask();
-}
 
-/**
- * Adds an instructor's info and name to the matched instructors list.
- *
- * @param info - Instructor contact info (email, title, phone).
- * @param matchedInstructors - Array accumulating matched instructors.
- * @param name - Normalized instructor name (first and last).
- */
-function pushMatchedInstructor(
-    info: InstructorInfo,
-    matchedInstructors: Instructor[],
-    name: InstructorName,
-) {
-    matchedInstructors.push({
-        firstName: name.firstName,
-        lastName: name.lastName,
-        title: info.title,
-        email: info.email,
-        phone: info.phone,
-    });
+    return matchedInstructors;
 }

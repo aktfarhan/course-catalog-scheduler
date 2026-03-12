@@ -1,69 +1,104 @@
 import path from 'path';
-import * as fs from 'fs/promises';
 import { logger } from '../../utils/logger';
-import { chromium, Locator, Page } from 'playwright-chromium';
+import { withRetry, writeJSONToFile } from '../../utils';
+import { chromium, Page } from 'playwright-chromium';
+import type { RawDepartment } from '../../types';
 
-export async function ScrapeData() {
-    // Launch a browser and create a page
+const CONCURRENCY = 8;
+const BASE_URL = 'https://courses.umb.edu/course_catalog';
+const OUTPUT_PATH = path.resolve(__dirname, '../../../data/data.json');
+
+/**
+ * Scrapes the entire UMB course catalog using parallel browser contexts.
+ * Collects departments, courses, sections, and writes the result to data.json.
+ *
+ * @returns Array of raw department data with courses and sections.
+ */
+export async function scrapeData(): Promise<RawDepartment[]> {
     const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
 
-    // The complete data from the course catalog
-    const catalog = [];
+    // Scout page to get all department codes and names
+    const scoutPage = await browser.newPage();
+    const departments = await scrapeDepartmentTitles(scoutPage);
+    await scoutPage.close();
 
-    // Get the department titles
-    const departments = await scrapeDepartmentTitles(page);
+    // Build a work queue with original indices to preserve ordering
+    const queue = [...departments.entries()];
+    const catalog = new Map<number, RawDepartment>();
 
     logger.startTask(departments.length, 'Scraping Catalog');
+    let completed = 0;
 
-    // Get all the courses for all departments
-    for (const [deptIndex, department] of departments.entries()) {
-        logger.updateTask(deptIndex + 1);
+    // Each worker gets its own browser context and pulls departments from the shared queue
+    async function worker() {
+        const context = await browser.newContext();
+        const page = await context.newPage();
 
-        const courses = await scrapeDepartmentCourses(page, department.departmentCode);
-        const courseData = [];
+        while (queue.length > 0) {
+            const [deptIndex, department] = queue.shift()!;
 
-        // Getting the section data for each course
-        for (const course of courses) {
-            const { description, semesters } = await scrapeCourseSections(
-                page,
-                department.departmentCode,
-                course.courseCode,
-            );
-            courseData.push({
-                courseCode: course.courseCode,
-                courseName: course.courseName,
-                description,
-                semesters,
-            });
+            try {
+                // Scrape course list for this department
+                const courses = await withRetry(() =>
+                    scrapeDepartmentCourses(page, department.departmentCode),
+                );
+
+                // Scrape sections and description for each course
+                const courseData = [];
+                for (const course of courses) {
+                    const { description, semesters } = await withRetry(() =>
+                        scrapeCourseSections(page, department.departmentCode, course.courseCode),
+                    );
+                    courseData.push({
+                        courseCode: course.courseCode,
+                        courseName: course.courseName,
+                        description,
+                        semesters,
+                    });
+                }
+
+                // Store with original index to restore ordering later
+                catalog.set(deptIndex, {
+                    departmentCode: department.departmentCode,
+                    departmentName: department.departmentName,
+                    courses: courseData,
+                });
+            } catch (error) {
+                console.error(`Failed to scrape department ${department.departmentCode}:`, error);
+            }
+
+            completed++;
+            logger.updateTask(completed);
         }
 
-        // Adding the department info to the catalog
-        catalog.push({
-            departmentCode: department.departmentCode,
-            departmentName: department.departmentName,
-            courses: courseData,
-        });
+        await context.close();
     }
 
-    // Close the browser
+    // Run workers in parallel
+    await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
     await browser.close();
-    const outputPath = path.resolve(__dirname, '../../../data/data.json');
-    await fs.writeFile(outputPath, JSON.stringify(catalog, null, 2), 'utf-8');
 
+    // Restore original department ordering
+    const orderedCatalog: RawDepartment[] = [];
+    for (let i = 0; i < departments.length; i++) {
+        const dept = catalog.get(i);
+        if (dept) orderedCatalog.push(dept);
+    }
+
+    await writeJSONToFile(OUTPUT_PATH, orderedCatalog);
     logger.completeTask();
 
-    // Return the catalog data
-    return catalog;
+    return orderedCatalog;
 }
 
 /**
- * Function that scrapes all the department titles in the catalog.
- * Returns all the departments found.
+ * Scrapes all department codes and names from the catalog page.
+ *
+ * @param page - Playwright Page instance.
+ * @returns Array of department codes and names.
  */
 async function scrapeDepartmentTitles(page: Page) {
-    // Get department titles
-    await page.goto('https://courses.umb.edu/course_catalog/listing/ugrd');
+    await page.goto(`${BASE_URL}/listing/ugrd`, { timeout: 30000 });
     const titles = await page.locator('#content li').allTextContents();
 
     // Split department code and name
@@ -72,21 +107,23 @@ async function scrapeDepartmentTitles(page: Page) {
         return { departmentCode, departmentName };
     });
 
-    // Return departments
     return departments;
 }
 
 /**
- * Function that scrapes all courses and codes for a specific department.
- * Returns all the courses found in a department.
+ * Scrapes all course codes and names for a specific department.
+ *
+ * @param page - Playwright Page instance.
+ * @param department - Department code (e.g. "CS").
+ * @returns Array of course codes and names.
  */
 async function scrapeDepartmentCourses(page: Page, department: string) {
-    // Get all courses from the department
-    await page.goto(`https://courses.umb.edu/course_catalog/courses/ugrd_${department}_all`);
+    await page.goto(`${BASE_URL}/courses/ugrd_${department}_all`, { timeout: 30000 });
     const titles = await page.locator('ul.showHideList li h4').allTextContents();
 
-    // Get the code and name of the course
     const regex = /^([A-Z]+)\s+(\d+[A-Z]*)\s+(.+?)\s*\+?\s*$/;
+
+    // Get the code and name of the course
     const courses = titles
         .map((title) => {
             const match = title.match(regex);
@@ -96,110 +133,102 @@ async function scrapeDepartmentCourses(page: Page, department: string) {
         // Type guard to filter if match is null
         .filter(Boolean) as { courseCode: string; courseName: string }[];
 
-    // Return courses
     return courses;
 }
 
 /**
- * Function that scrapes all sections for a course.
- * Returns all the sections found.
+ * Scrapes all sections for a specific course.
+ * Extracts the course description, semester headers, and section details
+ * (section number, class number, days, time, instructor, location).
+ *
+ * @param page - Playwright Page instance.
+ * @param departmentCode - Department code (e.g. "CS").
+ * @param courseCode - Course code (e.g. "110").
+ * @returns Object with description and array of semesters containing sections.
  */
 async function scrapeCourseSections(page: Page, departmentCode: string, courseCode: string) {
-    // Go to the course page and scrape the sections
-    await page.goto(
-        `https://courses.umb.edu/course_catalog/course_info/ugrd_${departmentCode}_all_${courseCode}`,
-    );
+    // Navigate to the course info page
+    await page.goto(`${BASE_URL}/course_info/ugrd_${departmentCode}_all_${courseCode}`, {
+        timeout: 30000,
+    });
 
-    // Get the course description
-    const description = await getCourseDescription(page);
+    // Extract all data from the DOM in one browser call
+    return await page.evaluate(() => {
+        type Section = {
+            section: string;
+            classNumber: string;
+            days: string;
+            time: string;
+            instructor: string;
+            location: string;
+        };
+        type Semester = { semester: string; sections: Section[] };
 
-    // Get all the semesters available
-    const offering = page.locator('h2:has-text("Offered in:")').first();
-    const semesters = offering.locator('xpath=following-sibling::h3');
-    const semesterCount = await semesters.count();
-
-    const allSemesters = [];
-    for (let i = 0; i < semesterCount; i++) {
-        const semester = semesters.nth(i);
-        const semesterName = await getTrimmedText(semester);
-
-        // Get the sections that are offered in a semester
-        const sectionsLocator = semester.locator('xpath=following-sibling::table[1]');
-        const semesterSections = sectionsLocator.locator('tbody > tr.class-info-rows');
-        // Get all the sections using the locator
-        const sectionCount = await semesterSections.count();
-        const sections = [];
-
-        // Get the course info for all sections
-        for (let j = 0; j < sectionCount; j++) {
-            const row = semesterSections.nth(j);
-            const section = await scrapeSectionRows(row);
-            sections.push(section);
+        // 1. Grab the course description from the <strong>Description</strong> paragraph
+        let description = '';
+        for (const strong of document.querySelectorAll('p > strong')) {
+            if (strong.textContent?.includes('Description')) {
+                const paragraph = strong.closest('p') as HTMLElement | null;
+                if (paragraph) {
+                    // Remove the "Description:" label and clean up extra whitespace
+                    description = paragraph.innerText
+                        .replace(/^Description:\s*/i, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+                break;
+            }
         }
-        allSemesters.push({
-            semester: semesterName,
-            sections,
-        });
-    }
 
-    // Return info for all sections
-    return { description, semesters: allSemesters };
-}
+        // 2. Find the "Offered in:" heading — everything after it is semester data
+        let offeringH2: Element | null = null;
+        for (const h2 of document.querySelectorAll('h2')) {
+            if (h2.textContent?.includes('Offered in:')) {
+                offeringH2 = h2;
+                break;
+            }
+        }
+        // Some courses have no offerings listed
+        if (!offeringH2) return { description, semesters: [] as Semester[] };
 
-/**
- * Function that scrapes one section of a course.
- * Returns info of one section of a course.
- */
-async function scrapeSectionRows(row: Locator) {
-    // Cache all locators for each column in the current row
-    const sectionInfo = {
-        section: row.locator('td[data-label="Section"]'), // Section ID
-        classNumber: row.locator('td[data-label="Class Number"]'), // Class identifier
-        schedule: row.locator('td[data-label="Schedule/Time"]'), // Days and time info
-        instructor: row.locator('td[data-label="Instructor"]'), // Instructor
-        location: row.locator('td[data-label="Location"]'), // Location of the class
-    };
+        // 3. Loop through elements after the heading to collect semesters and sections
+        const semesters: Semester[] = [];
+        let sibling = offeringH2.nextElementSibling;
+        let currentIdx = -1;
 
-    // Get all the section content
-    const section = await getTrimmedText(sectionInfo.section);
-    const classNumber = await getTrimmedText(sectionInfo.classNumber);
+        while (sibling) {
+            if (sibling.tagName === 'H3') {
+                // New semester found
+                semesters.push({ semester: sibling.textContent?.trim() ?? '', sections: [] });
+                currentIdx = semesters.length - 1;
+            } else if (sibling.tagName === 'TABLE' && currentIdx >= 0) {
+                // Each table row is a section for the current semester
+                for (const row of sibling.querySelectorAll('tbody > tr.class-info-rows')) {
+                    // Helper to grab cell text by its data-label
+                    const get = (label: string) =>
+                        row.querySelector(`td[data-label="${label}"]`)?.textContent?.trim() ?? '';
 
-    // Seperate days and time for each section
-    const [days, time] = (await sectionInfo.schedule.innerText())
-        .split('\n')
-        .map((dt) => dt.trim());
-    const instructor = await getTrimmedText(sectionInfo.instructor);
-    const location = await getTrimmedText(sectionInfo.location);
+                    // Days and time are in the same cell, separated by a newline
+                    const scheduleEl = row.querySelector(
+                        'td[data-label="Schedule/Time"]',
+                    ) as HTMLElement | null;
+                    const [days = '', time = ''] = (scheduleEl?.innerText ?? '')
+                        .split('\n')
+                        .map((s) => s.trim());
 
-    // Return section info
-    return { section, classNumber, days, time, instructor, location };
-}
+                    semesters[currentIdx].sections.push({
+                        section: get('Section'),
+                        classNumber: get('Class Number'),
+                        days,
+                        time,
+                        instructor: get('Instructor'),
+                        location: get('Location'),
+                    });
+                }
+            }
+            sibling = sibling.nextElementSibling;
+        }
 
-/**
- * Helper function that scrapes the course description from the course page.
- * Returns an empty string if no description is found.
- */
-async function getCourseDescription(page: Page): Promise<string> {
-    // Locate the paragraph that contains the "Description" label
-    const locator = page.locator('p:has(strong:has-text("Description"))');
-
-    // Return empty string if the description does not exist
-    if (!(await locator.count())) return '';
-
-    // Get the text content of the description paragraph
-    const text = await locator.first().innerText();
-
-    // Clean the text by removing the label and extra whitespace
-    return text
-        .replace(/^Description:\s*/i, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-/**
- * Helper function to get the content from a locator.
- * Returns an empty string if no text content is found.
- */
-async function getTrimmedText(locator: Locator): Promise<string> {
-    return (await locator.textContent())?.trim() ?? '';
+        return { description, semesters };
+    });
 }

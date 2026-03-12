@@ -1,54 +1,48 @@
 import path from 'path';
-import colors from 'ansi-colors';
 import { logger } from './utils/logger';
 import { writeJSONToFile } from './utils';
-import { runIngest } from './services/ingest/ingest';
+import { ingestData } from './services/ingest/ingest';
 import { matchMapInfo } from './services/matchMapInfo';
-import { ScrapeData } from './services/scraper/scraper';
-import rawInstructorInfo from '../data/instructorInfo.json';
+import { scrapeData } from './services/scraper/scraper';
 import { writeNormalizedJSON } from './services/writeNormalizedJSON';
-import type { Instructor, InstructorInfo, RawDepartment } from './types';
+import type { InstructorInfo, RawDepartment } from './types';
 
 async function main() {
-    const startTime = Date.now();
     try {
-        console.log(colors.bold.white('\nSTARTING UPDATE\n'));
+        logger.header();
 
-        console.log(colors.bold.cyan('➤ Phase 1: Scraping Course Catalog'));
-        const rawData: RawDepartment[] = await ScrapeData();
+        // Phase 1: Scrape course catalog (returns raw data + writes data.json)
+        logger.phase(1, 'Scraping Course Catalog');
+        const rawData: RawDepartment[] = await scrapeData();
 
-        console.log(colors.bold.cyan('➤ Phase 2: Instructor Matching'));
-        await matchMapInfo();
+        // Phase 2: Scrape instructor directory + fuzzy match
+        logger.phase(2, 'Instructor Matching');
+        const matchedInstructors = await matchMapInfo(rawData);
 
-        console.log(colors.bold.cyan('➤ Phase 3: Creating Instructor Map'));
-        logger.startTask(1, 'Indexing Instructors');
+        // Phase 3: Build instructor info map from matched results
+        logger.phase(3, 'Creating Instructor Map');
         const instructorInfoMap: Map<string, InstructorInfo> = new Map(
-            (rawInstructorInfo as Instructor[]).map(
-                ({ firstName, lastName, title, email, phone }) => [
-                    `${firstName} ${lastName}`,
-                    { title, email, phone },
-                ],
-            ),
+            matchedInstructors.map(({ firstName, lastName, title, email, phone }) => [
+                `${firstName} ${lastName}`,
+                { title, email, phone },
+            ]),
         );
-        logger.updateTask(1);
-        logger.completeTask();
+        logger.info(`Indexed ${instructorInfoMap.size} instructors`);
 
-        console.log(colors.bold.cyan('➤ Phase 4: Normalizing Scraped Data'));
-        logger.startTask(1, 'Normalizing Data');
-        const normalizedData = writeNormalizedJSON(rawData as RawDepartment[], instructorInfoMap);
+        // Phase 4: Normalize scraped data (writes normalizedData.json as cache)
+        logger.phase(4, 'Normalizing Scraped Data');
+        const normalizedData = writeNormalizedJSON(rawData, instructorInfoMap);
         const normalizedDataPath = path.resolve(__dirname, '../data/normalizedData.json');
         await writeJSONToFile(normalizedDataPath, normalizedData);
-        logger.updateTask(1);
-        logger.completeTask();
+        logger.info(`Normalized ${normalizedData.length} departments`);
 
-        console.log(colors.bold.cyan('➤ Phase 5: Database Ingestion'));
-        await runIngest();
+        // Phase 5: Ingest normalized data into database (uses data directly)
+        logger.phase(5, 'Database Ingestion');
+        await ingestData(normalizedData);
 
-        const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-        console.log(colors.bold.green(`\n✨ Pipeline completed successfully in ${duration}s!\n`));
+        logger.summary();
     } catch (error) {
-        logger.stop();
-        console.error(colors.bold.red('\n❌ Pipeline error:'), error);
+        logger.error(error);
         process.exit(1);
     }
 }

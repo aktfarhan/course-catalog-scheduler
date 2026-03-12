@@ -1,6 +1,10 @@
-import colors from 'ansi-colors';
+import path from 'path';
+import fs from 'fs/promises';
 import { logger } from './utils/logger';
-import { runIngest } from './services/ingest/ingest';
+import { ingestData } from './services/ingest/ingest';
+import type { NormalizedData } from './types';
+
+const DATA_PATH = path.resolve(__dirname, '../data/normalizedData.json');
 
 /**
  * Entry point for running database ingestion.
@@ -11,16 +15,16 @@ import { runIngest } from './services/ingest/ingest';
  * - Running ingestion without triggering the full pipeline
  */
 async function main(): Promise<void> {
-    const startTime = Date.now();
     try {
-        console.log(colors.bold.white('\nSTARTING DATABASE INGEST'));
-        console.log(colors.bold.cyan('\n➤ Phase 1: Database Ingestion'));
-        await runIngest();
-        const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-        console.log(colors.bold.green(`\n✨ Ingest completed successfully in ${duration}s!\n`));
+        logger.header();
+        logger.phase(1, 'Database Ingestion');
+
+        const data: NormalizedData = JSON.parse(await fs.readFile(DATA_PATH, 'utf-8'));
+        await ingestData(data);
+
+        logger.summary();
     } catch (error) {
-        logger.stop();
-        console.error(colors.bold.red('\n❌ Ingest error:'), error);
+        logger.error(error);
         process.exit(1);
     }
 }

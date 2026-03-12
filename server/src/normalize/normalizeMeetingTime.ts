@@ -1,10 +1,6 @@
+import { toMinutes } from '../utils';
+import { CLASS_DURATIONS } from '../constants';
 import type { NormalizedTime } from '../types';
-
-// All of the valid class durations
-const CLASS_DURATIONS = [
-    25, 50, 60, 75, 89, 90, 100, 105, 110, 120, 150, 165, 170, 179, 180, 195, 210, 230, 239, 240,
-    360, 480, 570, 600, 630, 660,
-];
 
 /**
  * Normalizes multiple time ranges separated by '|'.
@@ -46,9 +42,9 @@ function normalizeTime(time: string): NormalizedTime {
     const [endTime, meridiem] = endTimeMeridiem.split(' ');
 
     // Calculate start times for both AM and PM interpretations
-    const startAM = timeToMinutes(startTime, 'am');
-    const startPM = timeToMinutes(startTime, 'pm');
-    const endTimeMin = timeToMinutes(endTime, meridiem);
+    const startAM = parseTimeString(startTime, 'am');
+    const startPM = parseTimeString(startTime, 'pm');
+    const endTimeMin = parseTimeString(endTime, meridiem);
 
     // Calculate durations based on start time assumptions
     const durationAM = endTimeMin - startAM;
@@ -73,22 +69,15 @@ function normalizeTime(time: string): NormalizedTime {
 }
 
 /**
- * Converts a time string and meridiem to the number of minutes after midnight.
+ * Splits a "HH:MM" string and returns minutes after midnight.
  *
- * @param time - A time string "HH:MM" format.
+ * @param time - A time string in "HH:MM" format.
  * @param meridiem - Either 'am' or 'pm'.
  * @returns Number of minutes after midnight.
  */
-function timeToMinutes(time: string, meridiem: string): number {
-    // Split the hour and minutes
-    let [hour, minutes] = time.split(':').map((time) => Number(time));
-
-    // Checking for edge cases when the hour is 12
-    if (meridiem === 'am' && hour === 12) hour = 0;
-    if (meridiem === 'pm' && hour != 12) hour += 12;
-
-    // Return minutes after midnight
-    return hour * 60 + minutes;
+function parseTimeString(time: string, meridiem: string): number {
+    const [hour, minutes] = time.split(':').map(Number);
+    return toMinutes(hour, minutes, meridiem);
 }
 
 /**
