@@ -16,6 +16,10 @@ export const getCourses = async (_req: Request, res: Response) => {
             sections: true,
             discussionGroups: true,
         },
+        orderBy: [
+            { department: { code: 'asc' } },
+            { code: 'asc' },
+        ],
     });
     res.json(courses);
 };

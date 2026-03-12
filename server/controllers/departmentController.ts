@@ -14,6 +14,7 @@ export const getDepartments = async (_req: Request, res: Response) => {
             courses: true,
             instructors: true,
         },
+        orderBy: { code: 'asc' },
     });
     res.json(departments);
 };

@@ -14,6 +14,10 @@ export const getInstructors = async (_req: Request, res: Response) => {
             departments: true,
             sections: true,
         },
+        orderBy: [
+            { lastName: 'asc' },
+            { firstName: 'asc' },
+        ],
     });
     res.json(instructors);
 };

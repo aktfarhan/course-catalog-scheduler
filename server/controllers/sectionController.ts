@@ -18,6 +18,10 @@ export const getSections = async (_req: Request, res: Response) => {
             meetings: true,
             discussionGroup: true,
         },
+        orderBy: [
+            { course: { department: { code: 'asc' } } },
+            { course: { code: 'asc' } },
+        ],
     });
     res.json(sections);
 };
