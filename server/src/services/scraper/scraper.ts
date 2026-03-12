@@ -4,7 +4,7 @@ import { withRetry, writeJSONToFile } from '../../utils';
 import { chromium, Page } from 'playwright-chromium';
 import type { RawDepartment } from '../../types';
 
-const CONCURRENCY = 3;
+const CONCURRENCY = 8;
 const BASE_URL = 'https://courses.umb.edu/course_catalog';
 const OUTPUT_PATH = path.resolve(__dirname, '../../../data/data.json');
 

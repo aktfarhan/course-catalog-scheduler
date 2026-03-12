@@ -15,7 +15,7 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({
     adapter,
     transactionOptions: {
-        timeout: 30000,
+        timeout: 120000,
     },
 });
 

@@ -12,7 +12,8 @@
         "start": "prisma migrate deploy && node dist/server/server.js",
         "postinstall": "prisma generate",
         "setup": "npm install && npm --prefix client install && npx playwright install chromium",
-        "db": "prisma generate && prisma migrate dev && npm run ingest"
+        "db": "prisma generate && prisma migrate dev && npm run ingest",
+        "sync": "ts-node server/src/sync.ts"
     },
     "keywords": [],
     "author": "",
