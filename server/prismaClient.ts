@@ -12,6 +12,11 @@ const adapter = new PrismaPg({
 /**
  * Prisma Client instance.
  */
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({
+    adapter,
+    transactionOptions: {
+        timeout: 30000,
+    },
+});
 
 export default prisma;

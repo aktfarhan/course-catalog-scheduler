@@ -3,7 +3,7 @@ import { logger } from './utils/logger';
 import { writeJSONToFile } from './utils';
 import { ingestData } from './services/ingest/ingest';
 import { matchMapInfo } from './services/matchMapInfo';
-import { ScrapeData } from './services/scraper/scraper';
+import { scrapeData } from './services/scraper/scraper';
 import { writeNormalizedJSON } from './services/writeNormalizedJSON';
 import type { InstructorInfo, RawDepartment } from './types';
 
@@ -13,7 +13,7 @@ async function main() {
 
         // Phase 1: Scrape course catalog (returns raw data + writes data.json)
         logger.phase(1, 'Scraping Course Catalog');
-        const rawData: RawDepartment[] = await ScrapeData();
+        const rawData: RawDepartment[] = await scrapeData();
 
         // Phase 2: Scrape instructor directory + fuzzy match
         logger.phase(2, 'Instructor Matching');

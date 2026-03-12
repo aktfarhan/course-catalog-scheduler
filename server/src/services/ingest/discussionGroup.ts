@@ -26,10 +26,11 @@ export async function upsertDiscussionGroup(discussionGroup: DiscussionGroupInpu
 }
 
 /**
- * Bulk upsert many discussion groups inside a single transaction.
- * All operations succeed or fail together.
+ * Bulk upsert discussion groups by unique composite key (courseId + term).
+ * If the discussion group exists, does nothing or updates fields if needed.
+ * Otherwise, creates a new discussion group.
  *
- * @param groups - Array of discussion group input objects to upsert
+ * @param groups - Array of discussion group objects to upsert
  * @returns An array of created or existing discussion group records
  */
 export async function upsertDiscussionGroups(groups: DiscussionGroupInput[]) {

@@ -4,59 +4,42 @@ import colors from 'ansi-colors';
 const BOX_WIDTH = 62;
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
-/** Each pipeline phase gets its own accent color. */
-const PHASE_PALETTE = [
-    colors.magenta,
-    colors.yellow,
-    colors.cyan,
-    colors.blue,
-    colors.green,
-];
+// Each pipeline phase has its own accent color.
+const PHASE_PALETTE = [colors.magenta, colors.yellow, colors.cyan, colors.blue, colors.green];
+
+interface PhaseRecord {
+    number: number;
+    name: string;
+    duration: number;
+}
 
 /**
  * Formats a duration in milliseconds to a human-readable string.
  *
- * @param ms - Duration in milliseconds
- * @returns Formatted string like "0.3s", "45s", "2m 15s", "1h 12m"
+ * @param ms - Duration in milliseconds.
+ * @returns Formatted string like "0.30s", "45.12s", "2m 15s", "1h 12m".
  */
 function formatDuration(ms: number): string {
-    const totalSeconds = ms / 1000;
-    if (totalSeconds < 1) return `${totalSeconds.toFixed(1)}s`;
-    if (totalSeconds < 60) return `${Math.round(totalSeconds)}s`;
+    // Round to 2 decimals so 59.999s becomes 60 and falls through to minutes
+    const totalSeconds = Math.round(ms / 10) / 100;
+    if (totalSeconds < 60) return `${totalSeconds.toFixed(2)}s`;
     const minutes = Math.floor(totalSeconds / 60);
-    const seconds = Math.round(totalSeconds % 60);
+    const seconds = Math.floor(totalSeconds % 60);
     if (minutes < 60) return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
 }
 
-/**
- * Draws a horizontal line with corner characters.
- *
- * @param left - Left corner character
- * @param char - Border character to repeat
- * @param right - Right corner character
- */
+// Draws a horizontal box line with corner characters.
 function boxLine(left: string, char: string, right: string): string {
     return `${left}${char.repeat(BOX_WIDTH)}${right}`;
 }
 
-/**
- * Pads a string to fit inside the box with borders.
- *
- * @param text - Content to display (may contain ANSI codes)
- * @param rawLength - The visible length of text (without ANSI codes)
- */
+// Pads text to fit inside the box with borders. rawLength excludes ANSI codes.
 function boxRow(text: string, rawLength: number): string {
     const padding = BOX_WIDTH - 2 - rawLength;
     return `│ ${text}${' '.repeat(Math.max(0, padding))} │`;
-}
-
-interface PhaseRecord {
-    number: number;
-    name: string;
-    duration: number;
 }
 
 class PipelineLogger {
@@ -75,35 +58,62 @@ class PipelineLogger {
     // ----- Pipeline Tracking -----
     private pipelineStart = 0;
 
-    /**
-     * Returns the accent color for the current phase.
-     */
+    // Returns the accent color for the current phase (falls back to first color).
     private get phaseColor() {
+        if (this.currentPhaseNumber === 0) return PHASE_PALETTE[0];
         return PHASE_PALETTE[(this.currentPhaseNumber - 1) % PHASE_PALETTE.length];
+    }
+
+    // Records the current phase's duration and resets phase number to prevent double-recording.
+    private recordPhase() {
+        if (this.currentPhaseNumber === 0) return;
+        this.phases.push({
+            number: this.currentPhaseNumber,
+            name: this.currentPhaseName,
+            duration: Date.now() - this.currentPhaseStart,
+        });
+        this.currentPhaseNumber = 0;
     }
 
     // ----- Pipeline Lifecycle -----
 
-    /**
-     * Prints the pipeline header box and starts the global timer.
-     */
+    // Resets all internal state for a fresh pipeline run.
+    private reset() {
+        this.stop();
+        this.phases = [];
+        this.currentPhaseNumber = 0;
+        this.currentPhaseName = '';
+        this.currentPhaseStart = 0;
+    }
+
+    // Prints the pipeline header box and starts the global timer.
     header() {
+        this.reset();
         this.pipelineStart = Date.now();
         const now = new Date();
-        const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const date = now.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
         const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         const timestamp = `${date} · ${time}`;
 
         const title = '⚡ PIPELINE UPDATE';
-        const titleWidth = title.length + 1; // ⚡ occupies 2 terminal columns
+        // +1 because ⚡ occupies 2 terminal columns
+        const titleWidth = title.length + 1;
         const gap = BOX_WIDTH - 2 - titleWidth - timestamp.length;
 
         console.log('');
         console.log(colors.cyan(boxLine('┌', '─', '┐')));
-        console.log(colors.cyan(boxRow(
-            `${colors.bold.white(title)}${' '.repeat(gap)}${colors.gray(timestamp)}`,
-            titleWidth + gap + timestamp.length,
-        )));
+        console.log(
+            colors.cyan(
+                boxRow(
+                    `${colors.bold.white(title)}${' '.repeat(gap)}${colors.gray(timestamp)}`,
+                    titleWidth + gap + timestamp.length,
+                ),
+            ),
+        );
         console.log(colors.cyan(boxLine('└', '─', '┘')));
         console.log('');
     }
@@ -112,17 +122,13 @@ class PipelineLogger {
      * Marks the start of a new pipeline phase.
      * Automatically records the previous phase's duration.
      *
-     * @param number - Phase number (1-5)
-     * @param name - Phase display name
+     * @param number - Phase number (1-5).
+     * @param name - Phase display name.
      */
     phase(number: number, name: string) {
-        // Record previous phase if one was running
+        this.stop();
         if (this.currentPhaseNumber > 0) {
-            this.phases.push({
-                number: this.currentPhaseNumber,
-                name: this.currentPhaseName,
-                duration: Date.now() - this.currentPhaseStart,
-            });
+            this.recordPhase();
             console.log('');
         }
 
@@ -130,29 +136,40 @@ class PipelineLogger {
         this.currentPhaseName = name;
         this.currentPhaseStart = Date.now();
 
-        const accent = PHASE_PALETTE[(number - 1) % PHASE_PALETTE.length];
-        const badge = colors.bold(accent(`Phase ${number}`));
-        const label = colors.bold.white(name);
-        console.log(`  ${accent('◆')} ${badge} ${colors.gray('│')} ${label}`);
+        const badge = colors.bold(this.phaseColor(`Phase ${number}`));
+        console.log(
+            `  ${this.phaseColor('◆')} ${badge} ${colors.gray('│')} ${colors.bold.white(name)}`,
+        );
     }
 
     // ----- Task Progress -----
 
     /**
      * Starts a progress bar for a task within the current phase.
-     * Bar color matches the current phase's accent color.
      *
-     * @param total - Total number of items to process
-     * @param label - Short description of the task
+     * @param total - Total number of items to process.
+     * @param label - Short description of the task.
      */
     startTask(total: number, label: string = '') {
-        if (this.spinnerInterval) clearInterval(this.spinnerInterval);
+        this.stop();
+        console.log('');
 
         const accent = this.phaseColor;
+        const sep = colors.gray('│');
+        const totalWidth = String(total).length;
 
-        // Create a fresh bar colored to match the current phase
         this.progressBar = new cliProgress.SingleBar({
-            format: `    {spinner} ${accent('{bar}')} ${colors.white('{percentage}%')} ${colors.gray('│')} ${colors.white('{value}/{total}')} ${colors.gray('│')} ${colors.white('{label}')} ${colors.gray('│')} ${accent('{elapsed}')}`,
+            format:
+                `    {spinner}  ${accent('{bar}')} ${colors.white('{percentage}%')} ` +
+                `${sep} ${colors.white('{value}/{total}')} ` +
+                `${sep} ${colors.white('{label}')} ` +
+                `${sep} ${accent('{elapsed}')}`,
+            // Pad percentage and value so the stats don't shift as digits grow
+            formatValue: (value, _options, type) => {
+                if (type === 'percentage') return String(value).padStart(3);
+                if (type === 'value') return String(value).padStart(totalWidth);
+                return String(value);
+            },
             hideCursor: true,
             barCompleteChar: '█',
             barIncompleteChar: '░',
@@ -163,17 +180,17 @@ class PipelineLogger {
         this.taskStart = Date.now();
 
         this.progressBar.start(total, 0, {
-            spinner: SPINNER_FRAMES[0],
+            spinner: accent(SPINNER_FRAMES[0]),
             label,
-            elapsed: '0s',
+            elapsed: '0.00s',
         });
 
         this.spinnerInterval = setInterval(() => {
+            if (!this.progressBar) return;
             this.frameIndex = (this.frameIndex + 1) % SPINNER_FRAMES.length;
-            const elapsed = formatDuration(Date.now() - this.taskStart);
-            this.progressBar!.update({
+            this.progressBar.update({
                 spinner: accent(SPINNER_FRAMES[this.frameIndex]),
-                elapsed,
+                elapsed: formatDuration(Date.now() - this.taskStart),
             });
         }, 80);
     }
@@ -181,75 +198,61 @@ class PipelineLogger {
     /**
      * Updates the progress bar to the given value.
      *
-     * @param current - Current progress count
+     * @param current - Current progress count.
      */
     updateTask(current: number) {
-        const elapsed = formatDuration(Date.now() - this.taskStart);
-        this.progressBar!.update(current, { elapsed });
+        if (!this.progressBar) return;
+        this.progressBar.update(current, { elapsed: formatDuration(Date.now() - this.taskStart) });
     }
 
-    /**
-     * Completes the current progress bar with a checkmark.
-     */
+    // Completes the current progress bar with a checkmark.
     completeTask() {
-        if (this.spinnerInterval) clearInterval(this.spinnerInterval);
-
-        const elapsed = formatDuration(Date.now() - this.taskStart);
-        this.progressBar!.update(this.progressBar!.getTotal(), {
-            spinner: colors.green('✔'),
-            elapsed,
+        if (!this.progressBar) return;
+        this.progressBar.update(this.progressBar.getTotal(), {
+            spinner: colors.green('✓'),
+            elapsed: formatDuration(Date.now() - this.taskStart),
         });
-        this.progressBar!.stop();
+        this.stop();
         process.stdout.write('\n');
     }
 
     /**
-     * Prints a quick status line with a checkmark. Use for instant operations
-     * that don't need a progress bar (e.g. building a Map, writing a file).
+     * Prints a status line with a checkmark for instant operations.
      *
-     * @param message - Status message to display
+     * @param message - Status message to display.
      */
     info(message: string) {
-        const accent = this.phaseColor;
-        console.log(`    ${colors.green('✔')} ${accent(message)}`);
+        console.log(`    ${colors.green('✓')} ${this.phaseColor(message)}`);
     }
 
     // ----- Summary & Cleanup -----
 
-    /**
-     * Prints the final summary table with per-phase timing.
-     * Each phase row is colored with its own accent.
-     */
+    // Prints the final summary table with per-phase timing.
     summary() {
-        // Record the last phase
-        if (this.currentPhaseNumber > 0) {
-            this.phases.push({
-                number: this.currentPhaseNumber,
-                name: this.currentPhaseName,
-                duration: Date.now() - this.currentPhaseStart,
-            });
-        }
+        this.stop();
+        this.recordPhase();
 
         const totalDuration = Date.now() - this.pipelineStart;
+        if (this.phases.length === 0) return;
         const maxNameLen = Math.max(...this.phases.map((p) => p.name.length));
 
         console.log('');
         console.log(colors.green(boxLine('┌', '─', '┐')));
-        console.log(colors.green(boxRow(
-            `${colors.bold.green('✨ PIPELINE COMPLETE')}`,
-            '✨ PIPELINE COMPLETE'.length + 1, // ✨ occupies 2 terminal columns
-        )));
+        // +1 because ✨ occupies 2 terminal columns
+        const completeTitle = '✨ PIPELINE COMPLETE';
+        console.log(
+            colors.green(boxRow(colors.bold.green(completeTitle), completeTitle.length + 1)),
+        );
         console.log(colors.green(boxLine('├', '─', '┤')));
 
-        // Phase rows — each colored with its accent
         for (const phase of this.phases) {
             const accent = PHASE_PALETTE[(phase.number - 1) % PHASE_PALETTE.length];
             const num = `Phase ${phase.number}`;
-            const name = phase.name;
             const dur = formatDuration(phase.duration);
-            const dots = '·'.repeat(maxNameLen - name.length + 4);
-            const rawRow = `  ${num}  ${name} ${dots} ${dur}`;
-            const coloredRow = `  ${accent(num)}  ${colors.white(name)} ${colors.gray(dots)} ${colors.bold.white(dur)}`;
+            const dots = '·'.repeat(maxNameLen - phase.name.length + 4);
+            const rawRow = `  ${num}  ${phase.name} ${dots} ${dur}`;
+            const coloredRow =
+                `  ${accent(num)}  ${colors.white(phase.name)} ${colors.gray(dots)} ${colors.bold.white(dur)}`;
             console.log(colors.green(boxRow(coloredRow, rawRow.length)));
         }
 
@@ -264,27 +267,27 @@ class PipelineLogger {
     /**
      * Prints an error box and cleans up.
      *
-     * @param error - The error that occurred
+     * @param error - The error that occurred.
      */
     error(error: unknown) {
         this.stop();
         console.log('');
         console.log(colors.red(boxLine('┌', '─', '┐')));
-        console.log(colors.red(boxRow(
-            `${colors.bold.red('❌ PIPELINE FAILED')}`,
-            '❌ PIPELINE FAILED'.length + 1, // ❌ occupies 2 terminal columns
-        )));
+        // +1 because ❌ occupies 2 terminal columns
+        const failTitle = '❌ PIPELINE FAILED';
+        console.log(colors.red(boxRow(colors.bold.red(failTitle), failTitle.length + 1)));
         console.log(colors.red(boxLine('└', '─', '┘')));
-        console.error(colors.red('\n'), error);
+        console.log('');
+        console.error(error);
         console.log('');
     }
 
-    /**
-     * Stops the spinner and progress bar without completing.
-     */
+    // Stops the spinner and progress bar without completing.
     stop() {
         if (this.spinnerInterval) clearInterval(this.spinnerInterval);
+        this.spinnerInterval = null;
         if (this.progressBar) this.progressBar.stop();
+        this.progressBar = null;
     }
 }
 

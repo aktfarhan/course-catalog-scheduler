@@ -1,6 +1,5 @@
 import { logger } from '../../utils/logger';
-import { withRetry } from '../../utils';
-import { removeAccents } from '../../utils/';
+import { withRetry, removeAccents } from '../../utils';
 import { chromium, Page, Locator } from 'playwright-chromium';
 import type { InstructorInfo } from '../../types';
 
@@ -15,7 +14,7 @@ const CONCURRENCY = 5;
 export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo>> {
     const instructorMap = new Map<string, InstructorInfo>();
 
-    // Launch the browser and determine total page count
+    // Launch the browser and find total page count
     const browser = await chromium.launch({ headless: true });
     const scoutPage = await browser.newPage();
 
@@ -39,14 +38,16 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
     logger.startTask(lastPageNumber, 'Scraping Directory');
     let completed = 0;
 
-    // Worker function: each worker gets its own browser context and page
+    // Each worker gets its own browser context and pulls pages from the shared queue
     async function worker() {
         const context = await browser.newContext();
         const page = await context.newPage();
 
+        // Keep pulling pages from the queue until none are left
         while (pageQueue.length > 0) {
             const pageNumber = pageQueue.shift()!;
 
+            // Navigate to the directory page and extract staff cards with retry
             try {
                 await withRetry(async () => {
                     await page.goto(`https://www.umb.edu/directory/?page=${pageNumber}`, {
@@ -63,6 +64,7 @@ export async function scrapeInstructorInfo(): Promise<Map<string, InstructorInfo
             logger.updateTask(completed);
         }
 
+        // Clean up this worker's browser context
         await context.close();
     }
 
