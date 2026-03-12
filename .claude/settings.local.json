@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where gh:*)",
+      "Bash(cd \"/c/Users/Farhan Kalam/Desktop/Smart-Class-Scheduler\" && npx prisma generate 2>&1 | tail -5)",
+      "Bash(cd \"/c/Users/Farhan Kalam/Desktop/Smart-Class-Scheduler\" && npx tsc --noEmit 2>&1 | tail -5)"
+    ]
+  }
+}

@@ -85,18 +85,14 @@ To run the project in your local environment, follow these steps:
 
 1. Clone the repository to your local machine.
 2. Set up a local PostgreSQL database.
-3. Create a `.env` file inside root directory with your `DATABASE_URL`.
-4. Run `npm run deps`
+3. Copy `.env.example` to `.env` and fill in your `DATABASE_URL`.
+4. Run `npm run setup`
 5. Run `npm run db`
 6. Run `npm run dev` (backend)
 7. In another terminal, run:
    - `cd client`
    - `npm run dev`
 8. Open http://localhost:5173 in your browser.
-
-
-
-
 
 
 
