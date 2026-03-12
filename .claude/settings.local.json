@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(cd \"C:\\\\Users\\\\Farhan Kalam\\\\Desktop\\\\Smart-Class-Scheduler\" && npx tsc --noEmit --pretty 2>&1 | head -10)",
-      "Bash(cd \"C:\\\\Users\\\\Farhan Kalam\\\\Desktop\\\\Smart-Class-Scheduler\" && npx tsc --noEmit --pretty 2>&1 | head -20)",
-      "Bash(cd \"C:\\\\Users\\\\Farhan Kalam\\\\Desktop\\\\Smart-Class-Scheduler\" && npx tsc --noEmit --pretty 2>&1)"
-    ]
-  }
-}
