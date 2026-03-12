@@ -251,8 +251,7 @@ class PipelineLogger {
             const dur = formatDuration(phase.duration);
             const dots = '·'.repeat(maxNameLen - phase.name.length + 4);
             const rawRow = `  ${num}  ${phase.name} ${dots} ${dur}`;
-            const coloredRow =
-                `  ${accent(num)}  ${colors.white(phase.name)} ${colors.gray(dots)} ${colors.bold.white(dur)}`;
+            const coloredRow = `  ${accent(num)}  ${colors.white(phase.name)} ${colors.gray(dots)} ${colors.bold.white(dur)}`;
             console.log(colors.green(boxRow(coloredRow, rawRow.length)));
         }
 
