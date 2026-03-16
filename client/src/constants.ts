@@ -17,7 +17,7 @@ export const CALENDAR_CONFIG = {
  * Pagination settings and logical constraints for schedule gap analysis.
  */
 export const UI_LIMITS = {
-    PRESETS: [0, 15, 60, 120],
+    PRESETS: [10, 30, 60, 120],
     MAX_GAP: 300,
 } as const;
 

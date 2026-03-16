@@ -9,16 +9,11 @@ interface MobileSettingsDrawerProps {
     refs: AppController['refs'];
 }
 
-export default function MobileSettingsDrawer({
-    data,
-    state,
-    actions,
-    refs,
-}: MobileSettingsDrawerProps) {
+function MobileSettingsDrawer({ data, state, actions, refs }: MobileSettingsDrawerProps) {
     if (!state.isPanelOpen || state.activeTab !== 'calendar') return null;
 
     return (
-        <div className="fixed inset-0 z-50 2xl:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
             <div
                 className="animate-in fade-in absolute inset-0 bg-black/20 backdrop-blur-[2px] duration-300"
                 onClick={() => actions.setIsPanelOpen(false)}
@@ -62,3 +57,5 @@ export default function MobileSettingsDrawer({
         </div>
     );
 }
+
+export default MobileSettingsDrawer;

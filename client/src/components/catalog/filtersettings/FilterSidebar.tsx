@@ -1,20 +1,18 @@
+import Separator from '../../Separator';
 import { RotateCcw } from 'lucide-react';
-import type { ApiDepartmentWithRelations } from '../../../types';
-import type { SearchFilters } from '../../../types';
+import TimeSelector from './TimeSelector';
+import DepartmentSelector from './DepartmentSelector';
+import SectionTypeSelector from './SectionTypeSelector';
 import { FILTER_CATEGORIES, type AcademicTerm } from '../../../constants';
 import TermSelector from '../../calendar/calendarsidebar/subcomponents/filtersettings/TermSelector';
 import ActiveDaysSelector from '../../calendar/calendarsidebar/subcomponents/filtersettings/ActiveDaysSelector';
-import DepartmentSelector from './DepartmentSelector';
-import TimeSelector from './TimeSelector';
-import Separator from '../../Separator';
-import SectionTypeSelector from './SectionTypeSelector';
-import type { FilterType } from '../../../types';
+import type { ApiDepartmentWithRelations, SearchFilters, FilterType } from '../../../types';
 
 interface FilterSidebarProps {
     departmentMap: Map<string, ApiDepartmentWithRelations>;
     filters: SearchFilters;
     searchQuery: string;
-    onFilterChange: (type: FilterType, value: any) => void;
+    onFilterChange: (type: FilterType, value: string) => void;
 }
 
 function FilterSidebar({
@@ -24,8 +22,8 @@ function FilterSidebar({
     onFilterChange,
 }: FilterSidebarProps) {
     return (
-        <div className="flex h-full flex-col border-gray-100 bg-white select-none">
-            <div className="custom-scrollbar flex-1 space-y-5 overflow-y-auto p-6">
+        <div className="flex h-full flex-col bg-white select-none">
+            <div className="flex-1 space-y-5 overflow-y-auto p-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <TermSelector
                     availableTerms={[...FILTER_CATEGORIES.TERMS]}
                     selectedTerm={filters.term as AcademicTerm}
@@ -54,18 +52,25 @@ function FilterSidebar({
                     onSelect={(code) => onFilterChange('departmentCode', code)}
                 />
             </div>
-            <div className="border-t border-gray-100 bg-gray-50/30 p-5">
+            <div className="relative p-5">
+                <div className="absolute top-0 right-0 left-0 h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
                 <button
                     onClick={() => onFilterChange('clear', '')}
-                    className="group flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl border-2 border-gray-200 py-3 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase transition-all hover:border-red-200 hover:bg-white hover:text-red-600 active:scale-95"
+                    className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50 py-2.5 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase transition-all hover:bg-slate-100 hover:text-slate-500 active:scale-[0.97]"
                 >
                     <RotateCcw
-                        size={14}
+                        size={13}
                         strokeWidth={2.5}
                         className="transition-transform duration-500 group-hover:-rotate-180"
                     />
-                    <span>Reset</span>
+                    <span>Reset Filters</span>
                 </button>
+                <div className="mt-3 h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
+                <div className="mx-auto mt-4 flex w-fit items-center gap-1.5 text-slate-400">
+                    <span className="text-xs font-bold tracking-wide uppercase font-space">Data Update:</span>
+                    <span className="text-sm font-bold tabular-nums tracking-widest font-space">48:05:32</span>
+                    <span className="-ml-0.5 text-xs font-normal text-slate-300">ago</span>
+                </div>
             </div>
         </div>
     );

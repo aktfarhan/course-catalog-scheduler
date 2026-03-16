@@ -28,7 +28,7 @@ function NavigationTabs({ activeTab, totalResults, setActiveTab }: NavigationTab
                     Catalog
                     <span
                         className={clsx(
-                            'rounded-2xl px-2 py-0.5 text-[9px] font-black transition-colors',
+                            'min-w-12 rounded-2xl px-2 py-0.5 text-center text-[9px] font-black transition-colors',
                             activeTab === 'catalog'
                                 ? 'bg-green-100 text-green-700'
                                 : 'bg-gray-100 text-gray-400',

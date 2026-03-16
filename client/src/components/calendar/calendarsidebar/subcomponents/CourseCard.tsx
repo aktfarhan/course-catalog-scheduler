@@ -2,8 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 import { ChevronDown, CheckCircle2 } from 'lucide-react';
 import { formatTimes } from '../../../../utils/formatTime';
-import type { ApiCourseWithSections } from '../../../../types';
-import type { ApiSectionWithRelations } from '../../../../types';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../../types';
 
 interface CourseCardProps {
     course: ApiCourseWithSections;
@@ -29,30 +28,37 @@ function CourseCard({
                 type="button"
                 aria-expanded={isExpanded}
                 className={clsx(
-                    'flex w-full cursor-pointer items-center justify-between rounded-lg border-2 p-3.5 transition-all duration-100',
+                    'relative flex w-full cursor-pointer items-center gap-3 overflow-hidden rounded-lg border-2 p-4 transition-all duration-100',
                     isExpanded
-                        ? 'border-theme-blue'
-                        : 'border-gray-100 shadow-xs hover:border-gray-300',
+                        ? 'border-theme-blue bg-theme-blue/5'
+                        : 'border-slate-200 bg-slate-50/50 hover:border-slate-300',
                 )}
             >
-                <div className="flex flex-col text-left">
-                    <span className="text-theme-blue text-[11px] font-bold tracking-wider uppercase">
+                <div className="flex min-w-0 flex-1 flex-col text-left">
+                    <span
+                        className={clsx(
+                            'w-fit rounded px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase font-space',
+                            isExpanded
+                                ? 'bg-theme-blue text-white'
+                                : 'bg-slate-100 text-slate-500',
+                        )}
+                    >
                         {course.department.code} {course.code}
                     </span>
-                    <span className="max-w-42.5 truncate text-[10px] leading-tight font-semibold text-gray-800">
+                    <span className="mt-1 truncate text-xs font-semibold text-gray-800">
                         {course.title}
                     </span>
                 </div>
                 <ChevronDown
                     size={16}
                     className={clsx(
-                        'text-gray-400 transition-transform duration-300',
+                        'shrink-0 text-gray-400 transition-transform duration-300',
                         isExpanded && '-rotate-180',
                     )}
                 />
             </button>
             {isExpanded && (
-                <div className="border-theme-blue/30 relative mt-1.5 ml-5 flex flex-col gap-1.5 rounded-l-md border-l-2 py-1 pl-3">
+                <div className="animate-in fade-in slide-in-from-top-2 border-theme-blue/30 relative mt-1.5 ml-5 flex flex-col gap-1.5 rounded-l-md border-l-2 py-1 pl-3 duration-200">
                     {(() => {
                         const visibleSections = sections.filter((section) =>
                             section.meetings?.some(
@@ -78,10 +84,10 @@ function CourseCard({
                                     key={section.id}
                                     onClick={() => onSectionSelect(course.id, section.id)}
                                     className={clsx(
-                                        'flex w-full cursor-pointer items-center justify-between rounded-lg border px-4 py-2.5 text-left transition-all',
+                                        'flex w-full cursor-pointer items-center justify-between rounded-lg border-2 px-4 py-2.5 text-left transition-all',
                                         isActive
                                             ? 'bg-theme-blue border-theme-blue text-white shadow-md'
-                                            : 'border-gray-100 bg-gray-50/80 text-gray-600 hover:bg-gray-100',
+                                            : 'border-slate-200 bg-white text-gray-600 hover:border-slate-300',
                                     )}
                                 >
                                     <div className="flex flex-col">
@@ -102,7 +108,7 @@ function CourseCard({
                                         </div>
                                         <span
                                             className={clsx(
-                                                'text-[9px] font-medium',
+                                                'text-[10px] font-medium',
                                                 isActive ? 'text-blue-100' : 'text-gray-400',
                                             )}
                                         >

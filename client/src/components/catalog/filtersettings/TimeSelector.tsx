@@ -11,8 +11,13 @@ interface TimeSelectorProps {
 function TimeSelector({ times, selectedTime, onSelect }: TimeSelectorProps) {
     return (
         <div className="space-y-3">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase">
-                <Clock size={12} /> Time Range
+            <div className="flex items-center gap-2">
+                <span className="bg-theme-blue/10 text-theme-blue flex h-6 w-6 items-center justify-center rounded-md">
+                    <Clock size={13} />
+                </span>
+                <span className="text-[11px] font-bold tracking-widest text-slate-500 uppercase">
+                    Time Range
+                </span>
             </div>
             <div className="grid grid-cols-2 gap-1.5">
                 {times.map((t) => {
@@ -25,10 +30,10 @@ function TimeSelector({ times, selectedTime, onSelect }: TimeSelectorProps) {
                             key={t}
                             onClick={() => onSelect(t)}
                             className={clsx(
-                                'cursor-pointer rounded-lg border-2 py-2 text-[12px] font-semibold transition-all',
+                                'cursor-pointer rounded-lg border-2 py-2 text-[12px] font-medium transition-all',
                                 isSelected
-                                    ? 'text-theme-blue border-theme-blue bg-theme-blue/5'
-                                    : 'border-gray-100 text-gray-400 hover:border-gray-200',
+                                    ? 'bg-theme-blue border-theme-blue text-white'
+                                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300',
                             )}
                         >
                             {t}

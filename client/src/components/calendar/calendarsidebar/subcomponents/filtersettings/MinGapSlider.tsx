@@ -13,15 +13,20 @@ function MinGapSlider({ minGap, maxGap, gapPresets, setMinGap }: MinGapSliderPro
     const percentage = (minGap / maxGap) * 100;
     return (
         <div className="space-y-4">
-            <div className="flex justify-between">
-                <div className="flex items-center gap-1.5 text-[10px] leading-none font-bold tracking-widest uppercase">
-                    <Clock size={12} /> Minimum Gap
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="bg-theme-blue/10 text-theme-blue flex h-6 w-6 items-center justify-center rounded-md">
+                        <Clock size={13} />
+                    </span>
+                    <span className="text-[11px] font-bold tracking-widest text-slate-500 uppercase">
+                        Minimum Gap
+                    </span>
                 </div>
                 <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                     {minGap >= 60 ? `${Math.floor(minGap / 60)}h ${minGap % 60}m` : `${minGap}m`}
                 </span>
             </div>
-            <div className="group relative flex h-6 w-full touch-none items-center select-none">
+            <div className="group relative mx-2 flex h-6 touch-none items-center select-none">
                 <div className="absolute h-1.5 w-full rounded-full bg-gray-200" />
                 <div
                     className="bg-theme-blue absolute h-1.5 rounded-full"
@@ -48,10 +53,10 @@ function MinGapSlider({ minGap, maxGap, gapPresets, setMinGap }: MinGapSliderPro
                         key={gap}
                         onClick={() => setMinGap(gap)}
                         className={clsx(
-                            'flex-1 cursor-pointer rounded-md border py-1.5 text-[11px] font-bold transition-all',
+                            'flex-1 cursor-pointer rounded-lg border-2 py-1.5 text-[11px] font-bold transition-all',
                             minGap === gap
                                 ? 'bg-theme-blue border-theme-blue text-white'
-                                : 'hover:border-theme-blue/40 border-gray-200 bg-gray-100/70 text-gray-400',
+                                : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300',
                         )}
                     >
                         {gap === 0 ? 'None' : gap < 60 ? `${gap}m` : `${gap / 60}h`}

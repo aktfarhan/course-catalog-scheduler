@@ -18,9 +18,14 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
     const endPercent = ((timeRange.end - min) / (max - min)) * 100;
     return (
         <div className="space-y-4">
-            <div className="flex justify-between">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase">
-                    <CalendarRange size={12} /> Preferred Time
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="bg-theme-blue/10 text-theme-blue flex h-6 w-6 items-center justify-center rounded-md">
+                        <CalendarRange size={13} />
+                    </span>
+                    <span className="text-[11px] font-bold tracking-widest text-slate-500 uppercase">
+                        Time Range
+                    </span>
                 </div>
                 <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                     {formatTimeLabel(timeRange.start)} - {formatTimeLabel(timeRange.end)}
@@ -32,7 +37,7 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 onLostPointerCapture={onPointerUp}
-                className="relative flex h-6 w-full touch-none items-center select-none"
+                className="relative mx-2 flex h-6 touch-none items-center select-none"
             >
                 <div className="absolute h-1.5 w-full rounded-full bg-gray-200" />
                 <div

@@ -1,4 +1,4 @@
-import { clsx } from 'clsx';
+import clsx from 'clsx';
 import { LABEL_MAP } from '../../constants';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import type { Token } from '../../types';

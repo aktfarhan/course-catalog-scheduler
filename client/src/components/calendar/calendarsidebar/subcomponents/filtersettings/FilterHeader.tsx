@@ -15,12 +15,12 @@ function FilterHeader({ isOpen, onToggle, selectedTerm }: FilterHeaderProps) {
             className="flex w-full cursor-pointer items-center justify-between p-5 hover:bg-gray-100/60"
         >
             <div className="flex items-center gap-3">
-                <div className="bg-theme-blue rounded-lg p-2 text-white shadow-md shadow-blue-100">
-                    <Settings2 size={18} />
+                <div className="bg-theme-blue flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm">
+                    <Settings2 size={16} />
                 </div>
                 <div className="flex flex-col items-start">
-                    <span className="text-[13px] font-bold">Schedule Options</span>
-                    <span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">
+                    <span className="text-[13px] font-bold text-gray-800">Schedule Options</span>
+                    <span className="text-[10px] font-medium tracking-widest text-slate-400 uppercase">
                         {selectedTerm}
                     </span>
                 </div>
