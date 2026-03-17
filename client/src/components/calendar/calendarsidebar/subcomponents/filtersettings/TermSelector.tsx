@@ -22,6 +22,7 @@ function TermSelector({ selectedTerm, availableTerms, onChangeTerm }: TermSelect
             <div className="grid grid-cols-2 gap-1.5">
                 {availableTerms.map((term) => (
                     <button
+                        type="button"
                         key={term}
                         onClick={() => onChangeTerm(term)}
                         className={clsx(

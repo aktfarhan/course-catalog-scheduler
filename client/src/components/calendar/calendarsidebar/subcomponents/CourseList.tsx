@@ -51,6 +51,7 @@ function CourseList({
     return (
         <div className="border-b border-gray-100 bg-gray-50/50">
             <button
+                type="button"
                 onClick={() => setIsCoursesOpen(!isCoursesOpen)}
                 className="flex w-full cursor-pointer items-center justify-between p-5 hover:bg-gray-100/60"
             >

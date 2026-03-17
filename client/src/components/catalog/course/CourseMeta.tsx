@@ -59,6 +59,7 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                             </div>
                         </div>
                         <button
+                            type="button"
                             onClick={setShowSections}
                             className="border-theme-blue text-theme-blue hover:bg-theme-blue ml-auto flex w-40 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md border py-2 text-sm font-bold duration-200 hover:text-white active:scale-95 md:mt-2 md:ml-0"
                         >
@@ -89,7 +90,9 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                     </div>
                     <div className="flex items-center gap-2">
                         <MapPin size={16} className="text-gray-400" />
-                        <span>{firstSection?.meetings[0]?.location || 'TBA'}</span>
+                        <span title={firstSection?.meetings[0]?.location || 'TBA'}>
+                            {firstSection?.meetings[0]?.location?.replace('Wheatley-Peters', 'Wheatley-P') || 'TBA'}
+                        </span>
                     </div>
                 </div>
             )}

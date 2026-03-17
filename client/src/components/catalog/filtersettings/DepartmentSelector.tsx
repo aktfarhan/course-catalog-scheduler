@@ -4,12 +4,14 @@ import { Search, Building2, X } from 'lucide-react';
 import type { ApiDepartmentWithRelations } from '../../../types';
 
 interface DepartmentSelectorProps {
+    isLoading: boolean;
     departmentMap: Map<string, ApiDepartmentWithRelations>;
     selectedDeptCode: string | undefined | null;
     onSelect: (code: string) => void;
 }
 
 function DepartmentSelector({
+    isLoading,
     departmentMap,
     selectedDeptCode,
     onSelect,
@@ -36,12 +38,17 @@ function DepartmentSelector({
                         Departments
                     </span>
                 </h3>
-                <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
-                    {filteredDepts.length}
-                </span>
+                {!isLoading && (
+                    <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
+                        {filteredDepts.length}
+                    </span>
+                )}
             </div>
             <div className="relative mb-3">
-                <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" size={14} />
+                <Search
+                    className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400"
+                    size={14}
+                />
                 <input
                     type="text"
                     spellCheck="false"
@@ -49,12 +56,13 @@ function DepartmentSelector({
                     value={departmentSearch}
                     onChange={(e) => setDepartmentSearch(e.target.value)}
                     className={clsx(
-                        'h-10 w-full rounded-lg border-2 border-slate-200 bg-slate-50 pl-9 text-left text-xs font-semibold transition-all outline-none focus:border-slate-300 focus:bg-white placeholder:text-slate-400',
+                        'h-10 w-full rounded-lg border-2 border-slate-200 bg-slate-50 pl-9 text-left text-xs font-semibold transition-all outline-none placeholder:text-slate-400 focus:border-slate-300 focus:bg-white',
                         departmentSearch ? 'pr-8' : 'pr-3',
                     )}
                 />
                 {departmentSearch && (
                     <button
+                        type="button"
                         onClick={() => setDepartmentSearch('')}
                         className="absolute top-1/2 right-2.5 -translate-y-1/2 cursor-pointer rounded bg-slate-100 p-1 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
                     >
@@ -64,16 +72,29 @@ function DepartmentSelector({
             </div>
             <div>
                 <div className="h-66 overflow-y-auto rounded-lg border-2 border-slate-200 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                    {filteredDepts.length === 0 && (
+                    {isLoading ? (
+                        <div className="flex flex-col">
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="flex items-center gap-3 border-b border-slate-100 px-3 py-3"
+                                >
+                                    <div className="h-5 w-14 animate-pulse rounded bg-slate-100" />
+                                    <div className="h-4 flex-1 animate-pulse rounded bg-slate-50" />
+                                </div>
+                            ))}
+                        </div>
+                    ) : filteredDepts.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
                             <Search size={20} />
                             <span className="text-[11px] font-semibold">No departments found</span>
                         </div>
-                    )}
+                    ) : null}
                     {filteredDepts.map((dept) => {
                         const isSelected = selectedDeptCode === dept.code;
                         return (
                             <button
+                                type="button"
                                 key={dept.code}
                                 onClick={() => onSelect(dept.code)}
                                 className={clsx(
@@ -88,7 +109,7 @@ function DepartmentSelector({
                                 )}
                                 <span
                                     className={clsx(
-                                        'min-w-14 shrink-0 rounded px-1.5 py-0.5 text-center text-[10px] font-bold tracking-tight font-space uppercase',
+                                        'font-space min-w-14 shrink-0 rounded px-1.5 py-0.5 text-center text-[10px] font-bold tracking-tight uppercase',
                                         isSelected
                                             ? 'bg-theme-blue text-white'
                                             : 'bg-slate-100 text-slate-500',
@@ -98,7 +119,7 @@ function DepartmentSelector({
                                 </span>
                                 <span className="flex min-w-0 items-center text-[11px] leading-snug font-semibold">
                                     <span className="truncate">{dept.title}</span>
-                                    <span className="shrink-0 ml-2 flex items-center gap-1.5 font-normal text-slate-400">
+                                    <span className="ml-2 flex shrink-0 items-center gap-1.5 font-normal text-slate-400">
                                         <span className="h-0.75 w-0.75 rounded-full bg-slate-300" />
                                         {dept.courses.length}
                                     </span>

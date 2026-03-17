@@ -19,6 +19,7 @@ function CalendarPage({ data, state, actions }: CalendarPageProps) {
                 showWeekend={state.showWeekend}
             />
             <button
+                type="button"
                 onClick={() => actions.setIsPanelOpen(true)}
                 className="bg-theme-blue absolute right-6 bottom-6 z-40 flex h-12 w-14 cursor-pointer items-center justify-center rounded-xl text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl active:scale-95 xl:hidden"
             >

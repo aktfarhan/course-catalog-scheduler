@@ -50,6 +50,7 @@ function MinGapSlider({ minGap, maxGap, gapPresets, setMinGap }: MinGapSliderPro
             <div className="flex gap-1.5">
                 {gapPresets.map((gap) => (
                     <button
+                        type="button"
                         key={gap}
                         onClick={() => setMinGap(gap)}
                         className={clsx(

@@ -81,6 +81,7 @@ function CourseCard({
                             const isActive = selectedSections.has(section.id);
                             return (
                                 <button
+                                    type="button"
                                     key={section.id}
                                     onClick={() => onSectionSelect(course.id, section.id)}
                                     className={clsx(

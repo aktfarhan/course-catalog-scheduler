@@ -24,6 +24,7 @@ function ActiveDaysSelector({ days, selectedDays, toggleDay }: ActiveDaysSelecto
                     const isActive = selectedDays?.includes(day);
                     return (
                         <button
+                            type="button"
                             key={day}
                             onClick={() => toggleDay(day)}
                             className={clsx(

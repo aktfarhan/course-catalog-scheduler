@@ -9,14 +9,16 @@ import ActiveDaysSelector from '../../calendar/calendarsidebar/subcomponents/fil
 import type { ApiDepartmentWithRelations, SearchFilters, FilterType } from '../../../types';
 
 interface FilterSidebarProps {
-    departmentMap: Map<string, ApiDepartmentWithRelations>;
     filters: SearchFilters;
+    isLoading: boolean;
     searchQuery: string;
+    departmentMap: Map<string, ApiDepartmentWithRelations>;
     onFilterChange: (type: FilterType, value: string) => void;
 }
 
 function FilterSidebar({
     filters,
+    isLoading,
     searchQuery,
     departmentMap,
     onFilterChange,
@@ -47,6 +49,7 @@ function FilterSidebar({
                 />
                 <Separator />
                 <DepartmentSelector
+                    isLoading={isLoading}
                     departmentMap={departmentMap}
                     selectedDeptCode={filters.departmentCode}
                     onSelect={(code) => onFilterChange('departmentCode', code)}
@@ -55,6 +58,7 @@ function FilterSidebar({
             <div className="relative p-5">
                 <div className="absolute top-0 right-0 left-0 h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
                 <button
+                    type="button"
                     onClick={() => onFilterChange('clear', '')}
                     className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50 py-2.5 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase transition-all hover:bg-slate-100 hover:text-slate-500 active:scale-[0.97]"
                 >

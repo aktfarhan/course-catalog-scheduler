@@ -33,6 +33,7 @@ function SectionTypeSelector({
 
                     return (
                         <button
+                            type="button"
                             key={type}
                             onClick={() => onSelect(type)}
                             className={clsx(

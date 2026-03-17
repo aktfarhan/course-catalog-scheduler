@@ -58,6 +58,7 @@ function SearchBar({ lookupData, searchQuery, setSearchQuery }: SearchBarProps) 
                     <button
                         type="button"
                         onClick={() => setShowHelp(true)}
+                        onMouseDown={(e) => e.preventDefault()}
                         className="absolute top-1/2 right-5 -translate-y-1/2 cursor-pointer text-gray-300 transition-all hover:text-gray-500"
                     >
                         <HelpCircle size={20} />
@@ -67,7 +68,7 @@ function SearchBar({ lookupData, searchQuery, setSearchQuery }: SearchBarProps) 
             {searchQuery && (
                 <div className="mt-3 flex flex-wrap gap-2 px-2">
                     {tokens.map((token, i) => (
-                        <SearchToken key={i} token={token} />
+                        <SearchToken key={`${token.type}-${token.text}-${i}`} token={token} />
                     ))}
                 </div>
             )}

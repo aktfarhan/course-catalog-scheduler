@@ -27,6 +27,7 @@ function TimeSelector({ times, selectedTime, onSelect }: TimeSelectorProps) {
                             : selectedTime?.start === DATA_MAPS.PERIOD_MAP[t.toLowerCase()]?.start;
                     return (
                         <button
+                            type="button"
                             key={t}
                             onClick={() => onSelect(t)}
                             className={clsx(

@@ -11,6 +11,7 @@ interface FilterHeaderProps {
 function FilterHeader({ isOpen, onToggle, selectedTerm }: FilterHeaderProps) {
     return (
         <button
+            type="button"
             onClick={onToggle}
             className="flex w-full cursor-pointer items-center justify-between p-5 hover:bg-gray-100/60"
         >

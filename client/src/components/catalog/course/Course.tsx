@@ -78,6 +78,7 @@ function Course({
                 )}
             >
                 <button
+                    type="button"
                     onClick={onTogglePin}
                     className={clsx(
                         'group relative hidden min-w-14 cursor-pointer items-center justify-center overflow-hidden border-r-2 border-gray-100 transition-all duration-200 lg:flex',
@@ -95,6 +96,7 @@ function Course({
                 <div className="flex flex-1 flex-col items-stretch md:flex-row">
                     <div className="relative flex-1 p-5 md:p-6 lg:pr-6">
                         <button
+                            type="button"
                             onClick={onTogglePin}
                             className={clsx(
                                 'absolute top-4 right-4 z-10 cursor-pointer rounded-full border p-2.5 shadow-sm transition-all duration-300 active:scale-90 sm:top-5 sm:right-5 lg:hidden',

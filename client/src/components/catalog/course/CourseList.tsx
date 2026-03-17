@@ -1,11 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import Course from './Course';
 import { Search } from 'lucide-react';
+import SkeletonCourseCard from './SkeletonCourseCard';
 import * as SectionRules from '../../../filters/sectionPredicates';
 import type { SearchFilters } from '../../../types';
 import type { ApiCourseWithDepartment, ApiSectionWithRelations } from '../../../types';
 
 interface CourseListProps {
+    isLoading: boolean;
     pagedCourses: ApiCourseWithDepartment[];
     activeFilters: SearchFilters;
     pinnedCourses: Set<number>;
@@ -16,6 +18,7 @@ interface CourseListProps {
 }
 
 function CourseList({
+    isLoading,
     pagedCourses,
     activeFilters,
     pinnedCourses,
@@ -45,7 +48,7 @@ function CourseList({
             map.set(course.id, filtered);
         });
         return map;
-    }, [pagedCourses, activeFilters]);
+    }, [pagedCourses, activeFilters, sectionsByCourseId]);
 
     // Toggle a course's pinned state by ID
     const handleTogglePin = useCallback(
@@ -71,12 +74,26 @@ function CourseList({
         [setExpandedCourseIds],
     );
 
+    // Skeleton loading state — render enough to overflow, parent clips with overflow-hidden
+    if (isLoading) {
+        return (
+            <div className="flex flex-col">
+                {Array.from({ length: 10 }).map((_, i) => (
+                    <SkeletonCourseCard key={i} />
+                ))}
+            </div>
+        );
+    }
+
     // Empty state when no courses match the current search
     if (pagedCourses.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                <Search size={48} className="mb-4 opacity-10" />
-                <p className="text-lg font-medium tracking-tight">No courses match your search</p>
+            <div className="mx-4 mt-4 flex max-w-7xl flex-col items-center justify-center rounded-2xl border-2 border-slate-200 py-16 select-none sm:mx-10">
+                <Search size={40} className="mb-3 text-slate-300" />
+                <p className="text-base font-semibold tracking-tight text-slate-400">
+                    No courses match your search
+                </p>
+                <p className="mt-1 text-xs text-slate-300">Try adjusting your search or filters</p>
             </div>
         );
     }

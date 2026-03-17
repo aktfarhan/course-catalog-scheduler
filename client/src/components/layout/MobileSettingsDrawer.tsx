@@ -28,6 +28,7 @@ function MobileSettingsDrawer({ data, state, actions, refs }: MobileSettingsDraw
                         </span>
                     </div>
                     <button
+                        type="button"
                         onClick={() => actions.setIsPanelOpen(false)}
                         className="cursor-pointer rounded-full bg-gray-50 p-2 transition-colors hover:bg-gray-100"
                     >

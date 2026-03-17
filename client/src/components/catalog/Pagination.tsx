@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
     jumpValue: string;
+    isLoading: boolean;
     totalPages: number;
     currentPage: number;
     setJumpValue: React.Dispatch<React.SetStateAction<string>>;
@@ -13,6 +14,7 @@ interface PaginationProps {
 
 function Pagination({
     jumpValue,
+    isLoading,
     totalPages,
     currentPage,
     setJumpValue,
@@ -41,6 +43,8 @@ function Pagination({
         return range;
     }, [currentPage, totalPages]);
 
+    if (isLoading) return null;
+
     return (
         <nav className="w-full border-t border-gray-200 bg-gray-50/80 py-3">
             <div className="flex w-full max-w-340 items-center justify-center px-4 sm:justify-between sm:px-10">
@@ -56,10 +60,7 @@ function Pagination({
                     <div className="flex items-center gap-1">
                         {paginationRange.map((item, i) =>
                             item === 'dots' ? (
-                                <span
-                                    key={`dots-${i}`}
-                                    className="px-1 text-sm text-gray-400"
-                                >
+                                <span key={`dots-${i}`} className="px-1 text-sm text-gray-400">
                                     ...
                                 </span>
                             ) : (
@@ -88,7 +89,10 @@ function Pagination({
                         <ChevronRight size={18} strokeWidth={2.5} />
                     </button>
                 </div>
-                <form onSubmit={handleJumpPage} className="hidden items-center gap-2 border-l border-gray-200 pl-4 sm:flex">
+                <form
+                    onSubmit={handleJumpPage}
+                    className="hidden items-center gap-2 border-l border-gray-200 pl-4 sm:flex"
+                >
                     <label className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
                         Go to
                     </label>

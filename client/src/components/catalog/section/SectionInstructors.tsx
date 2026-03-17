@@ -49,6 +49,7 @@ function SectionInstructors({ instructors, copiedId, onCopy }: SectionInstructor
                                         {i.email}
                                     </span>
                                     <button
+                                        type="button"
                                         onClick={() => onCopy(i.email, instructorId)}
                                         className="bg-theme-blue shadow-theme-blue/20 flex cursor-pointer items-center justify-center rounded-lg p-1.5 text-white shadow-md transition-all hover:scale-105 active:scale-95"
                                     >
