@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import SearchToken from './SearchToken';
 import SearchHelp from './SearchHelp';
 import { Search, X, HelpCircle } from 'lucide-react';
@@ -13,19 +13,6 @@ interface SearchBarProps {
 
 function SearchBar({ lookupData, searchQuery, setSearchQuery }: SearchBarProps) {
     const [showHelp, setShowHelp] = useState(false);
-    const helpRef = useRef<HTMLDivElement>(null);
-
-    // Close popover on outside click
-    useEffect(() => {
-        if (!showHelp) return;
-        function handleClick(e: MouseEvent) {
-            if (helpRef.current && !helpRef.current.contains(e.target as Node)) {
-                setShowHelp(false);
-            }
-        }
-        document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, [showHelp]);
 
     const { tokens } = useMemo(() => {
         return parseSearchInput(searchQuery, lookupData);
@@ -73,9 +60,15 @@ function SearchBar({ lookupData, searchQuery, setSearchQuery }: SearchBarProps) 
                 </div>
             )}
             {showHelp && (
-                <div ref={helpRef} className="absolute right-0 z-50 mt-2">
-                    <SearchHelp onClose={() => setShowHelp(false)} />
-                </div>
+                <>
+                    <div
+                        className="fixed inset-0 z-40 bg-black/5"
+                        onClick={() => setShowHelp(false)}
+                    />
+                    <div className="absolute right-0 z-50 mt-2">
+                        <SearchHelp onClose={() => setShowHelp(false)} />
+                    </div>
+                </>
             )}
         </div>
     );
