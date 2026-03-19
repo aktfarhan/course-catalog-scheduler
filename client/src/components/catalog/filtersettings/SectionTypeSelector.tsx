@@ -5,16 +5,10 @@ import type { SectionType } from '../../../types';
 interface SectionTypeSelectorProps {
     types: readonly string[];
     selectedType: SectionType | undefined | null;
-    searchQuery: string;
     onSelect: (type: string) => void;
 }
 
-function SectionTypeSelector({
-    types,
-    selectedType,
-    searchQuery,
-    onSelect,
-}: SectionTypeSelectorProps) {
+function SectionTypeSelector({ types, selectedType, onSelect }: SectionTypeSelectorProps) {
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -27,9 +21,7 @@ function SectionTypeSelector({
             </div>
             <div className="grid grid-cols-2 gap-1.5">
                 {types.map((type) => {
-                    const isSelected =
-                        selectedType === type.toUpperCase() ||
-                        searchQuery?.toLowerCase().includes(type.toLowerCase());
+                    const isSelected = selectedType === type;
 
                     return (
                         <button

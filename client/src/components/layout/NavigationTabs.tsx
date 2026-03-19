@@ -17,7 +17,7 @@ function NavigationTabs({ activeTab, totalResults, setActiveTab }: NavigationTab
         );
     };
     return (
-        <nav className="w-full border-b border-gray-100 bg-gray-50 px-10 pt-6" role="tablist">
+        <nav className="w-full border-b border-gray-100 bg-gray-50 px-4 pt-6 sm:px-10" role="tablist">
             <div className="flex h-12 items-end gap-1">
                 <button
                     type="button"

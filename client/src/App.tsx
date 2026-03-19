@@ -38,7 +38,6 @@ function App() {
                             <FilterSidebar
                                 filters={data.activeFilters}
                                 isLoading={data.isLoading}
-                                searchQuery={state.searchQuery}
                                 departmentMap={data.lookupData.departmentMap}
                                 onFilterChange={actions.handleSidebarFilter}
                             />

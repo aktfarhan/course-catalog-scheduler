@@ -94,7 +94,13 @@ function WeeklyCalendar({
             <div className="flex-1">
                 <div className={clsx('grid h-full', showWeekend ? 'grid-cols-7' : 'grid-cols-5')}>
                     {days.map((day, dayIndex) => (
-                        <div key={day} className={clsx('relative border-r border-gray-100', dayIndex % 2 === 1 && 'bg-neutral-50/60')}>
+                        <div
+                            key={day}
+                            className={clsx(
+                                'relative border-r border-gray-100',
+                                dayIndex % 2 === 1 && 'bg-neutral-50/60',
+                            )}
+                        >
                             {Array.from({ length: END_TIME - START_TIME + 1 }).map((_, i) => (
                                 <div
                                     key={i}
