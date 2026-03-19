@@ -5,3 +5,15 @@
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     --font-space: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 }
+
+@layer base {
+    html, body, #root {
+        height: 100%;
+    }
+
+    @media (min-width: 1280px) and (max-width: 1535px) {
+        html {
+            zoom: 0.9;
+        }
+    }
+}

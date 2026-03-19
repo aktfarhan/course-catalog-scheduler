@@ -10,7 +10,7 @@ function App() {
     const { data, state, refs, actions } = useAppController();
 
     return (
-        <main className="relative flex h-screen w-full justify-center overflow-hidden bg-gray-50 antialiased">
+        <main className="relative flex h-full w-full justify-center overflow-hidden bg-gray-50 antialiased">
             {state.isPanelOpen && (
                 <MobileSettingsDrawer data={data} state={state} actions={actions} refs={refs} />
             )}
