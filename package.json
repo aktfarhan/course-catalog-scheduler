@@ -8,7 +8,7 @@
         "seed": "ts-node server/prisma/seed.ts",
         "ingest": "ts-node server/src/ingest-only.ts",
         "dev": "nodemon --watch server --exec ts-node server/server.ts",
-        "build": "tsc",
+        "build": "tsc && cp -r server/prisma/generated dist/server/prisma/generated",
         "start": "prisma migrate deploy && node dist/server/server.js",
         "postinstall": "prisma generate",
         "setup": "npm install && npm --prefix client install && npx playwright install chromium",
