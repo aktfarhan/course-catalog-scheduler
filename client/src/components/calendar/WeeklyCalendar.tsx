@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import { useMemo } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { CALENDAR_CONFIG } from '../../constants';
+import CalendarBlock from './CalendarBlock';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { getInstructorNames } from '../../utils/formatInstructorNames';
+import { CALENDAR_CONFIG, COURSE_COLORS, type CourseColor } from '../../constants';
 import { formatTime, formatTimeToMinutes, formatHour } from '../../utils/formatTime';
 import type { ApiSectionWithRelations, Block } from '../../types';
 
@@ -20,8 +20,29 @@ function WeeklyCalendar({
     const { START_TIME, END_TIME, TOTAL_MINS, ALL_DAYS, WEEK_DAYS } = CALENDAR_CONFIG;
     const days = showWeekend ? ALL_DAYS : WEEK_DAYS;
 
-    // Builds calendar blocks from selected sections, grouped by day with conflict detection
-    const activeBlocks = useMemo(() => {
+    // Track grid dimensions so CalendarBlock can determine how many text lines fit
+    const gridRef = useRef<HTMLDivElement>(null);
+    const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
+
+    // Single ResizeObserver on the grid container
+    useEffect(() => {
+        const element = gridRef.current;
+        if (!element) return;
+        const observer = new ResizeObserver(([entry]) => {
+            setGridSize({
+                width: entry.contentRect.width,
+                height: entry.contentRect.height,
+            });
+        });
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, []);
+
+    // Columns wider than 200px show course code + time on one line
+    const isWide = days.length > 0 && gridSize.width / days.length >= 200;
+
+    // Builds calendar blocks, assigns course colors, and detects conflicts
+    const { activeBlocks, courseColorMap } = useMemo(() => {
         const grouped: Record<string, Block[]> = {};
         days.forEach((d) => (grouped[d] = []));
         const allBlocks: Block[] = [];
@@ -70,7 +91,15 @@ function WeeklyCalendar({
                 grouped[block1.day].push({ ...block1, hasConflict });
             }
         });
-        return grouped;
+
+        // 5. Assign a color to each course
+        const colorMap = new Map<string, CourseColor>();
+        const codes = [...new Set(allBlocks.map((b) => b.courseCode))].sort();
+        codes.forEach((code, i) => {
+            colorMap.set(code, COURSE_COLORS[i % COURSE_COLORS.length]);
+        });
+
+        return { activeBlocks: grouped, courseColorMap: colorMap };
     }, [selectedSections, sectionsByCourseId, days]);
 
     return (
@@ -93,7 +122,10 @@ function WeeklyCalendar({
                 ))}
             </div>
             <div className="flex-1">
-                <div className={clsx('grid h-full', showWeekend ? 'grid-cols-7' : 'grid-cols-5')}>
+                <div
+                    ref={gridRef}
+                    className={clsx('grid h-full', showWeekend ? 'grid-cols-7' : 'grid-cols-5')}
+                >
                     {days.map((day, dayIndex) => (
                         <div
                             key={day}
@@ -115,51 +147,18 @@ function WeeklyCalendar({
                                     </span>
                                 </div>
                             ))}
-                            {activeBlocks[day]?.map((block) => {
-                                const top =
-                                    ((block.startMins - START_TIME * 60) / TOTAL_MINS) * 100;
-                                const height =
-                                    ((block.endMins - block.startMins) / TOTAL_MINS) * 100;
-                                return (
-                                    <div
-                                        key={`${block.courseCode}-${block.sectionNumber}-${block.startMins}`}
-                                        style={{
-                                            top: `${top}%`,
-                                            height: `${height}%`,
-                                        }}
-                                        className={clsx(
-                                            'absolute right-1.5 left-1.5 rounded-xl border-l-6 p-2 shadow-md transition-all',
-                                            block.hasConflict
-                                                ? 'animate-pulse border-red-500 bg-red-50 ring-2 shadow-red-100 ring-red-500'
-                                                : 'border-theme-blue border-2 bg-gray-100',
-                                        )}
-                                    >
-                                        <div className="flex h-full flex-col overflow-hidden">
-                                            <div className="flex items-start justify-between">
-                                                <span
-                                                    className={clsx(
-                                                        'text-[11px] font-bold uppercase',
-                                                        block.hasConflict
-                                                            ? 'text-red-600'
-                                                            : 'text-theme-blue',
-                                                    )}
-                                                >
-                                                    {block.courseCode}
-                                                </span>
-                                                {block.hasConflict && (
-                                                    <AlertTriangle
-                                                        size={12}
-                                                        className="text-red-600"
-                                                    />
-                                                )}
-                                            </div>
-                                            <p className="truncate text-[10px]">
-                                                Section {block.sectionNumber}
-                                            </p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                            {activeBlocks[day]?.map((block) => (
+                                <CalendarBlock
+                                    key={`${block.courseCode}-${block.sectionNumber}-${block.startMins}`}
+                                    top={((block.startMins - START_TIME * 60) / TOTAL_MINS) * 100}
+                                    block={block}
+                                    color={courseColorMap.get(block.courseCode)!}
+                                    height={((block.endMins - block.startMins) / TOTAL_MINS) * 100}
+                                    isWide={isWide}
+                                    totalMins={TOTAL_MINS}
+                                    gridHeight={gridSize.height}
+                                />
+                            ))}
                         </div>
                     ))}
                 </div>
