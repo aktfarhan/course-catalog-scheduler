@@ -1,11 +1,12 @@
 import cors from 'cors';
 import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import prisma from './prismaClient';
+import courseRoutes from './routes/courseRoutes';
 import sectionRoutes from './routes/sectionRoutes';
+import metadataRoutes from './routes/metadataRoutes';
 import instructorRoutes from './routes/instructorRoutes';
 import departmentRoutes from './routes/departmentRoutes';
-import courseRoutes from './routes/courseRoutes';
-import prisma from './prismaClient';
+import { Request, Response, NextFunction } from 'express';
 
 const app = express();
 const PORT = process.env.PORT || 1337;
@@ -24,6 +25,7 @@ app.use('/api/sections', sectionRoutes);
 app.use('/api/instructors', instructorRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/metadata', metadataRoutes);
 
 // Global error handler for catching unhandled errors in routes or middleware
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {

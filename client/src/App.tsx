@@ -23,6 +23,7 @@ function App() {
                             <FilterSidebar
                                 filters={data.activeFilters}
                                 isLoading={data.isLoading}
+                                lastUpdatedAt={data.lastUpdatedAt}
                                 departmentMap={data.lookupData.departmentMap}
                                 onFilterChange={actions.handleSidebarFilter}
                             />
