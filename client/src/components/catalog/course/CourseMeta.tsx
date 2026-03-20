@@ -95,10 +95,7 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                     <div className="flex items-center gap-2">
                         <MapPin size={16} className="text-slate-400" />
                         <span title={firstSection?.meetings[0]?.location || 'TBA'}>
-                            {firstSection?.meetings[0]?.location
-                                ?.replace('Wheatley-Peters', 'Wheatley-P')
-                                .replace('Wh-Peters', 'Wheatley-P')
-                                .replace(/([A-Z]\d+-\d+)\s+.+$/, '$1') || 'TBA'}
+                            {firstSection?.meetings[0]?.location || 'TBA'}
                         </span>
                     </div>
                 </div>

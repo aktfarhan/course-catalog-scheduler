@@ -1,6 +1,10 @@
 import { findSectionType } from '../utils';
-import { normalizeTimes, normalizeDaysFull, normalizeInstructors } from '../normalize';
-
+import {
+    normalizeTimes,
+    normalizeDaysFull,
+    normalizeInstructors,
+    normalizeLocation,
+} from '../normalize';
 import type {
     InstructorInfo,
     SectionType,
@@ -62,7 +66,7 @@ export function writeNormalizedJSON(
                                 day,
                                 startTime: time.startTime,
                                 endTime: time.endTime,
-                                location: section.location,
+                                location: normalizeLocation(section.location),
                             });
                         }
                     }
