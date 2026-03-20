@@ -6,7 +6,8 @@ import { useCalendarSidebar } from '../components/calendar/calendarsidebar/useCa
 
 export function useAppController() {
     // Fetch core catalog data
-    const { courses, sections, sectionsByCourseId, lookupData, isLoading } = useCatalogData();
+    const { courses, sections, sectionsByCourseId, lookupData, lastUpdatedAt, isLoading } =
+        useCatalogData();
 
     // Ref for scrollable container to reset scroll on pagination or search change
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -130,6 +131,7 @@ export function useAppController() {
             courses,
             lookupData,
             isLoading,
+            lastUpdatedAt,
             sectionsByCourseId,
             pagedCourses: pagination.pagedCourses,
             activeFilters: pagination.activeFilters,

@@ -1,21 +1,29 @@
-import Separator from '../../shared/Separator';
 import { RotateCcw } from 'lucide-react';
 import TimeSelector from './TimeSelector';
+import Separator from '../../shared/Separator';
+import DataUpdateTimer from './DataUpdateTimer';
+import TermSelector from '../../shared/TermSelector';
 import DepartmentSelector from './DepartmentSelector';
 import SectionTypeSelector from './SectionTypeSelector';
-import { FILTER_CATEGORIES, type AcademicTerm } from '../../../constants';
-import TermSelector from '../../shared/TermSelector';
 import ActiveDaysSelector from '../../shared/ActiveDaysSelector';
+import { FILTER_CATEGORIES, type AcademicTerm } from '../../../constants';
 import type { ApiDepartmentWithRelations, SearchFilters, FilterType } from '../../../types';
 
 interface FilterSidebarProps {
     filters: SearchFilters;
     isLoading: boolean;
+    lastUpdatedAt: string | null;
     departmentMap: Map<string, ApiDepartmentWithRelations>;
     onFilterChange: (type: FilterType, value: string) => void;
 }
 
-function FilterSidebar({ filters, isLoading, departmentMap, onFilterChange }: FilterSidebarProps) {
+function FilterSidebar({
+    filters,
+    isLoading,
+    lastUpdatedAt,
+    departmentMap,
+    onFilterChange,
+}: FilterSidebarProps) {
     return (
         <div className="flex h-full flex-col bg-white select-none">
             <div className="scrollbar-hidden flex-1 space-y-5 overflow-y-auto p-6">
@@ -62,15 +70,7 @@ function FilterSidebar({ filters, isLoading, departmentMap, onFilterChange }: Fi
                     <span>Reset Filters</span>
                 </button>
                 <div className="mt-3 h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
-                <div className="mx-auto mt-4 flex w-fit items-center gap-1.5 text-slate-400">
-                    <span className="font-space text-xs font-bold tracking-wide uppercase">
-                        Data Update:
-                    </span>
-                    <span className="font-space text-sm font-bold tracking-widest tabular-nums">
-                        48:05:32
-                    </span>
-                    <span className="-ml-0.5 text-xs font-normal text-slate-300">ago</span>
-                </div>
+                <DataUpdateTimer lastUpdatedAt={lastUpdatedAt} />
             </div>
         </div>
     );

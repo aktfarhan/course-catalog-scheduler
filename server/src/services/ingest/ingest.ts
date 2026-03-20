@@ -253,5 +253,12 @@ export async function ingestData(data: NormalizedData) {
         );
     }
 
+    // 8. Record pipeline completion timestamp
+    await prisma.metadata.upsert({
+        where: { id: 1 },
+        create: { lastUpdatedAt: new Date() },
+        update: { lastUpdatedAt: new Date() },
+    });
+
     await prisma.$disconnect();
 }

@@ -12,19 +12,22 @@ export function useCatalogData() {
     const [departments, setDepartments] = useState<ApiDepartmentWithRelations[]>([]);
     const [courses, setCourses] = useState<ApiCourseWithSections[]>([]);
     const [sections, setSections] = useState<ApiSectionWithRelations[]>([]);
+    const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [resD, resC, resS] = await Promise.all([
+                const [resD, resC, resS, resM] = await Promise.all([
                     fetch(`${API_BASE}/api/departments`),
                     fetch(`${API_BASE}/api/courses`),
                     fetch(`${API_BASE}/api/sections`),
+                    fetch(`${API_BASE}/api/metadata`),
                 ]);
                 setDepartments(await resD.json());
                 setCourses(await resC.json());
                 setSections(await resS.json());
+                setLastUpdatedAt((await resM.json())?.lastUpdatedAt ?? null);
             } catch (e) {
                 console.error('Catalog fetch failed', e);
             } finally {
@@ -116,6 +119,7 @@ export function useCatalogData() {
         sections,
         sectionsByCourseId,
         lookupData,
+        lastUpdatedAt,
         isLoading,
     };
 }

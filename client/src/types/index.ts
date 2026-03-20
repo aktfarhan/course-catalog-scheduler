@@ -14,6 +14,12 @@ export * from './api/department';
 export * from './api/instructor';
 export * from './api/meeting';
 
+// Pipeline metadata from /api/metadata
+export interface ApiMetadata {
+    id: number;
+    lastUpdatedAt: string;
+}
+
 /**
  * Types used to manage the visual representation of data in the
  * schedule and calendar components.

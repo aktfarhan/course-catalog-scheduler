@@ -92,6 +92,12 @@ model Meeting {
   @@index([sectionId])
 }
 
+// Tracks pipeline execution metadata (singleton row, upserted on each run)
+model Metadata {
+  id            Int      @id @default(autoincrement()) // Primary key
+  lastUpdatedAt DateTime // Timestamp of the last successful pipeline run
+}
+
 // Represents an instructor
 model Instructor {
   id          Int          @id @default(autoincrement()) // Primary key
