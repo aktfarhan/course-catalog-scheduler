@@ -22,9 +22,6 @@ function Course({
     onTogglePin,
     onToggleSectionExpand,
 }: CourseProps) {
-    // Whether this course has more than one section
-    const isMultiple = sections.length > 1;
-
     // Ref to the description paragraph for overflow measurement
     const descriptionRef = useRef<HTMLParagraphElement>(null);
 
@@ -36,13 +33,16 @@ function Course({
 
     // Compute a display-friendly instructor label
     const instructorLabel = useMemo(() => {
-        if (isMultiple) return 'Multiple';
-        const instructors = sections[0]?.instructors || [];
-        if (instructors.length === 0) return 'TBA';
-        return instructors
-            .map((instructor) => `${instructor.firstName} ${instructor.lastName}`)
-            .join(', ');
-    }, [isMultiple, sections]);
+        // Collect unique instructor names across all sections
+        const uniqueNames = new Set(
+            sections.flatMap((section) =>
+                (section.instructors || []).map((i) => `${i.firstName} ${i.lastName}`),
+            ),
+        );
+        if (uniqueNames.size === 0) return 'TBA';
+        if (uniqueNames.size > 1) return 'Multiple';
+        return [...uniqueNames][0];
+    }, [sections]);
 
     // Detect whether the description text overflows its container
     useEffect(() => {
@@ -69,7 +69,7 @@ function Course({
             ? 'fill-theme-blue text-theme-blue scale-110 drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]'
             : 'text-slate-400 group-hover:text-slate-600',
     );
-    
+
     return (
         <div className="mx-4 mt-4 max-w-7xl sm:mx-10">
             <div

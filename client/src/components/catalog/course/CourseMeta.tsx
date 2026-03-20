@@ -16,6 +16,10 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
     const isMultiple = sections.length > 1;
     const firstSection = sections[0];
 
+    // Resolve term label based on unique terms across sections
+    const uniqueTerms = new Set(sections.map((section) => section.term));
+    const termLabel = uniqueTerms.size > 1 ? 'Multiple Semesters' : firstSection?.term || 'TBA';
+
     // Processes raw meeting days into a sorted string
     const formattedDays = useMemo(() => {
         const meetings = firstSection?.meetings;
@@ -51,7 +55,7 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2 text-sm text-slate-700">
                                 <CalendarClock size={16} className="text-slate-400" />
-                                <span>Multiple Semesters</span>
+                                <span>{termLabel}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-slate-700">
                                 <CalendarDays size={16} className="text-slate-400" />
