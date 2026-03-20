@@ -30,7 +30,7 @@ function SectionDaysTime({ meetings }: SectionDaysTimeProps) {
 
     return (
         <div className="flex flex-row items-center gap-2 lg:flex-col lg:items-center">
-            <span className="mt-1 w-24 shrink-0 text-[10px] font-bold tracking-widest text-gray-400 uppercase lg:hidden">
+            <span className="mt-1 w-24 shrink-0 text-[10px] font-bold tracking-widest text-slate-400 uppercase lg:hidden">
                 Schedule
             </span>
             <div className="flex flex-col gap-2">
@@ -45,14 +45,14 @@ function SectionDaysTime({ meetings }: SectionDaysTimeProps) {
                                         'flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold transition-all',
                                         isMeetingDay
                                             ? 'bg-theme-blue text-white shadow-sm'
-                                            : 'border border-gray-200 text-gray-300',
+                                            : 'border border-gray-200 text-slate-300',
                                     )}
                                 >
                                     {day}
                                 </span>
                                 {isMeetingDay && (
-                                    <div className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 flex -translate-x-1/2 items-center gap-2 rounded-md border border-gray-300 bg-gray-100 px-3 py-1.5 text-[11px] font-medium whitespace-nowrap text-gray-700 opacity-0 shadow-md transition-all duration-200 group-hover/day:visible group-hover/day:opacity-100">
-                                        <Clock3 size={12} className="text-gray-500" />
+                                    <div className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 flex -translate-x-1/2 items-center gap-2 rounded-md border border-gray-300 bg-gray-100 px-3 py-1.5 text-[11px] font-medium whitespace-nowrap text-slate-700 opacity-0 shadow-md transition-all duration-200 group-hover/day:visible group-hover/day:opacity-100">
+                                        <Clock3 size={12} className="text-slate-500" />
                                         <span>{timesForDay.join(', ')}</span>
                                         <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-gray-300" />
                                     </div>
@@ -64,8 +64,8 @@ function SectionDaysTime({ meetings }: SectionDaysTimeProps) {
                 <div className="flex w-full flex-col items-center gap-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
                     {uniqueTimes.map((time) => (
                         <div key={time} className="flex items-center gap-2">
-                            <Clock3 size={13} className="text-gray-400" />
-                            <span className="text-xs font-medium text-gray-700">{time}</span>
+                            <Clock3 size={13} className="text-slate-400" />
+                            <span className="text-xs font-medium text-slate-700">{time}</span>
                         </div>
                     ))}
                 </div>

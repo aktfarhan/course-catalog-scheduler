@@ -7,7 +7,9 @@
 }
 
 @layer base {
-    html, body, #root {
+    html,
+    body,
+    #root {
         height: 100%;
     }
 
@@ -15,5 +17,13 @@
         html {
             zoom: 0.9;
         }
+    }
+}
+
+@utility scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
     }
 }

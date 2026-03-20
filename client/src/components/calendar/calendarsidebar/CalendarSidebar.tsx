@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { RotateCcw, Sparkles } from 'lucide-react';
-import CourseList from './subcomponents/CourseList';
-import FilterSettings from './subcomponents/filtersettings/FilterSettings';
+import PinnedCourseList from './PinnedCourseList';
+import FilterSettings from './filtersettings/FilterSettings';
 import React, { useMemo, type Dispatch, type SetStateAction } from 'react';
 import type { CalendarSidebar as CalendarSidebarType } from './useCalendarSidebar';
 import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
@@ -67,7 +67,7 @@ function CalendarSidebar({
                     <span>Clear</span>
                 </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto bg-white [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto bg-white">
                 <FilterSettings
                     filterState={{
                         isFilterOpen: sidebar.state.isFilterOpen,
@@ -93,7 +93,7 @@ function CalendarSidebar({
                     gapPresets={sidebar.data.gapPresets}
                     maxGap={sidebar.data.maxGap}
                 />
-                <CourseList
+                <PinnedCourseList
                     expandedId={sidebar.state.expandedId}
                     selectedTerm={sidebar.state.selectedTerm}
                     selectedSections={selectedSections}
@@ -114,7 +114,7 @@ function CalendarSidebar({
                         'flex h-12 w-full items-center justify-center gap-3 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all',
                         pinnedCourses.size > 0
                             ? 'from-theme-blue to-theme-blue/70 cursor-pointer bg-linear-to-r text-white shadow-lg active:scale-95'
-                            : 'cursor-not-allowed bg-gray-100 text-gray-300',
+                            : 'cursor-not-allowed bg-gray-100 text-slate-300',
                     )}
                 >
                     <Sparkles size={16} />

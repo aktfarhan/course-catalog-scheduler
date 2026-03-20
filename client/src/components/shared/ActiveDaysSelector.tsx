@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { CheckSquare } from 'lucide-react';
-import type { DayLiteral } from '../../../../../constants';
+import type { DayLiteral } from '../../constants';
 
 interface ActiveDaysSelectorProps {
     days: DayLiteral[];

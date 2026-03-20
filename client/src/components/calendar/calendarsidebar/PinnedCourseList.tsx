@@ -3,10 +3,10 @@ import CourseCard from './CourseCard';
 import { useCallback, useMemo } from 'react';
 import { Bookmark, ChevronDown } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { AcademicTerm } from '../../../../constants';
-import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../../types';
+import type { AcademicTerm } from '../../../constants';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
 
-interface CourseListProps {
+interface PinnedCourseListProps {
     expandedId: number | null;
     selectedTerm: AcademicTerm;
     isCoursesOpen: boolean;
@@ -18,7 +18,7 @@ interface CourseListProps {
     setIsCoursesOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-function CourseList({
+function PinnedCourseList({
     expandedId,
     selectedTerm,
     pinnedCourses,
@@ -28,7 +28,7 @@ function CourseList({
     setExpandedId,
     onSectionSelect,
     setIsCoursesOpen,
-}: CourseListProps) {
+}: PinnedCourseListProps) {
     const handleExpand = useCallback(
         (courseId: number) => {
             setExpandedId((prev) => (prev === courseId ? null : courseId));
@@ -36,13 +36,14 @@ function CourseList({
         [setExpandedId],
     );
 
+    // Only show sections that match the selected term for each pinned course
     const filteredSectionsMap = useMemo(() => {
         const map = new Map<number, ApiSectionWithRelations[]>();
         pinnedCourses.forEach((course) => {
             const sections = sectionsByCourseId.get(course.id) || [];
             map.set(
                 course.id,
-                sections.filter((s) => s.term === selectedTerm),
+                sections.filter((section) => section.term === selectedTerm),
             );
         });
         return map;
@@ -59,7 +60,7 @@ function CourseList({
                     <div className="bg-theme-blue flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm">
                         <Bookmark size={16} />
                     </div>
-                    <span className="text-[13px] font-bold text-gray-800">Pinned Courses</span>
+                    <span className="text-[13px] font-bold text-slate-800">Pinned Courses</span>
                     <div className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                         {pinnedCourses.length}
                     </div>
@@ -67,7 +68,7 @@ function CourseList({
                 <ChevronDown
                     size={18}
                     className={clsx(
-                        'text-gray-400 transition-transform duration-200 ease-in-out',
+                        'text-slate-400 transition-transform duration-200 ease-in-out',
                         isCoursesOpen && '-rotate-180',
                     )}
                 />
@@ -106,4 +107,4 @@ function CourseList({
     );
 }
 
-export default CourseList;
+export default PinnedCourseList;

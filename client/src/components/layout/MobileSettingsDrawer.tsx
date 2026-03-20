@@ -17,7 +17,6 @@ function MobileSettingsDrawer({ data, state, actions, refs }: MobileSettingsDraw
                 className="animate-in fade-in absolute inset-0 bg-black/20 backdrop-blur-[2px] duration-300"
                 onClick={() => actions.setIsPanelOpen(false)}
             />
-
             <div className="animate-in slide-in-from-right absolute top-0 right-0 flex h-full w-80 flex-col border-l border-gray-200 bg-white shadow-2xl duration-300">
                 <div className="relative flex-1 overflow-y-auto">
                     <CalendarSidebar

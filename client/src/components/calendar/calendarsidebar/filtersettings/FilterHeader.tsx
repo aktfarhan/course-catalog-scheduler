@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { ChevronDown, Settings2 } from 'lucide-react';
-import type { AcademicTerm } from '../../../../../constants';
+import type { AcademicTerm } from '../../../../constants';
 
 interface FilterHeaderProps {
     isOpen: boolean;
@@ -20,7 +20,7 @@ function FilterHeader({ isOpen, onToggle, selectedTerm }: FilterHeaderProps) {
                     <Settings2 size={16} />
                 </div>
                 <div className="flex flex-col items-start">
-                    <span className="text-[13px] font-bold text-gray-800">Schedule Options</span>
+                    <span className="text-[13px] font-bold text-slate-800">Schedule Options</span>
                     <span className="text-[10px] font-medium tracking-widest text-slate-400 uppercase">
                         {selectedTerm}
                     </span>
@@ -29,7 +29,7 @@ function FilterHeader({ isOpen, onToggle, selectedTerm }: FilterHeaderProps) {
             <ChevronDown
                 size={18}
                 className={clsx(
-                    'text-gray-400 transition-transform duration-200 ease-in-out',
+                    'text-slate-400 transition-transform duration-200 ease-in-out',
                     isOpen && '-rotate-180',
                 )}
             />

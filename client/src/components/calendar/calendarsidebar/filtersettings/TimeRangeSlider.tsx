@@ -1,19 +1,27 @@
 import { CalendarRange } from 'lucide-react';
-import { formatTimeLabel } from '../../../../../utils/formatTime';
+import { formatTimeLabel } from '../../../../utils/formatTime';
 import type { RefObject } from 'react';
-import type { TimeRange } from '../../../../../types';
+import type { TimeRange } from '../../../../types';
 
 interface TimeRangeSliderProps {
     min: number;
     max: number;
     timeRange: TimeRange;
     sliderRef: RefObject<HTMLDivElement | null>;
+    onPointerUp: () => void;
     onPointerDown: (e: React.PointerEvent<Element>) => void;
     onPointerMove: (e: React.PointerEvent<Element>) => void;
-    onPointerUp: () => void;
 }
 
-function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPointerMove, onPointerUp }: TimeRangeSliderProps) {
+function TimeRangeSlider({
+    min,
+    max,
+    timeRange,
+    sliderRef,
+    onPointerUp,
+    onPointerDown,
+    onPointerMove,
+}: TimeRangeSliderProps) {
     const startPercent = ((timeRange.start - min) / (max - min)) * 100;
     const endPercent = ((timeRange.end - min) / (max - min)) * 100;
     return (

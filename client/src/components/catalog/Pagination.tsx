@@ -21,8 +21,11 @@ function Pagination({
     handleJumpPage,
     setCurrentPage,
 }: PaginationProps) {
+    // Builds a compact page range: [1, '...', 4, 5, 6, '...', 86]
     const paginationRange = useMemo(() => {
         const range: (number | 'dots')[] = [];
+
+        // Always include first, last, and neighbors of current page
         const pages = new Set<number>();
         pages.add(1);
         pages.add(totalPages);
@@ -33,6 +36,7 @@ function Pagination({
         }
         const sorted = Array.from(pages).sort((a, b) => a - b);
 
+        // Insert 'dots' between non-consecutive page numbers
         for (let i = 0; i < sorted.length; i++) {
             range.push(sorted[i]);
 
@@ -53,14 +57,14 @@ function Pagination({
                         type="button"
                         disabled={currentPage === 1}
                         onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                        className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2.5 text-gray-500 transition-all hover:bg-gray-100 disabled:opacity-30"
+                        className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2.5 text-slate-500 transition-all hover:bg-gray-100 disabled:opacity-30"
                     >
                         <ChevronLeft size={18} strokeWidth={2.5} />
                     </button>
                     <div className="flex items-center gap-1">
                         {paginationRange.map((item, i) =>
                             item === 'dots' ? (
-                                <span key={`dots-${i}`} className="px-1 text-sm text-gray-400">
+                                <span key={`dots-${i}`} className="px-1 text-sm text-slate-400">
                                     ...
                                 </span>
                             ) : (
@@ -72,7 +76,7 @@ function Pagination({
                                         'h-10 w-10 cursor-pointer rounded-lg text-sm font-bold transition-all',
                                         currentPage === item
                                             ? 'bg-theme-blue text-white shadow-sm'
-                                            : 'hover:text-theme-blue text-gray-500 hover:bg-gray-100',
+                                            : 'hover:text-theme-blue text-slate-500 hover:bg-gray-100',
                                     )}
                                 >
                                     {item}
@@ -84,7 +88,7 @@ function Pagination({
                         type="button"
                         disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                        className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2.5 text-gray-500 transition-all hover:bg-gray-100 disabled:opacity-30"
+                        className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2.5 text-slate-500 transition-all hover:bg-gray-100 disabled:opacity-30"
                     >
                         <ChevronRight size={18} strokeWidth={2.5} />
                     </button>
@@ -93,7 +97,7 @@ function Pagination({
                     onSubmit={handleJumpPage}
                     className="hidden items-center gap-2 border-l border-gray-200 pl-4 sm:flex"
                 >
-                    <label className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                    <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                         Go to
                     </label>
                     <input
@@ -102,7 +106,7 @@ function Pagination({
                         value={jumpValue}
                         onChange={(e) => setJumpValue(e.target.value.replace(/\D/g, ''))}
                         placeholder={currentPage.toString()}
-                        className="focus:border-theme-blue h-9 w-12 rounded-lg border border-gray-200 bg-white text-center text-sm font-bold text-gray-700 placeholder-gray-300 focus:outline-none"
+                        className="focus:border-theme-blue h-9 w-12 rounded-lg border border-gray-200 bg-white text-center text-sm font-bold text-slate-700 placeholder-slate-300 focus:outline-none"
                     />
                 </form>
             </div>

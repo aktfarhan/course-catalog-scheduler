@@ -67,8 +67,9 @@ function Course({
     const iconStyles = clsx(
         isPinned
             ? 'fill-theme-blue text-theme-blue scale-110 drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]'
-            : 'text-gray-400 group-hover:text-gray-600',
+            : 'text-slate-400 group-hover:text-slate-600',
     );
+    
     return (
         <div className="mx-4 mt-4 max-w-7xl sm:mx-10">
             <div
@@ -90,7 +91,10 @@ function Course({
                     )}
                     <Bookmark
                         size={22}
-                        className={clsx(iconStyles, 'transition-all duration-500 ease-out active:scale-110')}
+                        className={clsx(
+                            iconStyles,
+                            'transition-all duration-500 ease-out active:scale-110',
+                        )}
                     />
                 </button>
                 <div className="flex flex-1 flex-col items-stretch md:flex-row">
@@ -105,18 +109,21 @@ function Course({
                                     : 'border-gray-100 bg-white/90 backdrop-blur-sm hover:bg-gray-50',
                             )}
                         >
-                            <Bookmark size={20} className={clsx(iconStyles, 'transition-all duration-500 ease-out')} />
+                            <Bookmark
+                                size={20}
+                                className={clsx(iconStyles, 'transition-all duration-500 ease-out')}
+                            />
                         </button>
-                        <h2 className="pr-10 text-xl leading-tight font-semibold text-gray-700 lg:pr-0">
+                        <h2 className="pr-10 text-xl leading-tight font-semibold text-slate-700 lg:pr-0">
                             {course.title}
                         </h2>
-                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-600">
-                            <span className="rounded bg-gray-100 px-2 py-0.5 font-space text-gray-700">
+                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-600">
+                            <span className="font-space rounded bg-gray-100 px-2 py-0.5 text-slate-700">
                                 {course.department.code} {course.code}
                             </span>
-                            <span className="hidden text-gray-300 sm:inline">•</span>
+                            <span className="hidden text-slate-300 sm:inline">•</span>
                             <span>{instructorLabel}</span>
-                            <span className="hidden text-gray-300 sm:inline">•</span>
+                            <span className="hidden text-slate-300 sm:inline">•</span>
                             <span>{course.department.title}</span>
                         </div>
                         <p
@@ -126,7 +133,7 @@ function Course({
                                 setIsDescriptionExpanded(!isDescriptionExpanded)
                             }
                             className={clsx(
-                                'mt-3 text-sm leading-relaxed text-gray-600 select-none',
+                                'mt-3 text-sm leading-relaxed text-slate-600 select-none',
                                 isDescriptionExpanded ? 'line-clamp-none' : 'line-clamp-2',
                                 isOverflowing || isDescriptionExpanded
                                     ? 'cursor-pointer'

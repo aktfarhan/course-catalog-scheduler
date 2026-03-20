@@ -1,11 +1,11 @@
-import Separator from '../../Separator';
+import Separator from '../../shared/Separator';
 import { RotateCcw } from 'lucide-react';
 import TimeSelector from './TimeSelector';
 import DepartmentSelector from './DepartmentSelector';
 import SectionTypeSelector from './SectionTypeSelector';
 import { FILTER_CATEGORIES, type AcademicTerm } from '../../../constants';
-import TermSelector from '../../calendar/calendarsidebar/subcomponents/filtersettings/TermSelector';
-import ActiveDaysSelector from '../../calendar/calendarsidebar/subcomponents/filtersettings/ActiveDaysSelector';
+import TermSelector from '../../shared/TermSelector';
+import ActiveDaysSelector from '../../shared/ActiveDaysSelector';
 import type { ApiDepartmentWithRelations, SearchFilters, FilterType } from '../../../types';
 
 interface FilterSidebarProps {
@@ -18,7 +18,7 @@ interface FilterSidebarProps {
 function FilterSidebar({ filters, isLoading, departmentMap, onFilterChange }: FilterSidebarProps) {
     return (
         <div className="flex h-full flex-col bg-white select-none">
-            <div className="flex-1 space-y-5 overflow-y-auto p-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="scrollbar-hidden flex-1 space-y-5 overflow-y-auto p-6">
                 <TermSelector
                     availableTerms={[...FILTER_CATEGORIES.TERMS]}
                     selectedTerm={filters.term as AcademicTerm}

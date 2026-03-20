@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 import { ChevronDown, CheckCircle2 } from 'lucide-react';
-import { formatTimes } from '../../../../utils/formatTime';
-import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../../types';
+import { formatTimes } from '../../../utils/formatTime';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
 
 interface CourseCardProps {
     course: ApiCourseWithSections;
@@ -37,22 +37,20 @@ function CourseCard({
                 <div className="flex min-w-0 flex-1 flex-col text-left">
                     <span
                         className={clsx(
-                            'w-fit rounded px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase font-space',
-                            isExpanded
-                                ? 'bg-theme-blue text-white'
-                                : 'bg-slate-100 text-slate-500',
+                            'font-space w-fit rounded px-2 py-0.5 text-[10px] font-bold tracking-tight uppercase',
+                            isExpanded ? 'bg-theme-blue text-white' : 'bg-slate-100 text-slate-500',
                         )}
                     >
                         {course.department.code} {course.code}
                     </span>
-                    <span className="mt-1 truncate text-xs font-semibold text-gray-800">
+                    <span className="mt-1 truncate text-xs font-semibold text-slate-800">
                         {course.title}
                     </span>
                 </div>
                 <ChevronDown
                     size={16}
                     className={clsx(
-                        'shrink-0 text-gray-400 transition-transform duration-300',
+                        'shrink-0 text-slate-400 transition-transform duration-300',
                         isExpanded && '-rotate-180',
                     )}
                 />
@@ -71,7 +69,7 @@ function CourseCard({
                         if (visibleSections.length === 0) {
                             return (
                                 <div className="flex items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3">
-                                    <span className="text-[10px] text-gray-400 italic">
+                                    <span className="text-[10px] text-slate-400 italic">
                                         No scheduled sections available
                                     </span>
                                 </div>
@@ -88,7 +86,7 @@ function CourseCard({
                                         'flex w-full cursor-pointer items-center justify-between rounded-lg border-2 px-4 py-2.5 text-left transition-all',
                                         isActive
                                             ? 'bg-theme-blue border-theme-blue text-white shadow-md'
-                                            : 'border-slate-200 bg-white text-gray-600 hover:border-slate-300',
+                                            : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300',
                                     )}
                                 >
                                     <div className="flex flex-col">
@@ -97,12 +95,12 @@ function CourseCard({
                                                 Section {section.sectionNumber}
                                             </span>
                                             {section.sectionNumber.endsWith('D') && (
-                                                <span className="rounded-sm bg-gray-200 px-1 text-[8px] font-black text-gray-500">
+                                                <span className="rounded-sm bg-gray-200 px-1 text-[8px] font-black text-slate-500">
                                                     DISC
                                                 </span>
                                             )}
                                             {section.sectionNumber.endsWith('L') && (
-                                                <span className="rounded-sm bg-gray-200 px-1 text-[8px] font-black text-gray-500">
+                                                <span className="rounded-sm bg-gray-200 px-1 text-[8px] font-black text-slate-500">
                                                     LAB
                                                 </span>
                                             )}
@@ -110,7 +108,7 @@ function CourseCard({
                                         <span
                                             className={clsx(
                                                 'text-[10px] font-medium',
-                                                isActive ? 'text-blue-100' : 'text-gray-400',
+                                                isActive ? 'text-blue-100' : 'text-slate-400',
                                             )}
                                         >
                                             {formatTimes(section.meetings)}

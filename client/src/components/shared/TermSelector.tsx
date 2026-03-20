@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { Calendar } from 'lucide-react';
-import type { AcademicTerm } from '../../../../../constants';
+import type { AcademicTerm } from '../../constants';
 
 interface TermSelectorProps {
     selectedTerm: AcademicTerm | null;

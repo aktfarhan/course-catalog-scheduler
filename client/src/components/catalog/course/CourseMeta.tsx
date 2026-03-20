@@ -49,12 +49,12 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                 <>
                     <div className="flex flex-row items-center gap-2 md:flex-col md:items-start">
                         <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2 text-sm text-gray-700">
-                                <CalendarClock size={16} className="text-gray-400" />
+                            <div className="flex items-center gap-2 text-sm text-slate-700">
+                                <CalendarClock size={16} className="text-slate-400" />
                                 <span>Multiple Semesters</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-gray-700">
-                                <CalendarDays size={16} className="text-gray-400" />
+                            <div className="flex items-center gap-2 text-sm text-slate-700">
+                                <CalendarDays size={16} className="text-slate-400" />
                                 <span>Multiple Sections</span>
                             </div>
                         </div>
@@ -75,21 +75,21 @@ function CourseMeta({ showSections, setShowSections, sections }: CourseMetaProps
                     </div>
                 </>
             ) : (
-                <div className="grid grid-cols-2 gap-2 text-sm text-gray-700 md:flex md:flex-col">
+                <div className="grid grid-cols-2 gap-2 text-sm text-slate-700 md:flex md:flex-col">
                     <div className="flex items-center gap-2">
-                        <CalendarClock size={16} className="text-gray-400" />
+                        <CalendarClock size={16} className="text-slate-400" />
                         <p>{firstSection?.term || 'TBA'}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <CalendarDays size={16} className="text-gray-400" />
+                        <CalendarDays size={16} className="text-slate-400" />
                         <p>{formattedDays}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Clock3 size={16} className="text-gray-400" />
+                        <Clock3 size={16} className="text-slate-400" />
                         <p>{formatTime(firstSection?.meetings[0]) || 'TBA'}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <MapPin size={16} className="text-gray-400" />
+                        <MapPin size={16} className="text-slate-400" />
                         <span title={firstSection?.meetings[0]?.location || 'TBA'}>
                             {firstSection?.meetings[0]?.location
                                 ?.replace('Wheatley-Peters', 'Wheatley-P')

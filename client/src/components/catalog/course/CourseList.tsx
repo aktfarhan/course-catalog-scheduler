@@ -97,6 +97,7 @@ function CourseList({
             </div>
         );
     }
+    
     return (
         <div className="flex flex-col">
             {pagedCourses.map((course) => (

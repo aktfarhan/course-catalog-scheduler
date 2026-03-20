@@ -37,10 +37,10 @@ const FILTERS = [
 
 function SearchHelp({ onClose }: SearchHelpProps) {
     return (
-        <div className="max-h-[calc(100vh-12rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="scrollbar-hidden max-h-[calc(100vh-12rem)] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
             <div className="mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-gray-800">Search Filters</h2>
+                    <h2 className="text-lg font-bold text-slate-800">Search Filters</h2>
                     <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                         {FILTERS.length}
                     </span>
@@ -48,7 +48,7 @@ function SearchHelp({ onClose }: SearchHelpProps) {
                 <button
                     type="button"
                     onClick={onClose}
-                    className="cursor-pointer rounded-lg bg-gray-100 p-1.5 text-gray-400 transition-all hover:bg-gray-200 hover:text-gray-600 active:scale-90"
+                    className="cursor-pointer rounded-lg bg-gray-100 p-1.5 text-slate-400 transition-all hover:bg-gray-200 hover:text-slate-600 active:scale-90"
                 >
                     <X size={14} strokeWidth={2.5} />
                 </button>
@@ -69,7 +69,7 @@ function SearchHelp({ onClose }: SearchHelpProps) {
                             </span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[12px] font-semibold text-gray-700">
+                            <span className="text-[12px] font-semibold text-slate-700">
                                 {filter.description}
                             </span>
                             <span className="font-space mt-0.5 text-[11px] text-slate-400">

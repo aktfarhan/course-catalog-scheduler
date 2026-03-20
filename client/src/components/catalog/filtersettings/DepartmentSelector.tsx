@@ -71,7 +71,7 @@ function DepartmentSelector({
                 )}
             </div>
             <div>
-                <div className="h-66 overflow-y-auto rounded-lg border-2 border-slate-200 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="scrollbar-hidden h-66 overflow-y-auto rounded-lg border-2 border-slate-200">
                     {isLoading ? (
                         <div className="flex flex-col">
                             {Array.from({ length: 8 }).map((_, i) => (
