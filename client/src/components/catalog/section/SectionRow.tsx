@@ -26,10 +26,13 @@ function SectionRow({ section }: SectionRowProps) {
             });
     }, []);
 
-    const location = section.meetings[0]?.location ?? 'TBA';
+    const location = (section.meetings[0]?.location ?? 'TBA')
+        .replace('Wheatley-Peters', 'Wheatley-P')
+        .replace('Wh-Peters', 'Wheatley-P')
+        .replace(/([A-Z]\d+-\d+)\s+.+$/, '$1');
 
     return (
-        <div className="group/row relative flex flex-col gap-y-4 border-t border-gray-100 px-5 py-5 text-sm transition-colors hover:bg-slate-50/50 lg:grid lg:grid-cols-[4rem_2fr_15rem_1.7fr_1fr] lg:gap-2 lg:py-3">
+        <div className="group/row relative flex flex-col gap-y-4 border-t border-gray-100 px-5 py-5 text-sm transition-colors hover:bg-slate-50/50 lg:grid lg:grid-cols-[4.5rem_1.2fr_15rem_1.1fr_0.8fr] lg:gap-5 lg:px-8 lg:py-3">
             <SectionNumber sectionNumber={section.sectionNumber} />
             <SectionInstructors
                 instructors={section.instructors}

@@ -1,15 +1,16 @@
-import { PanelRightOpen } from 'lucide-react';
+import { PanelRight } from 'lucide-react';
 import WeeklyCalendar from '../components/calendar/WeeklyCalendar';
 import type { AppController } from '../hooks/useAppController';
 
-interface CatalogPageProps {
+interface CalendarPageProps {
     data: AppController['data'];
     state: AppController['state'];
     actions: AppController['actions'];
-    schedule: () => void;
 }
 
-function CalendarPage({ data, state, actions }: CatalogPageProps) {
+function CalendarPage({ data, state, actions }: CalendarPageProps) {
+    const pinnedCount = state.pinnedCourses.size;
+
     return (
         <div className="relative flex-1 overflow-hidden bg-white">
             <WeeklyCalendar
@@ -17,16 +18,18 @@ function CalendarPage({ data, state, actions }: CatalogPageProps) {
                 sectionsByCourseId={data.sectionsByCourseId}
                 showWeekend={state.showWeekend}
             />
-            <div className="absolute right-12 bottom-8 z-40 sm:max-w-sm xl:hidden">
-                <div className="flex items-center gap-1 rounded-xl border border-white/20 p-1 shadow-2xl ring-1 ring-black/5 backdrop-blur-2xl">
-                    <button
-                        onClick={() => actions.setIsPanelOpen(true)}
-                        className="bg-theme-blue flex h-12 w-14 cursor-pointer items-center justify-center rounded-xl text-white shadow-lg transition-all active:rotate-12"
-                    >
-                        <PanelRightOpen size={22} />
-                    </button>
-                </div>
-            </div>
+            <button
+                type="button"
+                onClick={() => actions.setIsPanelOpen(true)}
+                className="bg-theme-blue absolute right-6 bottom-6 z-40 flex h-12 w-14 cursor-pointer items-center justify-center rounded-xl text-white shadow-xl transition-all hover:scale-105 hover:shadow-2xl active:scale-95 xl:hidden"
+            >
+                <PanelRight size={22} />
+                {pinnedCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm">
+                        {pinnedCount}
+                    </span>
+                )}
+            </button>
         </div>
     );
 }

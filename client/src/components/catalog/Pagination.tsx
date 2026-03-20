@@ -1,9 +1,10 @@
-import { clsx } from 'clsx';
+import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
     jumpValue: string;
+    isLoading: boolean;
     totalPages: number;
     currentPage: number;
     setJumpValue: React.Dispatch<React.SetStateAction<string>>;
@@ -13,14 +14,18 @@ interface PaginationProps {
 
 function Pagination({
     jumpValue,
+    isLoading,
     totalPages,
     currentPage,
     setJumpValue,
     handleJumpPage,
     setCurrentPage,
 }: PaginationProps) {
+    // Builds a compact page range: [1, '...', 4, 5, 6, '...', 86]
     const paginationRange = useMemo(() => {
         const range: (number | 'dots')[] = [];
+
+        // Always include first, last, and neighbors of current page
         const pages = new Set<number>();
         pages.add(1);
         pages.add(totalPages);
@@ -31,6 +36,7 @@ function Pagination({
         }
         const sorted = Array.from(pages).sort((a, b) => a - b);
 
+        // Insert 'dots' between non-consecutive page numbers
         for (let i = 0; i < sorted.length; i++) {
             range.push(sorted[i]);
 
@@ -41,36 +47,36 @@ function Pagination({
         return range;
     }, [currentPage, totalPages]);
 
+    if (isLoading) return null;
+
     return (
-        <nav className="w-full border-t border-gray-100 bg-white/10 py-3">
-            <div className="flex w-full max-w-340 items-center justify-between px-4 sm:px-10">
-                <div className="flex h-11 gap-1.5">
+        <nav className="w-full border-t border-gray-200 bg-gray-50/80 py-3">
+            <div className="flex w-full max-w-340 items-center justify-center px-4 sm:justify-between sm:px-10">
+                <div className="flex h-11 items-center gap-1.5">
                     <button
                         type="button"
                         disabled={currentPage === 1}
                         onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                        className="cursor-pointer rounded-md p-3 text-gray-600 transition-all hover:bg-gray-100 disabled:opacity-30"
+                        className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2.5 text-slate-500 transition-all hover:bg-gray-100 disabled:opacity-30"
                     >
-                        <ChevronLeft size={20} strokeWidth={2.5} />
+                        <ChevronLeft size={18} strokeWidth={2.5} />
                     </button>
                     <div className="flex items-center gap-1">
                         {paginationRange.map((item, i) =>
                             item === 'dots' ? (
-                                <span
-                                    key={`dots-${i}`}
-                                    className="hidden px-0.5 text-[10px] text-gray-300 sm:inline"
-                                >
+                                <span key={`dots-${i}`} className="px-1 text-sm text-slate-400">
                                     ...
                                 </span>
                             ) : (
                                 <button
+                                    type="button"
                                     key={`page-${item}`}
                                     onClick={() => setCurrentPage(item)}
                                     className={clsx(
-                                        'h-9 w-9 cursor-pointer rounded-lg text-xs font-bold transition-all',
+                                        'h-10 w-10 cursor-pointer rounded-lg text-sm font-bold transition-all',
                                         currentPage === item
-                                            ? 'bg-theme-blue text-white'
-                                            : 'hover:text-theme-blue text-gray-400 hover:bg-gray-100',
+                                            ? 'bg-theme-blue text-white shadow-sm'
+                                            : 'hover:text-theme-blue text-slate-500 hover:bg-gray-100',
                                     )}
                                 >
                                     {item}
@@ -82,26 +88,27 @@ function Pagination({
                         type="button"
                         disabled={currentPage === totalPages}
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                        className="cursor-pointer rounded-md p-3 text-gray-600 transition-all hover:bg-gray-100 disabled:opacity-30"
+                        className="cursor-pointer rounded-lg border border-gray-200 bg-white p-2.5 text-slate-500 transition-all hover:bg-gray-100 disabled:opacity-30"
                     >
-                        <ChevronRight size={20} strokeWidth={2.5} />
+                        <ChevronRight size={18} strokeWidth={2.5} />
                     </button>
                 </div>
-                <div className="flex items-center gap-3 border-l border-gray-200 pl-4">
-                    <form onSubmit={handleJumpPage} className="flex items-center gap-2">
-                        <label className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-                            Go to
-                        </label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={jumpValue}
-                            onChange={(e) => setJumpValue(e.target.value.replace(/\D/g, ''))}
-                            placeholder={currentPage.toString()}
-                            className="focus:border-theme-blue h-8 w-10 rounded-md border border-gray-200 bg-gray-50 text-center text-xs font-bold text-gray-700 placeholder-gray-300 focus:outline-none"
-                        />
-                    </form>
-                </div>
+                <form
+                    onSubmit={handleJumpPage}
+                    className="hidden items-center gap-2 border-l border-gray-200 pl-4 sm:flex"
+                >
+                    <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                        Go to
+                    </label>
+                    <input
+                        type="text"
+                        inputMode="numeric"
+                        value={jumpValue}
+                        onChange={(e) => setJumpValue(e.target.value.replace(/\D/g, ''))}
+                        placeholder={currentPage.toString()}
+                        className="focus:border-theme-blue h-9 w-12 rounded-lg border border-gray-200 bg-white text-center text-sm font-bold text-slate-700 placeholder-slate-300 focus:outline-none"
+                    />
+                </form>
             </div>
         </nav>
     );

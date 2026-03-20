@@ -1,12 +1,12 @@
 import FilterHeader from './FilterHeader';
 import MinGapSlider from './MinGapSlider';
-import TermSelector from './TermSelector';
-import Separator from '../../../../Separator';
+import Separator from '../../../shared/Separator';
 import TimeRangeSlider from './TimeRangeSlider';
-import ActiveDaysSelector from './ActiveDaysSelector';
-import type { TimeRange } from '../../../../../types';
+import TermSelector from '../../../shared/TermSelector';
+import ActiveDaysSelector from '../../../shared/ActiveDaysSelector';
+import type { TimeRange } from '../../../../types';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import type { AcademicTerm, DayLiteral } from '../../../../../constants';
+import type { AcademicTerm, DayLiteral } from '../../../../constants';
 
 interface FilterState {
     isFilterOpen: boolean;

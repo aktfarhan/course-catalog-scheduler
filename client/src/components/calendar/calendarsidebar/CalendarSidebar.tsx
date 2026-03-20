@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { RotateCcw, Sparkles } from 'lucide-react';
-import CourseList from './subcomponents/CourseList';
-import FilterSettings from './subcomponents/filtersettings/FilterSettings';
+import PinnedCourseList from './PinnedCourseList';
+import FilterSettings from './filtersettings/FilterSettings';
 import React, { useMemo, type Dispatch, type SetStateAction } from 'react';
 import type { CalendarSidebar as CalendarSidebarType } from './useCalendarSidebar';
 import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
@@ -41,16 +41,23 @@ function CalendarSidebar({
 
     return (
         <div className="flex h-full flex-col overflow-hidden bg-white">
-            <div className="flex shrink-0 gap-2 border-b border-gray-100 bg-gray-50 p-4">
+            <div className="flex shrink-0 gap-2 border-b border-gray-100 bg-white p-4">
                 <button
+                    type="button"
                     onClick={() => setShowWeekend(!showWeekend)}
-                    className="border-theme-blue text-theme-blue hover:bg-theme-blue flex-1 cursor-pointer rounded-lg border-2 py-2.5 text-[10px] font-black tracking-widest uppercase transition-all hover:text-white"
+                    className={clsx(
+                        'flex-1 cursor-pointer rounded-lg border-2 py-2.5 text-[10px] font-black tracking-widest uppercase transition-all',
+                        showWeekend
+                            ? 'bg-theme-blue border-theme-blue text-white'
+                            : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300',
+                    )}
                 >
                     {showWeekend ? 'Hide' : 'Show'} Sat/Sun
                 </button>
                 <button
+                    type="button"
                     onClick={() => setSelectedSections(new Set())}
-                    className="group flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-gray-200 px-4 py-2.5 text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase transition-all hover:border-red-200 hover:bg-white hover:text-red-600 active:scale-95"
+                    className="group flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-slate-200 bg-slate-50 px-4 py-2.5 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase transition-all hover:bg-slate-100 hover:text-slate-500 active:scale-[0.97]"
                 >
                     <RotateCcw
                         size={13}
@@ -60,7 +67,7 @@ function CalendarSidebar({
                     <span>Clear</span>
                 </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto bg-white">
+            <div className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto bg-white">
                 <FilterSettings
                     filterState={{
                         isFilterOpen: sidebar.state.isFilterOpen,
@@ -86,7 +93,7 @@ function CalendarSidebar({
                     gapPresets={sidebar.data.gapPresets}
                     maxGap={sidebar.data.maxGap}
                 />
-                <CourseList
+                <PinnedCourseList
                     expandedId={sidebar.state.expandedId}
                     selectedTerm={sidebar.state.selectedTerm}
                     selectedSections={selectedSections}
@@ -100,13 +107,14 @@ function CalendarSidebar({
             </div>
             <div className="shrink-0 border-t border-gray-100 bg-white p-5">
                 <button
+                    type="button"
                     disabled={pinnedCourses.size === 0}
                     onClick={sidebar.actions.handleGenerateSchedule}
                     className={clsx(
                         'flex h-12 w-full items-center justify-center gap-3 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all',
                         pinnedCourses.size > 0
                             ? 'from-theme-blue to-theme-blue/70 cursor-pointer bg-linear-to-r text-white shadow-lg active:scale-95'
-                            : 'cursor-not-allowed bg-gray-100 text-gray-300',
+                            : 'cursor-not-allowed bg-gray-100 text-slate-300',
                     )}
                 >
                     <Sparkles size={16} />

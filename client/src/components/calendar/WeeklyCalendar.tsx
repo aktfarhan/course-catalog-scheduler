@@ -20,6 +20,7 @@ function WeeklyCalendar({
     const { START_TIME, END_TIME, TOTAL_MINS, ALL_DAYS, WEEK_DAYS } = CALENDAR_CONFIG;
     const days = showWeekend ? ALL_DAYS : WEEK_DAYS;
 
+    // Builds calendar blocks from selected sections, grouped by day with conflict detection
     const activeBlocks = useMemo(() => {
         const grouped: Record<string, Block[]> = {};
         days.forEach((d) => (grouped[d] = []));
@@ -36,7 +37,7 @@ function WeeklyCalendar({
 
             if (!section) return;
 
-            // 3. Create blocks for each meeting
+            // 3. Convert each meeting into a renderable block with time in minutes
             section.meetings.forEach((meeting) => {
                 const timeRange = formatTime(meeting);
                 const minutes = formatTimeToMinutes(timeRange);
@@ -56,7 +57,7 @@ function WeeklyCalendar({
             });
         });
 
-        // 4. Determine conflicts
+        // 4. Flag blocks that overlap on the same day, then group by day
         allBlocks.forEach((block1, i) => {
             const hasConflict = allBlocks.some(
                 (block2, j) =>
@@ -70,7 +71,7 @@ function WeeklyCalendar({
             }
         });
         return grouped;
-    }, [selectedSections, sectionsByCourseId, days]); // Added sectionsByCourseId to dependencies
+    }, [selectedSections, sectionsByCourseId, days]);
 
     return (
         <div className="flex h-full w-full flex-col bg-white select-none">
@@ -83,9 +84,9 @@ function WeeklyCalendar({
                 {days.map((day) => (
                     <div
                         key={day}
-                        className="border-r border-gray-50 py-4 text-center last:border-r-0"
+                        className="border-r border-gray-100 bg-gray-50/50 py-4 text-center last:border-r-0"
                     >
-                        <span className="text-[11px] font-black tracking-widest text-gray-400 uppercase">
+                        <span className="text-[11px] font-black tracking-widest text-slate-500 uppercase">
                             {day}
                         </span>
                     </div>
@@ -93,29 +94,35 @@ function WeeklyCalendar({
             </div>
             <div className="flex-1">
                 <div className={clsx('grid h-full', showWeekend ? 'grid-cols-7' : 'grid-cols-5')}>
-                    {days.map((day) => (
-                        <div key={day} className="relative border-r border-gray-100">
-                            {Array.from({ length: END_TIME - START_TIME }).map((_, i) => (
+                    {days.map((day, dayIndex) => (
+                        <div
+                            key={day}
+                            className={clsx(
+                                'relative border-r border-gray-100',
+                                dayIndex % 2 === 1 && 'bg-gray-50/60',
+                            )}
+                        >
+                            {Array.from({ length: END_TIME - START_TIME + 1 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="relative border-b border-gray-50"
+                                    className="relative border-b border-gray-100/60"
                                     style={{
-                                        height: `${100 / (END_TIME - START_TIME)}%`,
+                                        height: `${100 / (END_TIME - START_TIME + 1)}%`,
                                     }}
                                 >
-                                    <span className="absolute top-2 left-2 text-[9px] text-gray-400 uppercase">
+                                    <span className="absolute top-2 left-2 text-[9px] text-slate-400 uppercase">
                                         {formatHour(i + START_TIME)}
                                     </span>
                                 </div>
                             ))}
-                            {activeBlocks[day]?.map((block, i) => {
+                            {activeBlocks[day]?.map((block) => {
                                 const top =
                                     ((block.startMins - START_TIME * 60) / TOTAL_MINS) * 100;
                                 const height =
                                     ((block.endMins - block.startMins) / TOTAL_MINS) * 100;
                                 return (
                                     <div
-                                        key={i}
+                                        key={`${block.courseCode}-${block.sectionNumber}-${block.startMins}`}
                                         style={{
                                             top: `${top}%`,
                                             height: `${height}%`,

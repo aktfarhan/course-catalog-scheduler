@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import SearchBar from '../components/catalog/SearchBar';
 import Pagination from '../components/catalog/Pagination';
 import CourseList from '../components/catalog/course/CourseList';
@@ -20,8 +21,15 @@ function CatalogPage({ data, state, refs, actions }: CatalogPageProps) {
                     setSearchQuery={actions.setSearchQuery}
                 />
             </div>
-            <div ref={refs.scrollContainerRef} className="flex-1 overflow-y-auto pb-4">
+            <div
+                ref={refs.scrollContainerRef}
+                className={clsx(
+                    'flex-1 pb-4 [scrollbar-color:#94a3b8_transparent] [scrollbar-width:thin]',
+                    data.isLoading ? 'overflow-y-hidden' : 'overflow-y-auto',
+                )}
+            >
                 <CourseList
+                    isLoading={data.isLoading}
                     pagedCourses={data.pagedCourses}
                     activeFilters={data.activeFilters}
                     pinnedCourses={state.pinnedCourses}
@@ -33,6 +41,7 @@ function CatalogPage({ data, state, refs, actions }: CatalogPageProps) {
             </div>
             <Pagination
                 jumpValue={state.jumpValue}
+                isLoading={data.isLoading}
                 totalPages={state.totalPages}
                 currentPage={state.currentPage}
                 setJumpValue={actions.setJumpValue}

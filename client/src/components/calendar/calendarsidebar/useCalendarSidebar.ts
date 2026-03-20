@@ -26,7 +26,7 @@ export function useCalendarSidebar({
     const initialDays = useMemo(() => [...CALENDAR_CONFIG.WEEK_DAYS], []);
     const [selectedDays, setSelectedDays] = useState<DayLiteral[]>(initialDays);
     const [selectedTerm, setSelectedTerm] = useState<AcademicTerm>(ACADEMIC_TERMS.TERMS[2]);
-    const [minimumGap, setMinimumGap] = useState<number>(UI_LIMITS.PRESETS[1]);
+    const [minimumGap, setMinimumGap] = useState<number>(UI_LIMITS.PRESETS[0]);
     const [timeRange, setTimeRange] = useState<TimeRange>({
         start: CALENDAR_CONFIG.START_TIME,
         end: CALENDAR_CONFIG.END_TIME,

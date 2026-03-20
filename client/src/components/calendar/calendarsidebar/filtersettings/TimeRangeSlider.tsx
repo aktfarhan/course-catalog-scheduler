@@ -1,26 +1,39 @@
 import { CalendarRange } from 'lucide-react';
-import { formatTimeLabel } from '../../../../../utils/formatTime';
+import { formatTimeLabel } from '../../../../utils/formatTime';
 import type { RefObject } from 'react';
-import type { TimeRange } from '../../../../../types';
+import type { TimeRange } from '../../../../types';
 
 interface TimeRangeSliderProps {
     min: number;
     max: number;
     timeRange: TimeRange;
     sliderRef: RefObject<HTMLDivElement | null>;
+    onPointerUp: () => void;
     onPointerDown: (e: React.PointerEvent<Element>) => void;
     onPointerMove: (e: React.PointerEvent<Element>) => void;
-    onPointerUp: () => void;
 }
 
-function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPointerMove, onPointerUp }: TimeRangeSliderProps) {
+function TimeRangeSlider({
+    min,
+    max,
+    timeRange,
+    sliderRef,
+    onPointerUp,
+    onPointerDown,
+    onPointerMove,
+}: TimeRangeSliderProps) {
     const startPercent = ((timeRange.start - min) / (max - min)) * 100;
     const endPercent = ((timeRange.end - min) / (max - min)) * 100;
     return (
         <div className="space-y-4">
-            <div className="flex justify-between">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase">
-                    <CalendarRange size={12} /> Preferred Time
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="bg-theme-blue/10 text-theme-blue flex h-6 w-6 items-center justify-center rounded-md">
+                        <CalendarRange size={13} />
+                    </span>
+                    <span className="text-[11px] font-bold tracking-widest text-slate-500 uppercase">
+                        Time Range
+                    </span>
                 </div>
                 <span className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                     {formatTimeLabel(timeRange.start)} - {formatTimeLabel(timeRange.end)}
@@ -32,7 +45,7 @@ function TimeRangeSlider({ min, max, timeRange, sliderRef, onPointerDown, onPoin
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 onLostPointerCapture={onPointerUp}
-                className="relative flex h-6 w-full touch-none items-center select-none"
+                className="relative mx-2 flex h-6 touch-none items-center select-none"
             >
                 <div className="absolute h-1.5 w-full rounded-full bg-gray-200" />
                 <div

@@ -3,14 +3,13 @@ import CourseCard from './CourseCard';
 import { useCallback, useMemo } from 'react';
 import { Bookmark, ChevronDown } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { AcademicTerm } from '../../../../constants';
-import type { ApiCourseWithSections } from '../../../../types';
-import type { ApiSectionWithRelations } from '../../../../types';
+import type { AcademicTerm } from '../../../constants';
+import type { ApiCourseWithSections, ApiSectionWithRelations } from '../../../types';
 
-interface CourseListProps {
+interface PinnedCourseListProps {
     expandedId: number | null;
     selectedTerm: AcademicTerm;
-    isCoursesOpen: Boolean;
+    isCoursesOpen: boolean;
     pinnedCourses: ApiCourseWithSections[];
     selectedSections: Set<number>;
     sectionsByCourseId: Map<number, ApiSectionWithRelations[]>;
@@ -19,7 +18,7 @@ interface CourseListProps {
     setIsCoursesOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-function CourseList({
+function PinnedCourseList({
     expandedId,
     selectedTerm,
     pinnedCourses,
@@ -29,7 +28,7 @@ function CourseList({
     setExpandedId,
     onSectionSelect,
     setIsCoursesOpen,
-}: CourseListProps) {
+}: PinnedCourseListProps) {
     const handleExpand = useCallback(
         (courseId: number) => {
             setExpandedId((prev) => (prev === courseId ? null : courseId));
@@ -37,13 +36,14 @@ function CourseList({
         [setExpandedId],
     );
 
+    // Only show sections that match the selected term for each pinned course
     const filteredSectionsMap = useMemo(() => {
         const map = new Map<number, ApiSectionWithRelations[]>();
         pinnedCourses.forEach((course) => {
             const sections = sectionsByCourseId.get(course.id) || [];
             map.set(
                 course.id,
-                sections.filter((s) => s.term === selectedTerm),
+                sections.filter((section) => section.term === selectedTerm),
             );
         });
         return map;
@@ -52,14 +52,15 @@ function CourseList({
     return (
         <div className="border-b border-gray-100 bg-gray-50/50">
             <button
+                type="button"
                 onClick={() => setIsCoursesOpen(!isCoursesOpen)}
                 className="flex w-full cursor-pointer items-center justify-between p-5 hover:bg-gray-100/60"
             >
                 <div className="flex items-center gap-3">
-                    <div className="bg-theme-blue rounded-lg p-2 text-white shadow-md shadow-blue-100">
-                        <Bookmark size={18} />
+                    <div className="bg-theme-blue flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-sm">
+                        <Bookmark size={16} />
                     </div>
-                    <span className="text-[12px] font-bold text-gray-900">Pinned Courses</span>
+                    <span className="text-[13px] font-bold text-slate-800">Pinned Courses</span>
                     <div className="text-theme-blue border-theme-blue/10 bg-theme-blue/5 rounded-md border px-2 py-0.5 text-[11px] font-bold">
                         {pinnedCourses.length}
                     </div>
@@ -67,17 +68,17 @@ function CourseList({
                 <ChevronDown
                     size={18}
                     className={clsx(
-                        'text-gray-400 transition-transform duration-200 ease-in-out',
+                        'text-slate-400 transition-transform duration-200 ease-in-out',
                         isCoursesOpen && '-rotate-180',
                     )}
                 />
             </button>
             {isCoursesOpen && (
-                <div className="animate-in fade-in slide-in-from-top-2 mt-3 flex flex-col gap-3 px-5 pb-5">
+                <div className="animate-in fade-in slide-in-from-top-2 mt-1 flex flex-col gap-3 px-5 pb-5">
                     {pinnedCourses.length > 0 ? (
                         pinnedCourses.map((course: ApiCourseWithSections) => {
                             const isExpanded = expandedId === course.id;
-                            const sections = filteredSectionsMap.get(course.id)!;
+                            const sections = filteredSectionsMap.get(course.id) ?? [];
                             return (
                                 <CourseCard
                                     key={course.id}
@@ -91,9 +92,12 @@ function CourseList({
                             );
                         })
                     ) : (
-                        <div className="flex flex-col items-center justify-center pt-4 text-center">
-                            <span className="text-[11px] font-medium text-gray-400 italic">
-                                No courses pinned yet.
+                        <div className="flex flex-col items-center justify-center gap-1 rounded-lg border-2 border-slate-200 bg-slate-50/50 py-6 text-center">
+                            <span className="text-[11px] font-semibold text-slate-400">
+                                No courses pinned yet
+                            </span>
+                            <span className="text-[10px] text-slate-300">
+                                Pin courses from the catalog tab
                             </span>
                         </div>
                     )}
@@ -103,4 +107,4 @@ function CourseList({
     );
 }
 
-export default CourseList;
+export default PinnedCourseList;

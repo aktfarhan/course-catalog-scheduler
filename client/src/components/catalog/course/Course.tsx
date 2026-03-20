@@ -35,7 +35,7 @@ function Course({
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
     // Compute a display-friendly instructor label
-    const handleInstructors = useMemo(() => {
+    const instructorLabel = useMemo(() => {
         if (isMultiple) return 'Multiple';
         const instructors = sections[0]?.instructors || [];
         if (instructors.length === 0) return 'TBA';
@@ -65,11 +65,11 @@ function Course({
 
     // Shared bookmark icon styles based on pinned state
     const iconStyles = clsx(
-        'transition-all duration-500 ease-out',
         isPinned
             ? 'fill-theme-blue text-theme-blue scale-110 drop-shadow-[0_0_8px_rgba(37,99,235,0.4)]'
-            : 'text-gray-400 group-hover:text-gray-600',
+            : 'text-slate-400 group-hover:text-slate-600',
     );
+    
     return (
         <div className="mx-4 mt-4 max-w-7xl sm:mx-10">
             <div
@@ -79,6 +79,7 @@ function Course({
                 )}
             >
                 <button
+                    type="button"
                     onClick={onTogglePin}
                     className={clsx(
                         'group relative hidden min-w-14 cursor-pointer items-center justify-center overflow-hidden border-r-2 border-gray-100 transition-all duration-200 lg:flex',
@@ -90,13 +91,17 @@ function Course({
                     )}
                     <Bookmark
                         size={22}
-                        className={`${iconStyles} transition-transform duration-150 ease-out active:scale-110`}
+                        className={clsx(
+                            iconStyles,
+                            'transition-all duration-500 ease-out active:scale-110',
+                        )}
                     />
                 </button>
                 <div className="flex flex-1 flex-col items-stretch md:flex-row">
-                    <div className="relative flex-1 grow p-5 md:p-6 lg:pr-6">
+                    <div className="relative flex-1 p-5 md:p-6 lg:pr-6">
                         <button
-                            onClick={() => onTogglePin()}
+                            type="button"
+                            onClick={onTogglePin}
                             className={clsx(
                                 'absolute top-4 right-4 z-10 cursor-pointer rounded-full border p-2.5 shadow-sm transition-all duration-300 active:scale-90 sm:top-5 sm:right-5 lg:hidden',
                                 isPinned
@@ -104,18 +109,21 @@ function Course({
                                     : 'border-gray-100 bg-white/90 backdrop-blur-sm hover:bg-gray-50',
                             )}
                         >
-                            <Bookmark size={20} className={iconStyles} />
+                            <Bookmark
+                                size={20}
+                                className={clsx(iconStyles, 'transition-all duration-500 ease-out')}
+                            />
                         </button>
-                        <h2 className="pr-10 text-xl leading-tight font-semibold text-gray-900 lg:pr-0">
+                        <h2 className="pr-10 text-xl leading-tight font-semibold text-slate-700 lg:pr-0">
                             {course.title}
                         </h2>
-                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-600">
-                            <span className="rounded bg-gray-100 px-2 py-0.5 text-gray-700">
+                        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-600">
+                            <span className="font-space rounded bg-gray-100 px-2 py-0.5 text-slate-700">
                                 {course.department.code} {course.code}
                             </span>
-                            <span className="hidden text-gray-300 sm:inline">•</span>
-                            <span>{handleInstructors}</span>
-                            <span className="hidden text-gray-300 sm:inline">•</span>
+                            <span className="hidden text-slate-300 sm:inline">•</span>
+                            <span>{instructorLabel}</span>
+                            <span className="hidden text-slate-300 sm:inline">•</span>
                             <span>{course.department.title}</span>
                         </div>
                         <p
@@ -125,7 +133,7 @@ function Course({
                                 setIsDescriptionExpanded(!isDescriptionExpanded)
                             }
                             className={clsx(
-                                'mt-3 text-sm leading-relaxed text-gray-600 select-none',
+                                'mt-3 text-sm leading-relaxed text-slate-600 select-none',
                                 isDescriptionExpanded ? 'line-clamp-none' : 'line-clamp-2',
                                 isOverflowing || isDescriptionExpanded
                                     ? 'cursor-pointer'
