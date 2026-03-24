@@ -1,10 +1,10 @@
 import clsx from 'clsx';
+import BlockPopover from './BlockPopover';
 import CalendarBlock from './CalendarBlock';
-import { useMemo, useState, useRef, useEffect } from 'react';
-import { getInstructorNames } from '../../utils/formatInstructorNames';
-import { CALENDAR_CONFIG, COURSE_COLORS, type CourseColor } from '../../constants';
-import { formatTime, formatTimeToMinutes, formatHour } from '../../utils/formatTime';
-import type { ApiSectionWithRelations, Block } from '../../types';
+import { CALENDAR_CONFIG } from '../../constants';
+import { formatHour } from '../../utils/formatTime';
+import { useWeeklyCalendar } from './useWeeklyCalendar';
+import type { ApiSectionWithRelations } from '../../types';
 
 interface WeeklyCalendarProps {
     showWeekend: boolean;
@@ -17,90 +17,12 @@ function WeeklyCalendar({
     selectedSections,
     sectionsByCourseId,
 }: WeeklyCalendarProps) {
-    const { START_TIME, END_TIME, TOTAL_MINS, ALL_DAYS, WEEK_DAYS } = CALENDAR_CONFIG;
-    const days = showWeekend ? ALL_DAYS : WEEK_DAYS;
-
-    // Track grid dimensions so CalendarBlock can determine how many text lines fit
-    const gridRef = useRef<HTMLDivElement>(null);
-    const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
-
-    // Single ResizeObserver on the grid container
-    useEffect(() => {
-        const element = gridRef.current;
-        if (!element) return;
-        const observer = new ResizeObserver(([entry]) => {
-            setGridSize({
-                width: entry.contentRect.width,
-                height: entry.contentRect.height,
-            });
-        });
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, []);
-
-    // Columns wider than 200px show course code + time on one line
-    const isWide = days.length > 0 && gridSize.width / days.length >= 200;
-
-    // Builds calendar blocks, assigns course colors, and detects conflicts
-    const { activeBlocks, courseColorMap } = useMemo(() => {
-        const grouped: Record<string, Block[]> = {};
-        days.forEach((d) => (grouped[d] = []));
-        const allBlocks: Block[] = [];
-
-        // 1. Iterate through the Set of Section IDs
-        selectedSections.forEach((sectionId) => {
-            // 2. Find the section object by searching through the Map values
-            let section: ApiSectionWithRelations | undefined;
-            for (const courseSections of sectionsByCourseId.values()) {
-                section = courseSections.find((s) => s.id === sectionId);
-                if (section) break;
-            }
-
-            if (!section) return;
-
-            // 3. Convert each meeting into a renderable block with time in minutes
-            section.meetings.forEach((meeting) => {
-                const timeRange = formatTime(meeting);
-                const minutes = formatTimeToMinutes(timeRange);
-                if (!minutes) return;
-
-                allBlocks.push({
-                    day: meeting.day,
-                    startMins: minutes.startMins,
-                    endMins: minutes.endMins,
-                    timeRange,
-                    location: meeting.location,
-                    sectionNumber: section!.sectionNumber,
-                    instructors: getInstructorNames(section!.instructors),
-                    courseCode: `${section!.course.department.code} ${section!.course.code}`,
-                    hasConflict: false,
-                });
-            });
-        });
-
-        // 4. Flag blocks that overlap on the same day, then group by day
-        allBlocks.forEach((block1, i) => {
-            const hasConflict = allBlocks.some(
-                (block2, j) =>
-                    i !== j &&
-                    block1.day === block2.day &&
-                    block1.startMins < block2.endMins &&
-                    block1.endMins > block2.startMins,
-            );
-            if (grouped[block1.day]) {
-                grouped[block1.day].push({ ...block1, hasConflict });
-            }
-        });
-
-        // 5. Assign a color to each course
-        const colorMap = new Map<string, CourseColor>();
-        const codes = [...new Set(allBlocks.map((b) => b.courseCode))].sort();
-        codes.forEach((code, i) => {
-            colorMap.set(code, COURSE_COLORS[i % COURSE_COLORS.length]);
-        });
-
-        return { activeBlocks: grouped, courseColorMap: colorMap };
-    }, [selectedSections, sectionsByCourseId, days]);
+    const { START_TIME, END_TIME, TOTAL_MINS } = CALENDAR_CONFIG;
+    const { state, data, refs, actions } = useWeeklyCalendar({
+        showWeekend,
+        selectedSections,
+        sectionsByCourseId,
+    });
 
     return (
         <div className="flex h-full w-full flex-col bg-white select-none">
@@ -110,7 +32,7 @@ function WeeklyCalendar({
                     showWeekend ? 'grid-cols-7' : 'grid-cols-5',
                 )}
             >
-                {days.map((day) => (
+                {data.days.map((day) => (
                     <div
                         key={day}
                         className="border-r border-gray-100 bg-gray-50/50 py-4 text-center last:border-r-0"
@@ -123,10 +45,14 @@ function WeeklyCalendar({
             </div>
             <div className="flex-1">
                 <div
-                    ref={gridRef}
-                    className={clsx('grid h-full', showWeekend ? 'grid-cols-7' : 'grid-cols-5')}
+                    ref={refs.gridRef}
+                    onClick={actions.handlePopoverClose}
+                    className={clsx(
+                        'relative grid h-full',
+                        showWeekend ? 'grid-cols-7' : 'grid-cols-5',
+                    )}
                 >
-                    {days.map((day, dayIndex) => (
+                    {data.days.map((day, dayIndex) => (
                         <div
                             key={day}
                             className={clsx(
@@ -147,20 +73,31 @@ function WeeklyCalendar({
                                     </span>
                                 </div>
                             ))}
-                            {activeBlocks[day]?.map((block) => (
+                            {data.activeBlocks[day].map((block) => (
                                 <CalendarBlock
                                     key={`${block.courseCode}-${block.sectionNumber}-${block.startMins}`}
                                     top={((block.startMins - START_TIME * 60) / TOTAL_MINS) * 100}
                                     block={block}
-                                    color={courseColorMap.get(block.courseCode)!}
+                                    color={data.courseColorMap.get(block.courseCode)!}
                                     height={((block.endMins - block.startMins) / TOTAL_MINS) * 100}
-                                    isWide={isWide}
+                                    isWide={state.isWide}
                                     totalMins={TOTAL_MINS}
-                                    gridHeight={gridSize.height}
+                                    gridHeight={refs.gridRef.current?.clientHeight ?? 0}
+                                    onClick={actions.handleBlockClick}
                                 />
                             ))}
                         </div>
                     ))}
+                    {state.popover &&
+                        data.popoverPosition &&
+                        data.courseColorMap.has(state.popover.courseCode) && (
+                            <BlockPopover
+                                block={state.popover}
+                                color={data.courseColorMap.get(state.popover.courseCode)!}
+                                position={data.popoverPosition}
+                                onClose={actions.handlePopoverClose}
+                            />
+                        )}
                 </div>
             </div>
         </div>

@@ -149,55 +149,54 @@ export const REGEX = {
  */
 export const COURSE_COLORS = [
     {
-        bg: 'bg-sky-50',
-        hoverBg: 'hover:bg-sky-100',
-        border: 'border-sky-300',
-        text: 'text-sky-700',
+        bg: 'bg-blue-50',
+        hoverBg: 'hover:bg-blue-100',
+        border: 'border-blue-500/30',
+        text: 'text-blue-700',
     },
     {
-        bg: 'bg-amber-50',
-        hoverBg: 'hover:bg-amber-100',
-        border: 'border-amber-400',
-        text: 'text-amber-700',
-    },
-    {
-        bg: 'bg-rose-50',
-        hoverBg: 'hover:bg-rose-100',
-        border: 'border-rose-300',
-        text: 'text-rose-700',
+        bg: 'bg-purple-50',
+        hoverBg: 'hover:bg-purple-100',
+        border: 'border-purple-500/30',
+        text: 'text-purple-700',
     },
     {
         bg: 'bg-emerald-50',
         hoverBg: 'hover:bg-emerald-100',
-        border: 'border-emerald-400',
+        border: 'border-emerald-500/30',
         text: 'text-emerald-700',
     },
     {
-        bg: 'bg-violet-50',
-        hoverBg: 'hover:bg-violet-100',
-        border: 'border-violet-300',
-        text: 'text-violet-700',
+        bg: 'bg-rose-50',
+        hoverBg: 'hover:bg-rose-100',
+        border: 'border-rose-500/30',
+        text: 'text-rose-700',
+    },
+    {
+        bg: 'bg-amber-50',
+        hoverBg: 'hover:bg-amber-100',
+        border: 'border-amber-500/30',
+        text: 'text-amber-700',
+    },
+    {
+        bg: 'bg-cyan-50',
+        hoverBg: 'hover:bg-cyan-100',
+        border: 'border-cyan-500/30',
+        text: 'text-cyan-700',
     },
     {
         bg: 'bg-indigo-50',
         hoverBg: 'hover:bg-indigo-100',
-        border: 'border-indigo-300',
+        border: 'border-indigo-500/30',
         text: 'text-indigo-700',
     },
     {
-        bg: 'bg-lime-50',
-        hoverBg: 'hover:bg-lime-100',
-        border: 'border-lime-400',
-        text: 'text-lime-700',
-    },
-    {
-        bg: 'bg-fuchsia-50',
-        hoverBg: 'hover:bg-fuchsia-100',
-        border: 'border-fuchsia-300',
-        text: 'text-fuchsia-700',
+        bg: 'bg-pink-50',
+        hoverBg: 'hover:bg-pink-100',
+        border: 'border-pink-500/30',
+        text: 'text-pink-700',
     },
 ] as const;
-
 export type CourseColor = (typeof COURSE_COLORS)[number];
 
 /**

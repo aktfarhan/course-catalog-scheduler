@@ -29,16 +29,18 @@ export interface TimeRange {
     end: number;
 }
 
-// Represents a single visual "tile" or entry on the calendar grid
+// Represents a single visual block on the calendar grid
 export interface Block {
-    day: string;
+    day: Day;
     endMins: number;
     location: string;
     timeRange: string;
     startMins: number;
     courseCode: string;
+    columnIndex: number;
     instructors: string;
     hasConflict: boolean;
+    totalColumns: number;
     sectionNumber: string;
 }
 
