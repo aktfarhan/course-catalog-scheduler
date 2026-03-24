@@ -55,6 +55,11 @@ export function useAppController() {
         scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }, [currentPage, searchQuery]);
 
+    // Update browser tab title when switching between Catalog and Calendar
+    useEffect(() => {
+        document.title = `UMBWizard – ${activeTab === 'catalog' ? 'Catalog' : 'Calendar'}`;
+    }, [activeTab]);
+
     // ----- Action Handlers -----
 
     /**
