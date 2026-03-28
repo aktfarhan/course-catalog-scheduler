@@ -1,28 +1,40 @@
 import clsx from 'clsx';
+import GhostBlock from './GhostBlock';
 import BlockPopover from './BlockPopover';
 import CalendarBlock from './CalendarBlock';
-import { CALENDAR_CONFIG } from '../../constants';
 import { formatHour } from '../../utils/formatTime';
 import { useWeeklyCalendar } from './useWeeklyCalendar';
 import type { ApiSectionWithRelations } from '../../types';
+import { CALENDAR_CONFIG, type AcademicTerm } from '../../constants';
 
 interface WeeklyCalendarProps {
     showWeekend: boolean;
+    selectedTerm: AcademicTerm;
     selectedSections: Set<number>;
     sectionsByCourseId: Map<number, ApiSectionWithRelations[]>;
+    onSectionSwap: (courseId: number, sectionId: number) => void;
 }
 
 function WeeklyCalendar({
     showWeekend,
+    selectedTerm,
     selectedSections,
     sectionsByCourseId,
+    onSectionSwap,
 }: WeeklyCalendarProps) {
     const { START_TIME, END_TIME, TOTAL_MINS } = CALENDAR_CONFIG;
     const { state, data, refs, actions } = useWeeklyCalendar({
         showWeekend,
+        selectedTerm,
         selectedSections,
         sectionsByCourseId,
+        onSectionSwap,
     });
+
+    // Get the dragged block's course color for the clone and ghost blocks
+    const courseColor = state.dragState
+        ? data.courseColorMap.get(state.dragState.block.courseCode)!
+        : null;
 
     return (
         <div className="flex h-full w-full flex-col bg-white select-none">
@@ -46,11 +58,15 @@ function WeeklyCalendar({
             <div className="flex-1">
                 <div
                     ref={refs.gridRef}
-                    onClick={actions.handlePopoverClose}
                     className={clsx(
                         'relative grid h-full',
                         showWeekend ? 'grid-cols-7' : 'grid-cols-5',
+                        state.dragState && 'cursor-grabbing touch-none',
                     )}
+                    onClick={actions.handlePopoverClose}
+                    onPointerMove={actions.handleDragMove}
+                    onPointerUp={actions.handleDragEnd}
+                    onContextMenu={actions.handleContextMenu}
                 >
                     {data.days.map((day, dayIndex) => (
                         <div
@@ -73,19 +89,52 @@ function WeeklyCalendar({
                                     </span>
                                 </div>
                             ))}
-                            {data.activeBlocks[day].map((block) => (
-                                <CalendarBlock
-                                    key={`${block.courseCode}-${block.sectionNumber}-${block.startMins}`}
-                                    top={((block.startMins - START_TIME * 60) / TOTAL_MINS) * 100}
-                                    block={block}
-                                    color={data.courseColorMap.get(block.courseCode)!}
-                                    height={((block.endMins - block.startMins) / TOTAL_MINS) * 100}
-                                    isWide={state.isWide}
-                                    totalMins={TOTAL_MINS}
-                                    gridHeight={refs.gridRef.current?.clientHeight ?? 0}
-                                    onClick={actions.handleBlockClick}
-                                />
-                            ))}
+                            <div
+                                className={clsx(
+                                    'absolute inset-0 transition-opacity duration-150',
+                                    state.dragState && 'pointer-events-none opacity-40',
+                                )}
+                            >
+                                {data.activeBlocks[day].map((block) => {
+                                    const top =
+                                        ((block.startMins - START_TIME * 60) / TOTAL_MINS) * 100;
+                                    const height =
+                                        ((block.endMins - block.startMins) / TOTAL_MINS) * 100;
+                                    return (
+                                        <CalendarBlock
+                                            key={`${block.sectionId}-${block.startMins}`}
+                                            top={top}
+                                            block={block}
+                                            color={data.courseColorMap.get(block.courseCode)!}
+                                            height={height}
+                                            isWide={state.isWide}
+                                            totalMins={TOTAL_MINS}
+                                            gridHeight={refs.gridRef.current?.clientHeight ?? 0}
+                                            onClick={actions.handleBlockClick}
+                                            onPointerDown={actions.handleDragStart}
+                                        />
+                                    );
+                                })}
+                            </div>
+                            {state.dragState &&
+                                data.ghostData?.[day].map((ghost) => {
+                                    const top =
+                                        ((ghost.startMins - START_TIME * 60) / TOTAL_MINS) * 100;
+                                    const height =
+                                        ((ghost.endMins - ghost.startMins) / TOTAL_MINS) * 100;
+                                    return (
+                                        <GhostBlock
+                                            key={`ghost-${ghost.sectionId}-${ghost.startMins}`}
+                                            top={top}
+                                            color={courseColor!}
+                                            height={height}
+                                            timeRange={ghost.timeRange}
+                                            isHovered={state.hoveredGhostId === ghost.sectionId}
+                                            hasConflict={ghost.hasConflict}
+                                            sectionNumber={ghost.sectionNumber}
+                                        />
+                                    );
+                                })}
                         </div>
                     ))}
                     {state.popover &&
@@ -100,6 +149,27 @@ function WeeklyCalendar({
                         )}
                 </div>
             </div>
+            {state.dragState && courseColor && (
+                <div
+                    ref={refs.cloneRef}
+                    className={clsx(
+                        'pointer-events-none fixed z-50 scale-105 overflow-hidden rounded-xl border-2 border-l-6 p-2.5 shadow-2xl',
+                        courseColor.border,
+                        courseColor.bg,
+                    )}
+                    style={{
+                        width: state.dragState.width,
+                        height: state.dragState.height,
+                    }}
+                >
+                    <p className={clsx('truncate text-[11px] font-bold', courseColor.text)}>
+                        {state.dragState.block.courseCode}
+                    </p>
+                    <p className="truncate text-[10px] font-medium text-gray-600">
+                        {state.dragState.block.sectionNumber} · {state.dragState.block.timeRange}
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

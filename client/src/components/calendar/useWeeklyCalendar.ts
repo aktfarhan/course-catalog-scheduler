@@ -1,19 +1,30 @@
+import { useDragToSwap } from './useDragToSwap';
+import { resolveBlockConflicts } from './resolveBlockConflicts';
+import { formatTime, meetingToMinutes } from '../../utils/formatTime';
 import { getInstructorNames } from '../../utils/formatInstructorNames';
-import { formatTime, formatTimeToMinutes } from '../../utils/formatTime';
-import { CALENDAR_CONFIG, COURSE_COLORS, type CourseColor } from '../../constants';
-import { useMemo, useState, useRef, useEffect, useCallback, type MouseEvent } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import type { ApiSectionWithRelations, Block } from '../../types';
+import {
+    CALENDAR_CONFIG,
+    COURSE_COLORS,
+    type CourseColor,
+    type AcademicTerm,
+} from '../../constants';
 
 interface UseWeeklyCalendarParams {
     showWeekend: boolean;
+    selectedTerm: AcademicTerm;
     selectedSections: Set<number>;
     sectionsByCourseId: Map<number, ApiSectionWithRelations[]>;
+    onSectionSwap: (courseId: number, sectionId: number) => void;
 }
 
 export function useWeeklyCalendar({
     showWeekend,
+    selectedTerm,
     selectedSections,
     sectionsByCourseId,
+    onSectionSwap,
 }: UseWeeklyCalendarParams) {
     const { START_TIME, TOTAL_MINS, ALL_DAYS, WEEK_DAYS } = CALENDAR_CONFIG;
 
@@ -23,52 +34,16 @@ export function useWeeklyCalendar({
     const [popover, setPopover] = useState<Block | null>(null);
 
     // Columns wider than 200px show course code + time on one line
-    const isWide = days.length > 0 && gridWidth / days.length >= 200;
+    const isWide = gridWidth / days.length >= 200;
 
     // ----- Refs -----
+
+    // Calendar grid ref used for pointer capture and layout measurements
     const gridRef = useRef<HTMLDivElement>(null);
 
-    // ----- Effects -----
+    // ----- Data State -----
 
-    // Track grid width so isWide can toggle content tiers
-    useEffect(() => {
-        const element = gridRef.current;
-        if (!element) return;
-        const observer = new ResizeObserver(([entry]) => {
-            setGridWidth(entry.contentRect.width);
-        });
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, []);
-
-    // Close popover when sections change or weekend toggle flips
-    useEffect(() => {
-        setPopover(null);
-    }, [selectedSections, showWeekend]);
-
-    // ----- Action Handlers -----
-
-    // Blocks lack a unique ID so compare course, section, day, and time to match
-    const handleBlockClick = useCallback((e: MouseEvent, block: Block) => {
-        e.stopPropagation();
-        // Toggle off if clicking the same block, otherwise switch
-        setPopover((prev) =>
-            prev &&
-            prev.courseCode === block.courseCode &&
-            prev.sectionNumber === block.sectionNumber &&
-            prev.day === block.day &&
-            prev.startMins === block.startMins
-                ? null
-                : block,
-        );
-    }, []);
-
-    // Dismiss the popover when clicking the grid background or the X button
-    const handlePopoverClose = useCallback(() => setPopover(null), []);
-
-    // ----- Data -----
-
-    // Builds calendar blocks, assigns course colors, and detects conflicts.
+    // Builds calendar blocks, assigns course colors, and detects conflicts
     const { activeBlocks, courseColorMap } = useMemo(() => {
         const grouped: Record<string, Block[]> = {};
         const courseCodes = new Set<string>();
@@ -77,7 +52,7 @@ export function useWeeklyCalendar({
         days.forEach((day) => (grouped[day] = []));
 
         // 1. Build blocks from selected sections, grouped by day
-        for (const sections of sectionsByCourseId.values()) {
+        for (const [courseId, sections] of sectionsByCourseId.entries()) {
             for (const section of sections) {
                 if (!selectedSections.has(section.id)) continue;
 
@@ -87,89 +62,31 @@ export function useWeeklyCalendar({
 
                 // Convert each meeting into a renderable block with time in minutes
                 for (const meeting of section.meetings) {
-                    const timeRange = formatTime(meeting);
-                    const minutes = formatTimeToMinutes(timeRange);
-                    if (!minutes) continue;
+                    if (!grouped[meeting.day]) continue;
+                    const { startMins, endMins } = meetingToMinutes(meeting);
 
-                    // Only push to days that exist in the current view
-                    if (grouped[meeting.day]) {
-                        grouped[meeting.day].push({
-                            day: meeting.day,
-                            endMins: minutes.endMins,
-                            location: meeting.location,
-                            timeRange,
-                            startMins: minutes.startMins,
-                            courseCode,
-                            columnIndex: 0,
-                            instructors,
-                            hasConflict: false,
-                            totalColumns: 1,
-                            sectionNumber: section.sectionNumber,
-                        });
-                    }
+                    // Add block with layout defaults that the sweep-line overwrites
+                    grouped[meeting.day].push({
+                        courseId,
+                        courseCode,
+                        sectionId: section.id,
+                        sectionNumber: section.sectionNumber,
+                        day: meeting.day,
+                        startMins,
+                        endMins,
+                        timeRange: formatTime(meeting),
+                        instructors,
+                        location: meeting.location,
+                        columnIndex: 0,
+                        totalColumns: 1,
+                        hasConflict: false,
+                    });
                 }
             }
         }
 
-        // 2. Sweep-line conflict detection + greedy column assignment per day
-        for (const day of days) {
-            const dayBlocks = grouped[day];
-
-            // Skip days with 0 or 1 block, no conflicts possible
-            if (dayBlocks.length < 2) continue;
-
-            // Sort by start time so the sweep reads left-to-right
-            dayBlocks.sort((a, b) => a.startMins - b.startMins || a.endMins - b.endMins);
-
-            // Track the current collision group's start index and furthest end time
-            let groupStart = 0;
-            let maxEnd = dayBlocks[0].endMins;
-
-            for (let i = 1; i <= dayBlocks.length; i++) {
-                if (i < dayBlocks.length && dayBlocks[i].startMins < maxEnd) {
-                    // Push the group boundary forward to the latest end time seen
-                    maxEnd = Math.max(maxEnd, dayBlocks[i].endMins);
-                    continue;
-                }
-
-                // Conflict group [groupStart, i), assign side-by-side columns
-                if (i - groupStart > 1) {
-                    const columns: Block[][] = [];
-
-                    // Greedy: place each block in the first column with no overlap
-                    for (let j = groupStart; j < i; j++) {
-                        const block = dayBlocks[j];
-
-                        // Find a column where the last block ends before this one starts
-                        const col = columns.findIndex(
-                            (c) => c[c.length - 1].endMins <= block.startMins,
-                        );
-
-                        if (col !== -1) {
-                            // Fit into existing column
-                            columns[col].push(block);
-                            block.columnIndex = col;
-                        } else {
-                            // Open a new column
-                            block.columnIndex = columns.length;
-                            columns.push([block]);
-                        }
-
-                        // Mark every block in a multi-block group as conflicting
-                        block.hasConflict = true;
-                    }
-
-                    // All blocks in the group share the same total column count
-                    for (let j = groupStart; j < i; j++) {
-                        dayBlocks[j].totalColumns = columns.length;
-                    }
-                }
-
-                // Reset for the next group
-                groupStart = i;
-                if (i < dayBlocks.length) maxEnd = dayBlocks[i].endMins;
-            }
-        }
+        // 2. Detect conflicts and assign side-by-side columns
+        resolveBlockConflicts(grouped, days);
 
         // 3. Assign a color to each course
         const colorMap = new Map<string, CourseColor>();
@@ -180,37 +97,96 @@ export function useWeeklyCalendar({
         return { activeBlocks: grouped, courseColorMap: colorMap };
     }, [selectedSections, sectionsByCourseId, days]);
 
-    // Compute popover position as CSS percentages so the browser repositions
+    // ----- Action Handlers -----
+
+    // Dismiss the popover when clicking the grid background or the X button
+    const handlePopoverClose = useCallback(() => setPopover(null), []);
+
+    // Toggle popover — close if clicking the same block, open/switch if clicking a different one
+    const handleBlockClick = useCallback((e: React.MouseEvent, block: Block) => {
+        e.stopPropagation();
+        // Match by sectionId + day + startMins
+        setPopover((prev) =>
+            prev &&
+            prev.sectionId === block.sectionId &&
+            prev.day === block.day &&
+            prev.startMins === block.startMins
+                ? null
+                : block,
+        );
+    }, []);
+
+    // DragToSwap hook for swapping between alternative sections
+    const dragToSwap = useDragToSwap({
+        days,
+        gridRef,
+        selectedTerm,
+        activeBlocks,
+        sectionsByCourseId,
+        onSectionSwap,
+        onDragActivate: handlePopoverClose,
+    });
+
+    // Compute popover position as CSS percentages so the browser repositions on resize
     const popoverPosition = useMemo(() => {
         if (!popover) return null;
 
+        // Find which column the popover's block is in
         const dayIndex = days.indexOf(popover.day);
         if (dayIndex === -1) return null;
 
-        const colPercent = 100 / days.length;
+        // Width of each day column as a percentage
+        const columnPercent = 100 / days.length;
+
+        // Pixel gap between popover and block edge
         const gap = 8;
 
         // Show right for the first half of days, left for the second half
         const showRight = dayIndex < days.length / 2;
 
+        // Vertical position clamped so the popover doesn't overflow the grid bottom
         const blockTopPercent = ((popover.startMins - START_TIME * 60) / TOTAL_MINS) * 100;
 
         return showRight
             ? {
                   top: `clamp(0px, ${blockTopPercent}%, calc(100% - 220px))`,
-                  left: `calc(${(dayIndex + 1) * colPercent}% + ${gap}px)`,
+                  left: `calc(${(dayIndex + 1) * columnPercent}% + ${gap}px)`,
               }
             : {
                   top: `clamp(0px, ${blockTopPercent}%, calc(100% - 220px))`,
-                  right: `calc(${(days.length - dayIndex) * colPercent}% + ${gap}px)`,
+                  right: `calc(${(days.length - dayIndex) * columnPercent}% + ${gap}px)`,
               };
     }, [popover, days, START_TIME, TOTAL_MINS]);
 
+    // ----- Effects -----
+
+    // Track grid width for responsive block layout
+    useEffect(() => {
+        const element = gridRef.current;
+        if (!element) return;
+
+        // Update gridWidth on resize
+        const observer = new ResizeObserver(([entry]) => {
+            setGridWidth(entry.contentRect.width);
+        });
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, []);
+
+    // Close popover when sections or weekend toggle change
+    useEffect(() => {
+        setPopover(null);
+    }, [selectedSections, showWeekend]);
+
     // ----- Export state, data, refs, and actions -----
     return {
-        state: { popover, isWide },
-        data: { days, activeBlocks, courseColorMap, popoverPosition },
-        refs: { gridRef },
-        actions: { handleBlockClick, handlePopoverClose },
+        state: { popover, isWide, ...dragToSwap.state },
+        data: { days, activeBlocks, courseColorMap, popoverPosition, ...dragToSwap.data },
+        refs: { gridRef, ...dragToSwap.refs },
+        actions: {
+            handleBlockClick,
+            handlePopoverClose,
+            ...dragToSwap.actions,
+        },
     };
 }

@@ -13,6 +13,7 @@ interface CalendarBlockProps {
     totalMins: number;
     gridHeight: number;
     onClick: (e: React.MouseEvent<HTMLDivElement>, block: Block) => void;
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>, block: Block) => void;
 }
 
 function CalendarBlock({
@@ -24,6 +25,7 @@ function CalendarBlock({
     totalMins,
     gridHeight,
     onClick,
+    onPointerDown,
 }: CalendarBlockProps) {
     // Convert block duration to pixel height, and count how many text lines fit
     const durationMins = block.endMins - block.startMins;
@@ -54,12 +56,13 @@ function CalendarBlock({
                 width: `calc(${colWidth}% - 8px)`,
             }}
             className={clsx(
-                'absolute cursor-pointer overflow-hidden rounded-xl border-2 border-l-6 p-2.5 transition-all',
+                'absolute cursor-pointer touch-none overflow-hidden rounded-xl border-2 border-l-6 p-2.5 transition-all',
                 block.hasConflict
                     ? `border-red-400 ${color.bg} ${color.hoverBg} shadow-lg ring-1 shadow-red-200/80 ring-red-300/30`
                     : `${color.border} ${color.bg} ${color.hoverBg} shadow-md`,
             )}
             onClick={(e) => onClick(e, block)}
+            onPointerDown={(e) => onPointerDown(e, block)}
         >
             <div className="flex h-full flex-col justify-between overflow-hidden">
                 <div>

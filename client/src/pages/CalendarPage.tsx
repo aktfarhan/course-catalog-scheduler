@@ -14,9 +14,11 @@ function CalendarPage({ data, state, actions }: CalendarPageProps) {
     return (
         <div className="relative flex-1 overflow-hidden bg-white">
             <WeeklyCalendar
+                showWeekend={state.showWeekend}
+                selectedTerm={state.calendarSidebar.selectedTerm}
                 selectedSections={state.selectedSections}
                 sectionsByCourseId={data.sectionsByCourseId}
-                showWeekend={state.showWeekend}
+                onSectionSwap={actions.handleSectionSelect}
             />
             <button
                 type="button"

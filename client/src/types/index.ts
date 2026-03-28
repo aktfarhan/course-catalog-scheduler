@@ -29,19 +29,53 @@ export interface TimeRange {
     end: number;
 }
 
-// Represents a single visual block on the calendar grid
+// Represents a single block on the calendar grid
 export interface Block {
-    day: Day;
-    endMins: number;
-    location: string;
-    timeRange: string;
-    startMins: number;
+    courseId: number;
     courseCode: string;
-    columnIndex: number;
-    instructors: string;
-    hasConflict: boolean;
-    totalColumns: number;
+    sectionId: number;
     sectionNumber: string;
+    day: Day;
+    startMins: number;
+    endMins: number;
+    timeRange: string;
+    instructors: string;
+    location: string;
+    columnIndex: number;
+    totalColumns: number;
+    hasConflict: boolean;
+}
+
+// Stores pointer-down info before drag threshold is met
+export interface PendingDrag {
+    block: Block;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    blockElement: HTMLElement;
+}
+
+// Tracks the actively dragged calendar block during drag-to-swap
+export interface DragState {
+    block: Block;
+    pointerId: number;
+    width: number;
+    height: number;
+    initialLeft: number;
+    initialTop: number;
+    offsetX: number;
+    offsetY: number;
+}
+
+// Represents an alternative section drop target during drag-to-swap
+export interface GhostBlockData {
+    sectionId: number;
+    sectionNumber: string;
+    day: Day;
+    startMins: number;
+    endMins: number;
+    timeRange: string;
+    hasConflict: boolean;
 }
 
 /**
@@ -91,7 +125,3 @@ export interface LookupData {
     departmentTitleToCode: Map<string, string>;
 }
 
-/**
- * Specialized types for tracking user interactions with specific courses.
- */
-export type CourseSelection = number | number[];

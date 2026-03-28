@@ -1,5 +1,17 @@
 import type { ApiMeeting } from '../types';
 
+// Parse 24h DB time directly to minutes from midnight
+export function meetingToMinutes(meeting: ApiMeeting) {
+    const start = meeting.startTime.split('T')[1].split('.')[0];
+    const end = meeting.endTime.split('T')[1].split('.')[0];
+    const [startHours, startMinutes] = start.split(':');
+    const [endHours, endMinutes] = end.split(':');
+    return {
+        startMins: parseInt(startHours, 10) * 60 + parseInt(startMinutes, 10),
+        endMins: parseInt(endHours, 10) * 60 + parseInt(endMinutes, 10),
+    };
+}
+
 export function formatTime(meeting: ApiMeeting) {
     if (!meeting) return 'TBA';
 
